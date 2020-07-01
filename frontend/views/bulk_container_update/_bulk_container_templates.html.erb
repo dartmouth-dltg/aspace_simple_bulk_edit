@@ -1,0 +1,50 @@
+<div id="template_bulk_container_update_toolbar_action"><!--
+    <div class="btn-group" id="dartmouth_bulk_container_update">
+      <button class="btn btn-default btn-xs show-dartmouth_bulk_container_update-btn">
+        <span class="glyphicon glyphicon-refresh"></span>
+        Update Instances
+        <span class="badge dartmouth_bulk_container_update-count"></span>
+      </button>
+      <div class=btn-group>
+        <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+          <span class="caret"></span>
+        </button>
+        <div id="dartmouth_bulk_container_updateSummaryDropdownPanel" class="dropdown-menu pull-right">
+          <%= link_to I18n.t("dartmouth_bulk_container_update.checkout"), {:controller => :instance_bulk_update, :action => :update}, {:class => "btn btn-primary btn-xs"} %>
+          <hr>
+          <%= link_to I18n.t("dartmouth_bulk_container_update.clear_selection_button"), "javascript:void(0)", {:class => "btn btn-xs btn-warning clear-dartmouth_bulk_container_update-btn"} %>
+        </div>
+      </div>
+    </div>
+--></div>
+
+<div id="template_bulk_container_update_dialog_title"><!--
+  <%= I18n.t("instance_bulk_container.title") %>
+--></div>
+
+<div id="template_bulk_container_update_dialog_contents"><!--
+  {if ($.isEmptyObject(selected))}
+    <div class="alert alert-info"><%= I18n.t("instance_bulk_container.is_empty") %></div>
+  {else}
+    <div id="bulkUpdatePane" data-load-url="<%= url_for :controller => :instance_bulk_update, :action => :summary %>">
+      <div class="alert alert-info">
+        <%= I18n.t("instance_bulk_container.loading") %>
+      </div>
+    </div>
+  {/if}
+--></div>
+
+<div id="template_bulk_container_update_dialog_footer"><!--
+<div class="modal-footer">
+  <%= link_to I18n.t("instance_bulk_container.update"), {:controller => :instance_bulk_update, :action => :update}, {:class => "btn btn-primary pull-left"} %>
+  <button class="btn btn-default pull-right" data-dismiss="modal"><%= I18n.t("actions.close") %></button>
+  <button class="btn btn-warning pull-right clear-bulk-updates-btn" data-dismiss="modal"><%= I18n.t("instance_bulk_container.clear_selection_button")  %></button>
+</div>
+--></div>
+
+<% if current_user && current_repo %>
+<script>
+  var CURRENT_REPO_URI = '<%= current_repo.uri %>'
+  var CURRENT_USER_HASH = '<%= Digest::MD5.hexdigest(current_user) %>';
+</script>
+<% end %>
