@@ -1,0 +1,14 @@
+en:
+  dartmouth_bulk_container_updates:
+    clear_selection_button: Clear all items
+    is_empty: There are no archival obejcts selected.
+    loading: Loading the archival objects to update...
+    title: Change Container Instances for Files & Items
+    update: Update Intances
+    
+    summary:
+      box_number: Box Number
+      child_number: File Number
+      title: Title
+      uri: URI
+    

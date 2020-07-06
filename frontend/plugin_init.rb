@@ -46,7 +46,7 @@ Rails.application.config.after_initialize do
 
       # Add our specific templates to shared/templates
       if options[:partial] == "shared/templates"
-        result += render(context, options.merge(:partial => "bulk_container_update/bulk_container_templates"), nil)
+        result += render(context, options.merge(:partial => "dartmouth_bulk_container_update/bulk_container_templates"), nil)
       end
 
       result

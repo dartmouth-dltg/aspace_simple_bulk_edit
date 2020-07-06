@@ -1,0 +1,46 @@
+<% if @dartmouth_bulk_container_update_items.empty? %>
+  <div class="alert alert-info"><%= I18n.t("dartmouth_bulk_container_updates.is_empty") %></div>
+<% else %>
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th><%= I18n.t("dartmouth_bulk_container_updates.summary.uri") %></th>
+        <th><%= I18n.t("dartmouth_bulk_container_updates.summary.title") %></th>
+        <th><%= I18n.t("dartmouth_bulk_container_updates.summary.box_number") %></th>
+        <th><%= I18n.t("dartmouth_bulk_container_updates.summary.child_number") %></th>
+        <th><!-- actions --></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @dartmouth_bulk_container_update_items.each do |ao| %>
+        
+        <%
+        item = ao["archival_object"]["_resolved"]
+        next if !["file","item"].include?(item["level"])
+        inst = item["instances"].find{|instance| instance.has_key?("sub_container")}
+        if inst.nil?
+          box_number = "No # found"
+        else
+          if inst["sub_container"]["top_container"] && inst["sub_container"]["top_container"]["_resolved"] && inst["sub_container"]["top_container"]["_resolved"]["indicator"]
+            box_number = inst["sub_container"]["top_container"]["_resolved"]["indicator"]
+          end
+        end
+        %>
+        <tr>
+          <td class="component-report-summary-uri"><%= item["uri"] %></td>
+          <td class="component-report-summary-title"><%= item["display_string"].html_safe %></td>
+          <td class="component-report-summary-box-container"><%= box_number %></td>
+          <td class="component-report-summary-file-container"><%= inst["sub_container"]["indicator_2"] rescue "" %></td>
+          <td class="component-report-summary-actions">
+            <%= hidden_field_tag "uri[]", ao["selected"]["ref"] %>
+            <div class="btn-group">
+              <button class="btn btn-xs btn-warning remove-from-cart-btn" data-uri="<%= ao["selected"]["ref"] %>">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

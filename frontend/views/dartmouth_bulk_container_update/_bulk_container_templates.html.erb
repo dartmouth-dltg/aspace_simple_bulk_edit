@@ -1,0 +1,42 @@
+<div id="template_bulk_container_update_toolbar_action"><!--
+      <button id="dartmouth_bulk_container_update" title="<%= I18n.t("dartmouth_bulk_container_updates.title") %>" class="btn btn-default btn-xs show-dartmouth_bulk_container_update-btn" disabled>
+        <span class="glyphicon glyphicon-refresh"></span>
+         <%= I18n.t("dartmouth_bulk_container_updates.update") %>
+        <span class="badge dartmouth_bulk_container_update-count"></span>
+      </button>
+    </div>
+--></div>
+
+<div id="template_bulk_container_update_dialog_title"><!--
+  <%= I18n.t("dartmouth_bulk_container_updates.title") %>
+--></div>
+
+<div id="template_bulk_container_update_dialog_contents"><!--
+  {if ($.isEmptyObject(selected))}
+    <div class="alert alert-info"><%= I18n.t("dartmouth_bulk_container_updates.is_empty") %></div>
+  {else}
+    <div id="bulkUpdateContainerTypeahead">
+    
+    </div>
+    <div id="bulkUpdatePane" data-load-url="<%= url_for :controller => :dartmouth_bulk_container_updates, :action => :summary %>">
+      <div class="alert alert-info">
+        <%= I18n.t("dartmouth_bulk_container_updates.loading") %>
+      </div>
+    </div>
+  {/if}
+--></div>
+
+<div id="template_bulk_container_update_dialog_footer"><!--
+<div class="modal-footer">
+  <%= link_to I18n.t("dartmouth_bulk_container_updates.update"), {:controller => :dartmouth_bulk_container_updates, :action => :update}, {:class => "btn btn-primary pull-left"} %>
+  <button class="btn btn-default pull-right" data-dismiss="modal"><%= I18n.t("actions.close") %></button>
+  <button class="btn btn-warning pull-right clear-bulk-updates-btn" data-dismiss="modal"><%= I18n.t("dartmouth_bulk_container_updates.clear_selection_button")  %></button>
+</div>
+--></div>
+
+<% if current_user && current_repo %>
+<script>
+  var CURRENT_REPO_URI = '<%= current_repo.uri %>'
+  var CURRENT_USER_HASH = '<%= Digest::MD5.hexdigest(current_user) %>';
+</script>
+<% end %>
