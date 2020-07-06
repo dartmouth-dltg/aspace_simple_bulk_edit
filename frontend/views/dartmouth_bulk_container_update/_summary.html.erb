@@ -26,7 +26,7 @@
           end
         end
         %>
-        <tr>
+        <tr data-uri="<%= ao["selected"]["ref"] %>">
           <td class="component-report-summary-uri"><%= item["uri"] %></td>
           <td class="component-report-summary-title"><%= item["display_string"].html_safe %></td>
           <td class="component-report-summary-box-container"><%= box_number %></td>
@@ -34,7 +34,7 @@
           <td class="component-report-summary-actions">
             <%= hidden_field_tag "uri[]", ao["selected"]["ref"] %>
             <div class="btn-group">
-              <button class="btn btn-xs btn-warning remove-from-cart-btn" data-uri="<%= ao["selected"]["ref"] %>">
+              <button class="btn btn-xs btn-warning remove-from-bulk-updates-btn" data-uri="<%= ao["selected"]["ref"] %>">
                 <span class="glyphicon glyphicon-remove"></span>
               </button>
             </div>

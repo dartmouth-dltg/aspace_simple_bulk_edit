@@ -6,8 +6,10 @@ class DartmouthBulkContainerUpdatesController < ApplicationController
 
   def update
     
-    ao_uris = ASUtils.as_array(params[:record_uris])
+    ao_uris = ASUtils.as_array(params[:uri])
+    tc_uri = ASUtils.as_array(params[:tc_uri])
     logger.debug("AO_updates: #{ao_uris}")
+    logger.debug("AO_updates: #{tc_uri}")
     
   end
   

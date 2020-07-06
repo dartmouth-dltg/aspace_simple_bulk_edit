@@ -5,7 +5,7 @@ function BulkInstanceUpdate() {
   // only allow these types to be added to the cart
   this.SUPPORTED_JSONMODEL_TYPES = ['archival_object'];
 
-  this.updateSelectionSummary();
+  //this.updateSelectionSummary();
   this.setupTreeActions();
 
 }
@@ -15,7 +15,6 @@ BulkInstanceUpdate.prototype.createBulkUpdateWidget = function() {
 	return $bulkBtn;
 };
 
-
 BulkInstanceUpdate.prototype.loadBulkUpdates = function($container, data, onComplete) {
   var self = this;
   var load_url = $container.data("load-url");
@@ -23,7 +22,7 @@ BulkInstanceUpdate.prototype.loadBulkUpdates = function($container, data, onComp
   if (typeof load_url == "undefined") {
     return;
   }
-  console.log(data);
+
   $.post(load_url, {uri: data}, function(html) {
     $container.html(html);
 
@@ -48,24 +47,29 @@ BulkInstanceUpdate.prototype.UrisToUpdate = function() {
   return uris;
 };
 
+BulkInstanceUpdate.prototype.getResourceUri = function() {
+  return CURRENT_REPO_URI + "/resources/" + $('#tree-container').find('tr.root-row').attr('id').split("_").pop();
+};
+
 
 BulkInstanceUpdate.prototype.setupBulkUpdatesEvents = function() {
   var self = this;
-  console.log('foo');
+  
   self.$bulkUpdates.on("click", function(event) {
     event.preventDefault();
-    var $data = self.UrisToUpdate();
+    var data = self.UrisToUpdate();
     var $modal = AS.openCustomModal("quickModal",
       AS.renderTemplate("template_bulk_container_update_dialog_title"),
       AS.renderTemplate("modal_quick_template", {
         message: AS.renderTemplate("template_bulk_container_update_dialog_contents", {
-          selected: $data
+          selected: data,
+          resource_uri: encodeURIComponent(self.getResourceUri())
         })
       }),
       "full");
 
     if ($modal.has("#bulkUpdatePane")) {
-      self.loadBulkUpdates($("#bulkUpdatePane"),$data);
+      self.loadBulkUpdates($("#bulkUpdatePane"),data);
     }
 
     $modal.find(".modal-footer").replaceWith(AS.renderTemplate("template_bulk_container_update_dialog_footer"));
@@ -127,317 +131,62 @@ BulkInstanceUpdate.prototype.setupTreeActions = function() {
   //});
 //};
 
+BulkInstanceUpdate.prototype.updateBulkUpdates = function(load_url, ao_uris, tc_uri, onComplete) {
+  var self = this;
+
+  if (typeof load_url == "undefined") {
+    return;
+  }
+  console.log(load_url);
+  console.log(ao_uris);
+  console.log(tc_uri);
+  $.post(load_url, {uri: ao_uris, tc_uri: tc_uri}, function(html) {
+
+    if (onComplete) {
+      onComplete();
+    }
+  });
+};
+
 
 BulkInstanceUpdate.prototype.bindSummaryEvents = function($container) {
   var self = this;
 
   $container.
-    on("click", ".clear-bulk-updates-btn", function(event) {
-      self.clearSelection();
-      location.reload();
-    }).
-    on("click", ".remove-from-bullk-updates-btn", function(event) {
+    on("click", ".remove-from-bulk-updates-btn", function(event) {
+      event.preventDefault();
       event.stopPropagation();
 
       var $btn = $(event.target).closest(".btn");
       var $tr = $btn.closest("tr");
-      self.removeFromSelection($btn.data("uri"));
       $tr.remove();
+    }).
+    on("click", ".clear-bulk-updates-btn", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      $(this).find('#bulkUpdatePane').children('tbody tr').remove();
+    }).
+    on("click", ".dartmouth_bulk_container_updates_update", function(event) {
+      event.preventDefault();
+      //event.stopPropagation();
+      console.log($container.find('#dartmouth_update_bulk_containers_form'));
+      $container.find('#dartmouth_update_bulk_containers_form').submit();
+    }).
+    on('submit','#dartmouth_update_bulk_containers_form', function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      var load_uri = $('#dartmouth_update_bulk_containers_form').attr('action');
+      var ao_uris = [];
+      $('input[name="uri[]"]').each(function() {
+        ao_uris.push($(this).val());
+      });
+      tc_uri = $('input[name="archival_record_children[children][0][instances][0][sub_container][top_container][ref]"]').val();
+      self.updateBulkUpdates(load_uri, ao_uris, tc_uri);
     });
 
   // trigger a resize so the modal resizes to fit the container size
   $(window).trigger("resize");
 }
-
-
-BulkInstanceUpdate.prototype.clearSelection = function() {
-    var self = this;
-
-  self.data = AS.setData(self.STORAGE_KEY, function(data) {
-    if (data) {
-      delete data[self.key];
-    }
-
-    return data;
-  });
-
-  self.updateSelectionSummary();
-};
-
-
-BulkInstanceUpdate.prototype.updateSelectionSummary = function() {
-  var self = this;
-
-  if ($.isEmptyObject(self.data)) {
-    self.$bulkUpdates.find(".bulk-updates-count").html("0");
-    self.bulkUpdatesIsNoLongerFull();
-  } else {
-    var size = 0;
-    for (var _ in self.data) {
-      size++
-    }
-    self.$bulkUpdates.find(".bulk-updates-count").html(size).removeClass("hide");
-    if (size >= self.LIMIT) {
-      self.raiseCartIsFull();
-    } else {
-      self.bulkUpdatesIsNoLongerFull();
-    }
-  }
-};
-
-
-BulkInstanceUpdate.prototype.removeFromSelection = function(uri) {
-  var self = this;
-
-  self.data = AS.setData(self.STORAGE_KEY, function(data) {
-    if (data == null) {
-      data = {};
-    }
-    if (!data.hasOwnProperty(self.key)) {
-      data[self.key] = [];
-    }
-
-    if ($.inArray(uri, data[self.key]) >= 0) {
-      data[self.key].splice($.inArray(uri, data[self.key]), 1);
-    }
-
-    return data;
-  })[self.key] || [];
-
-  if (self.$table && self.$table.length) {
-    var $tr = self.$table.find("[data-uri='"+uri+"']");
-    $tr.find(".add-to-bulk-updates-btn").removeClass("hide");
-    $tr.find(".remove-from-bulk-updates-btn").addClass("hide");
-  }
-
-  self.updateSelectionSummary();
-};
-
-BulkInstanceUpdate.prototype.addURItoBulkUpdatesData = function(uri) {
-  var self = this;
-
-  self.data = AS.setData(self.STORAGE_KEY, function(data) {
-    if (data == null) {
-      data = {};
-    }
-
-    if (!data.hasOwnProperty(self.key)) {
-      data[self.key] = [];
-    }
-
-    if ($.inArray(uri, data[self.key]) < 0) {
-      data[self.key].push(uri);
-    }
-
-    return data;
-  })[self.key];
-};
-
-BulkInstanceUpdate.prototype.addToSelection = function(uri, record_type) {
-  var self = this;
-  if ($.inArray(record_type, self.SUPPORTED_JSONMODEL_TYPES) < 0) {
-    return;
-  }
-
-  self.addURItoBulkUpdatesData(uri);
-  self.updateSelectionSummary();
-};
-
-BulkInstanceUpdate.prototype.isSelected = function(uri) {
-  return $.inArray(uri, this.data || []) >= 0;
-}
-
-BulkInstanceUpdate.prototype.setupTreePageActions = function() {
-  var self = this;
-  var $tree = $("#tree-container");
-  var $treeContainer = $tree.siblings("#tree-toolbar");
-
-	var spinnerOverlay = AS.renderTemplate("template_cart_add_children_overlay");
-	$('.container-fluid .content-pane').prepend(spinnerOverlay);
-
-  function toggleCartActions(uri) {
-    if (self.isSelected(uri)) {
-      $treeContainer.find(".add-to-cart-btn").addClass("hide");
-      $treeContainer.find(".remove-from-cart-btn").removeClass("hide");
-    } else {
-      $treeContainer.find(".add-to-cart-btn").removeClass("hide");
-      $treeContainer.find(".remove-from-cart-btn").addClass("hide");
-    }
-    if (localStorage["as-cart-children"+uri]) {
-			$treeContainer.find(".add-to-cart-with-children").addClass("hide");
-			$treeContainer.find(".remove-from-cart-with-children").removeClass("hide");
-		}
-  }
-
-  function uriForNode($node) {
-    if ($node.attr("id")) {
-    	var type = self.parseNodeId($node.attr("id"));
-      return CURRENT_REPO_URI + "/" + type + "s/" + $node.attr('id').replace(type + '_','');
-    }
-  };
-
-  function setupTreeToolbar() {
-    var $node = $(".current", $tree);
-    if ($node.hasClass("new")) {
-      // nothing to do as item is new
-      return;
-    }
-    
-    // remove any existing cart buttons
-    $treeContainer.find(".cart-actions").remove();
-
-    var uri = uriForNode($node);
-
-    var actions = AS.renderTemplate("template_cart_actions");
-    $treeContainer.prepend(actions);
-		if ($.inArray(self.parseNodeId($(".current").attr("id")), self.SUPPORTED_JSONMODEL_TYPES_FOR_CHILDREN) < 0) {
-			self.hideChildrenAction();
-			self.buttonGroupCSS();
-		}
-
-    toggleCartActions(uri);
-  };
-  
-  //wait for the ao to load before firing the toolbar build
-	$(document).on('dartmouth_ao_loaded_event', function() {
-		setupTreeToolbar();
-	});
-	
-  $treeContainer.
-    on("click", ".add-to-cart-btn", function(event) {
-      var $node = $tree.find(".current");
-      var uri = uriForNode($node);
-      self.addToSelection(uri, self.parseNodeId($node.attr("id")));
-      toggleCartActions(uri);
-    }).
-    on("click", ".remove-from-cart-btn", function(event) {
-      var $node = $tree.find(".current");
-      var uri = uriForNode($node);
-
-      self.removeFromSelection(uri)
-
-      toggleCartActions(uri);
-    }).
-    on("click", ".cart-plus-children-btn", function(event) {
-    	$(".cart-actions .btn-group button").attr("disabled","disabled");
-      var $node = $tree.find(".current");
-      var uri = uriForNode($node);
-    	self.addWithChildrenToSelection(uri, self.parseNodeId($node.attr("id")));
-    	$treeContainer.find(".add-to-cart-with-children").addClass("hide");
-			$treeContainer.find(".remove-from-cart-with-children").removeClass("hide");
-      toggleCartActions(uri);
-    }).
-     on("click", ".cart-minus-children-btn", function(event) {
-      var $node = $tree.find(".current");
-      var uri = uriForNode($node);
-    	self.removeWithChildrenFromSelection(uri);
-    	$treeContainer.find(".add-to-cart-with-children").removeClass("hide");
-			$treeContainer.find(".remove-from-cart-with-children").addClass("hide");
-      toggleCartActions(uri);
-    });
-};
-
-BulkInstanceUpdate.prototype.parseNodeId = function(node) {
-	if (node) {
-		var nodeParts = node.split("_");
-		nodeParts.pop();
-		return nodeParts.join("_");
-	}
-}
-
-
-BulkInstanceUpdate.prototype.addAllToSelection = function(uris) {
-  var self = this;
-  new_uris = [];
-  // remove any location fragment from uri string
-  $.each(uris, function(k,v) {
-    if (!v.substring(0, v.indexOf('#'))) {
-      new_uris.push(v);
-    }
-  });
-  function uniquify(array) {
-    var tmp_hash = {}, result=[];
-    for(var i = 0; i < array.length; i++)
-    {
-      if (!tmp_hash[array[i]])
-      {
-        tmp_hash[array[i]] = true;
-        result.push(array[i]);
-      }
-    }
-    return result;
-  };
-
-  var newData = uniquify([].concat(self.data.concat(new_uris)));
-
-  if (newData.length > self.LIMIT) {
-    // raise too big! and slice to LIMIT
-    newData = newData.slice(0, self.LIMIT);
-  }
-
-  self.data = AS.setData(self.STORAGE_KEY, function(data) {
-    if (data == null) {
-      data = {};
-    }
-
-    data[self.key] = newData;
-
-    return data;
-  })[self.key];
-
-  self.updateSelectionSummary();
-
-  // toggle all cart buttons to be added
-  $(".add-to-cart-btn").addClass("hide");
-  $(".remove-from-cart-btn").removeClass("hide");
-}
-
-
-BulkInstanceUpdate.prototype.setupAddAllFromSearchAction = function() {
-  var self = this;
-  var $searchTable = $("#tabledSearchResults"); // use .record-pane in v150
-
-  if ($searchTable.length == 0) {
-    // no search results on this page
-    return;
-  }
-
-  var $action = $(AS.renderTemplate("template_cart_add_all_action"));
-  $searchTable.before($action); // use prepend instead of before in v150
-
-  $action.click(function() {
-    $action.find(".loading").removeClass("hide");
-    self.insertOverlay();
-    $action.prop("disabled", "disabled");
-    $.getJSON("/plugins/component_report/uris_for_search" + location.search, function(json) {
-      self.addAllToSelection(json);
-      $action.find(".loading").remove();
-      $action.removeClass("btn-info").addClass("btn-success");
-      $action.find(".action-text").remove();
-      $action.find(".success-text").removeClass("hide");
-      self.removeOverlay();
-    });
-  });
-};
-
-BulkInstanceUpdate.prototype.buttonGroupCSS = function () {
-	$(".remove-from-cart-btn").addClass("cart-non-btn-group");
-}
-
-BulkInstanceUpdate.prototype.hideChildrenAction = function () {
-	$(".add-to-cart-with-children, .remove-from-cart-with-children").hide();
-	var borderRadius = $(".add-to-cart-btn").css("border-top-left-radius");
-	$(".add-to-cart-btn").css("border-radius", borderRadius);
-	$(".remove-from-cart-btn").css("border-radius", borderRadius);
-}
-
-BulkInstanceUpdate.prototype.raiseBulkUpdatesIsFull = function() {
-  this.$bulkUpdates.find(".btn.show-bulk-updates-btn").addClass("btn-danger");
-};
-
-BulkInstanceUpdate.prototype.bulkUpdatesIsNoLongerFull = function() {
-  this.$bulkUpdates.find(".btn.show-bulk-updates-btn.btn-danger").removeClass("btn-danger");
-};
 
 BulkInstanceUpdate.prototype.insertOverlay = function() {
 	var spinnerTop = window.innerHeight/2 - $('.spinner_for_cart').height();

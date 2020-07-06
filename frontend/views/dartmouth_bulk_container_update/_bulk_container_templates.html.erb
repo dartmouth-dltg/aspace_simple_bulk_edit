@@ -12,31 +12,40 @@
 --></div>
 
 <div id="template_bulk_container_update_dialog_contents"><!--
+  <%= form_tag({:controller => :dartmouth_bulk_container_updates, :action => :update}, {:class => "form-horizontal", :id => "dartmouth_update_bulk_containers_form", :target => "_blank" }) do -%>
   {if ($.isEmptyObject(selected))}
     <div class="alert alert-info"><%= I18n.t("dartmouth_bulk_container_updates.is_empty") %></div>
   {else}
-    <div id="bulkUpdateContainerTypeahead">
-    
-    </div>
-    <div id="bulkUpdatePane" data-load-url="<%= url_for :controller => :dartmouth_bulk_container_updates, :action => :summary %>">
-      <div class="alert alert-info">
-        <%= I18n.t("dartmouth_bulk_container_updates.loading") %>
+      <div id="bulkUpdateContainerTypeahead" class="row">
+        <div class="col-sm-12">
+          <%= I18n.t("dartmouth_bulk_container_updates.choose_top_container") %>
+        </div>
+        <div class="controls col-sm-12">
+          <div class="input-group linker-wrapper multiplicity-one">
+            <input type="text" class="linker" id="archival_record_children_children__0__instances__0__sub_container__top_container__ref_" data-label="Top Container" data-label_plural="Top Containers" data-name="ref" data-path="archival_record_children[children][0][instances][0][sub_container][top_container]" data-url="/top_containers/search/typeahead.json?uri=${resource_uri}" data-browse-url="/top_containers/bulk_operations/browse" data-selected="{}" data-multiplicity="one" data-types="[&quot;top_container&quot;]" data-exclude="[]" style="display: none;">
+          </div>
+        </div>
       </div>
-    </div>
+      <div id="bulkUpdatePane" data-load-url="<%= url_for :controller => :dartmouth_bulk_container_updates, :action => :summary %>">
+        <div class="alert alert-info">
+          <%= I18n.t("dartmouth_bulk_container_updates.loading") %>
+        </div>
+      </div>
   {/if}
+  <% end %>
 --></div>
 
 <div id="template_bulk_container_update_dialog_footer"><!--
 <div class="modal-footer">
-  <%= link_to I18n.t("dartmouth_bulk_container_updates.update"), {:controller => :dartmouth_bulk_container_updates, :action => :update}, {:class => "btn btn-primary pull-left"} %>
+  <%= link_to I18n.t("dartmouth_bulk_container_updates.update"), {:controller => :dartmouth_bulk_container_updates, :action => :update}, {:class => "btn btn-primary pull-left dartmouth_bulk_container_updates_update"} %>
   <button class="btn btn-default pull-right" data-dismiss="modal"><%= I18n.t("actions.close") %></button>
   <button class="btn btn-warning pull-right clear-bulk-updates-btn" data-dismiss="modal"><%= I18n.t("dartmouth_bulk_container_updates.clear_selection_button")  %></button>
 </div>
+
 --></div>
 
 <% if current_user && current_repo %>
 <script>
   var CURRENT_REPO_URI = '<%= current_repo.uri %>'
-  var CURRENT_USER_HASH = '<%= Digest::MD5.hexdigest(current_user) %>';
 </script>
 <% end %>
