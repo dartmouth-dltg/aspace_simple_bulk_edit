@@ -37,11 +37,20 @@
 
 <div id="template_bulk_container_update_dialog_footer"><!--
 <div class="modal-footer">
-  <%= link_to I18n.t("dartmouth_bulk_container_updates.update"), {:controller => :dartmouth_bulk_container_updates, :action => :update}, {:class => "btn btn-primary pull-left dartmouth_bulk_container_updates_update"} %>
+  <button class="btn btn-primary pull-left dartmouth_bulk_container_updates_preview"><%= I18n.t("dartmouth_bulk_container_updates.preview") %></button>
+  <button class="btn btn-primary pull-left dartmouth_bulk_container_updates_update"><%= I18n.t("dartmouth_bulk_container_updates.update") %></button>
   <button class="btn btn-default pull-right" data-dismiss="modal"><%= I18n.t("actions.close") %></button>
   <button class="btn btn-warning pull-right clear-bulk-updates-btn" data-dismiss="modal"><%= I18n.t("dartmouth_bulk_container_updates.clear_selection_button")  %></button>
 </div>
 
+--></div>
+
+<div id="template_bulk_container_update_alert"><!--
+<div class="alert alert-danger alert-dismissible fade in" role="alert">
+<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+<p><%= I18n.t("dartmouth_bulk_container_updates.error") %>
+</p>
+</div>
 --></div>
 
 <% if current_user && current_repo %>

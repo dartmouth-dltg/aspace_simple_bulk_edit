@@ -5,7 +5,6 @@ function BulkInstanceUpdate() {
   // only allow these types to be added to the cart
   this.SUPPORTED_JSONMODEL_TYPES = ['archival_object'];
 
-  //this.updateSelectionSummary();
   this.setupTreeActions();
 
 }
@@ -107,40 +106,12 @@ BulkInstanceUpdate.prototype.setupTreeActions = function() {
   
 };
 
-
-  //self.$bulkUpdates.on("click", "#cartSummaryDropdownBtn", function(event) {
-  //  $("#cartSummaryDropdownPanel").find(".cart-summary").html(AS.renderTemplate("template_cart_dialog_contents", {
-  //    selected: self.data
-  //  }));
-  //
-  //  if ($.isEmptyObject(self.data)) {
-  //    $("#cartSummaryDropdownPanel").find("button").addClass("disabled").attr("disabed", "disabled");
-  //  } else {
-  //    $("#cartSummaryDropdownPanel").find("button").removeClass("disabled").removeAttr("disabed");
-  //  }
-  //});
-
-  //self.$bulkUpdates.on("click", ".bulk-updates-summary button", function(event) {
-  //  event.preventDefault();
-  //  event.stopPropagation();
-  //});
-  //
-  //self.$bulkUpdates.on("click", ".clear-bulk-updates-btn", function() {
-  //  self.clearSelection();
-  //  location.reload();
-  //});
-//};
-
 BulkInstanceUpdate.prototype.updateBulkUpdates = function(load_url, ao_uris, tc_uri, onComplete) {
-  var self = this;
 
   if (typeof load_url == "undefined") {
     return;
   }
-  console.log(load_url);
-  console.log(ao_uris);
-  console.log(tc_uri);
-  $.post(load_url, {uri: ao_uris, tc_uri: tc_uri}, function(html) {
+  $.post(load_url, {uri: ao_uris, tc_uri: tc_uri}, function() {
 
     if (onComplete) {
       onComplete();
@@ -148,9 +119,40 @@ BulkInstanceUpdate.prototype.updateBulkUpdates = function(load_url, ao_uris, tc_
   });
 };
 
+BulkInstanceUpdate.prototype.previewBulkUpdates = function($container, ao_uris, tc_num) {
+
+  if (typeof ao_uris == "undefined" || typeof tc_num == "undefined") {
+    return;
+  }
+  
+  $.each(ao_uris, function(k,v) {
+   $('tr[data-uri="' + v + '"]').find('.component-report-summary-box-container').text(tc_num + ' (preview)');
+  });
+  
+};
+
+BulkInstanceUpdate.prototype.bulkUpdatesAlert = function($container) {
+  
+  var alert_template = AS.renderTemplate("template_bulk_container_update_alert", {
+    alerts: alert_issue
+  });
+  
+  $container.find('.modal-body').prepend(alert_template);
+
+}
 
 BulkInstanceUpdate.prototype.bindSummaryEvents = function($container) {
   var self = this;
+  var ao_uris = [];
+  $('input[name="uri[]"]').each(function() {
+    ao_uris.push($(this).val());
+  });
+  
+  self.options = {
+    load_uri: $('#dartmouth_update_bulk_containers_form').attr('action'),
+    ao_uris: ao_uris,
+    tc_uri: find_tc_uri()
+  };
 
   $container.
     on("click", ".remove-from-bulk-updates-btn", function(event) {
@@ -166,38 +168,56 @@ BulkInstanceUpdate.prototype.bindSummaryEvents = function($container) {
       event.stopPropagation();
       $(this).find('#bulkUpdatePane').children('tbody tr').remove();
     }).
+    on("click", ".dartmouth_bulk_container_updates_preview", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (self.options.tc_uri === undefined) {
+        self.options.tc_uri = find_tc_uri();
+      }
+      if (self.options.tc_uri !== undefined && self.options.ao_uris.length > 0 && self.options.load_uri.length > 0) {
+        self.previewBulkUpdates($container, self.options.ao_uris, $('.top_container.has-popover.initialised').text());
+      }
+      else {
+        self.bulkUpdatesAlert($container);
+      }
+    }).
     on("click", ".dartmouth_bulk_container_updates_update", function(event) {
       event.preventDefault();
-      //event.stopPropagation();
-      console.log($container.find('#dartmouth_update_bulk_containers_form'));
+      event.stopPropagation();
       $container.find('#dartmouth_update_bulk_containers_form').submit();
     }).
     on('submit','#dartmouth_update_bulk_containers_form', function(event) {
       event.preventDefault();
       event.stopPropagation();
-      var load_uri = $('#dartmouth_update_bulk_containers_form').attr('action');
-      var ao_uris = [];
-      $('input[name="uri[]"]').each(function() {
-        ao_uris.push($(this).val());
-      });
-      tc_uri = $('input[name="archival_record_children[children][0][instances][0][sub_container][top_container][ref]"]').val();
-      self.updateBulkUpdates(load_uri, ao_uris, tc_uri);
+      if (self.options.tc_uri === undefined) {
+        self.options.tc_uri = find_tc_uri();
+      }
+      if (self.options.tc_uri !== undefined && self.options.ao_uris.length > 0 && self.options.load_uri.length > 0) {
+        self.updateBulkUpdates(self.options.load_uri, self.options.ao_uris, self.options.tc_uri);
+      }
+      else {
+        self.bulkUpdatesAlert($container);
+      }
     });
+    
+    function find_tc_uri() {
+      return $('input[name="archival_record_children[children][0][instances][0][sub_container][top_container][_resolved]').val();
+    }
 
   // trigger a resize so the modal resizes to fit the container size
   $(window).trigger("resize");
-}
+};
 
 BulkInstanceUpdate.prototype.insertOverlay = function() {
-	var spinnerTop = window.innerHeight/2 - $('.spinner_for_cart').height();
-    $("#archives_tree_overlay_for_cart_action").height('100%');
-    $("#archives_tree_overlay_for_cart_action").siblings(".spinner_for_cart").show().css('top',spinnerTop);
-  }
+  var spinnerTop = window.innerHeight/2 - $('.spinner_for_cart').height();
+  $("#archives_tree_overlay_for_cart_action").height('100%');
+  $("#archives_tree_overlay_for_cart_action").siblings(".spinner_for_cart").show().css('top',spinnerTop);
+};
   
 BulkInstanceUpdate.prototype.removeOverlay = function() {
-    $("#archives_tree_overlay_for_cart_action").height('0%');
-    $("#archives_tree_overlay_for_cart_action").siblings(".spinner_for_cart").hide().css('top','');
-  }
+  $("#archives_tree_overlay_for_cart_action").height('0%');
+  $("#archives_tree_overlay_for_cart_action").siblings(".spinner_for_cart").hide().css('top','');
+};
 
 $(function() {
   if (typeof CURRENT_REPO_URI == "undefined") {
