@@ -46,9 +46,18 @@
 --></div>
 
 <div id="template_bulk_container_update_alert"><!--
-<div class="alert alert-danger alert-dismissible fade in" role="alert">
+<div class="alert alert-${alert_type} alert-dismissible fade in" role="alert">
 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-<p><%= I18n.t("dartmouth_bulk_container_updates.error") %>
+<p>
+  {if alert_type == "warning"}
+  <%= I18n.t("dartmouth_bulk_container_updates.warning") %>
+  {/if}
+  {if alert_type == "danger"}
+  <%= I18n.t("dartmouth_bulk_container_updates.danger") %>
+  {/if}
+  {if alert_type == "success"}
+   <case "success:}> <%= I18n.t("dartmouth_bulk_container_updates.success") %>
+  {/if}
 </p>
 </div>
 --></div>

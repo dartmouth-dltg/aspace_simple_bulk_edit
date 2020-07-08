@@ -53,7 +53,7 @@ BulkInstanceUpdate.prototype.getResourceUri = function() {
 
 BulkInstanceUpdate.prototype.setupBulkUpdatesEvents = function() {
   var self = this;
-  
+  console.log('foo');
   self.$bulkUpdates.on("click", function(event) {
     event.preventDefault();
     var data = self.UrisToUpdate();
@@ -106,13 +106,18 @@ BulkInstanceUpdate.prototype.setupTreeActions = function() {
   
 };
 
-BulkInstanceUpdate.prototype.updateBulkUpdates = function(load_url, ao_uris, tc_uri, onComplete) {
+BulkInstanceUpdate.prototype.updateBulkUpdates = function($container, load_url, ao_uris, tc_uri, onComplete) {
+  var self = this;
 
   if (typeof load_url == "undefined") {
     return;
   }
-  $.post(load_url, {uri: ao_uris, tc_uri: tc_uri}, function() {
-
+  $.post(load_url, {uri: ao_uris, tc_uri: tc_uri}, function(json) {
+    if (json.length > 0) {
+      self.bulkUpdatesAlert($container, "success");
+    }
+    else self.bulkUpdatesAlert($container, "danger");
+    
     if (onComplete) {
       onComplete();
     }
@@ -131,11 +136,15 @@ BulkInstanceUpdate.prototype.previewBulkUpdates = function($container, ao_uris, 
   
 };
 
-BulkInstanceUpdate.prototype.bulkUpdatesAlert = function($container) {
+BulkInstanceUpdate.prototype.bulkUpdatesAlert = function($container, alert_type) {
   
-  var alert_template = AS.renderTemplate("template_bulk_container_update_alert");
-  
-  $container.find('.modal-body').prepend(alert_template);
+  var alert_template = AS.renderTemplate("template_bulk_container_update_alert", {
+      alert_type: alert_type
+    });
+  if ($container.find('div.alert').length > 0) {
+    $container.find('div.alert').replaceWith(alert_template);
+  }
+  else $container.find('.modal-body').prepend(alert_template);
 
 }
 
@@ -176,7 +185,7 @@ BulkInstanceUpdate.prototype.bindSummaryEvents = function($container) {
         self.previewBulkUpdates($container, self.options.ao_uris, $('.top_container.has-popover.initialised').text());
       }
       else {
-        self.bulkUpdatesAlert($container);
+        self.bulkUpdatesAlert($container, "warning");
       }
     }).
     on("click", ".dartmouth_bulk_container_updates_update", function(event) {
@@ -191,10 +200,10 @@ BulkInstanceUpdate.prototype.bindSummaryEvents = function($container) {
         self.options.tc_uri = find_tc_uri();
       }
       if (self.options.tc_uri !== undefined && self.options.ao_uris.length > 0 && self.options.load_uri.length > 0) {
-        self.updateBulkUpdates(self.options.load_uri, self.options.ao_uris, self.options.tc_uri);
+        self.updateBulkUpdates($container, self.options.load_uri, self.options.ao_uris, self.options.tc_uri);
       }
       else {
-        self.bulkUpdatesAlert($container);
+        self.bulkUpdatesAlert($container, "warning");
       }
     });
     
