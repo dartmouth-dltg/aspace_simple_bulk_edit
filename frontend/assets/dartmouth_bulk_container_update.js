@@ -133,9 +133,7 @@ BulkInstanceUpdate.prototype.previewBulkUpdates = function($container, ao_uris, 
 
 BulkInstanceUpdate.prototype.bulkUpdatesAlert = function($container) {
   
-  var alert_template = AS.renderTemplate("template_bulk_container_update_alert", {
-    alerts: alert_issue
-  });
+  var alert_template = AS.renderTemplate("template_bulk_container_update_alert");
   
   $container.find('.modal-body').prepend(alert_template);
 
@@ -201,9 +199,9 @@ BulkInstanceUpdate.prototype.bindSummaryEvents = function($container) {
     });
     
     function find_tc_uri() {
-      return $('input[name="archival_record_children[children][0][instances][0][sub_container][top_container][_resolved]').val();
+      return $('input[name="archival_record_children[children][0][instances][0][sub_container][top_container][ref]').val();
     }
-
+  
   // trigger a resize so the modal resizes to fit the container size
   $(window).trigger("resize");
 };
