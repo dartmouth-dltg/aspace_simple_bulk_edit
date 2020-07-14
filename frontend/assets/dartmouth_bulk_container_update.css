@@ -1,8 +1,5 @@
 @charset "UTF-8"; 
 
-#dartmouth_bulk_container_update {
-    display: none;
-}
 #bulkUpdateContainerTypeahead {
     margin-bottom: 20px;
 }

@@ -1,7 +1,7 @@
 en:
   dartmouth_bulk_container_updates:
     choose_top_container: Select the top container which will be used to update all of the archival obejcts in the list below. Each archival object will be associated with the chosen top container.
-    choose_child_indicator_start: Choose the starting number for the child indicator (otpional)
+    choose_child_indicator_start: Choose the starting number for the child indicator(s) (optional). This will renumber the child indicators starting from the chosen number and increasing by one in order of the archival objects shown below.
     clear_selection_button: Clear all items
     danger: Something went wrong with the update.
     is_empty: There are no archival obejcts selected.

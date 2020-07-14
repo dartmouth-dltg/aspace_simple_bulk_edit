@@ -8,7 +8,7 @@ class DartmouthBulkContainerUpdatesController < ApplicationController
     
     ao_uris = ASUtils.as_array(params[:uri])
     tc_uri = ASUtils.as_array(params[:tc_uri])
-    child_ind_start = params[:child_ind_start] ? ASUtils.as_array(params[:child_ind_start]) : nil
+    child_ind_start = ASUtils.as_array(params[:child_ind_start]).empty? ? nil : ASUtils.as_array(params[:child_ind_start])
     
     #ao_uris.each_with_index do |uri, index|
       #ao_id = JSONModel.parse_reference(uri)[:id]

@@ -20,11 +20,14 @@ class ArchivesSpaceService < Sinatra::Base
   .description("Return resolved JSON of the records to update")
   .params(["repo_id", :repo_id],
           ["uri", [String], "The uris of the records to update"],
-          ["tc_uri", String, "The uri of the top conatiner to link to"]
+          ["tc_uri", String, "The uri of the top conatiner to link to"],
+          ["child_ind_start", String, "The start of the child indicators"]
           )
   .permissions([:update_resource_record])
   .returns([200, :updated]) \
   do
+    logger=Logger.new($stderr)
+    logger.debug("ind2: #{params[:child_ind_start]}")
     params[:uri].each_with_index do |uri, index|
       ao_id = JSONModel.parse_reference(uri)[:id]
       repo_id = params[:repo_id]
@@ -39,9 +42,10 @@ class ArchivesSpaceService < Sinatra::Base
   
   def update_ao(id, repo_id, new_tc_id, indicator_2, inst = nil)
     logger = Logger.new($stderr)
+    logger.debug("ind 2: #{indicator_2}")
     RequestContext.open(:repo_id => repo_id) do
       ao, ao_json = get_ao_object(id)
-      logger.debug("AO JSON: #{ao_json}")
+      
       if ao_json['instances'].find{ |i| i.has_key?("sub_container")}.nil?
         if inst.nil?
           # create instance
@@ -54,14 +58,17 @@ class ArchivesSpaceService < Sinatra::Base
         ao_json['instances'] = ao_json['instances'] - [inst]
         # update it
         inst['sub_container']['top_container']['ref'] = new_tc_id
-        # update child indicator if needed
+        # update child indicator if needed and add type if not present
         unless indicator_2.nil?
           inst['sub_container']['indicator_2'] = indicator_2
+          unless inst['sub_container']['type_2']
+            inst['sub_container']['type_2'] = "folder"
+          end
         end
       end
       # add it back in
       ao_json['instances'] << inst
-      
+      logger.debug("AO JSON: #{ao_json}")
       # update the ao
       ao.update_from_json(JSONModel(:archival_object).from_hash(ao_json))
       

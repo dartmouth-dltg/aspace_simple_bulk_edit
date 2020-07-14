@@ -56,24 +56,29 @@ BulkInstanceUpdate.prototype.setupBulkUpdatesEvents = function() {
   console.log('foo');
   self.$bulkUpdates.on("click", function(event) {
     event.preventDefault();
-    var data = self.UrisToUpdate();
-    var $modal = AS.openCustomModal("quickModal",
-      AS.renderTemplate("template_bulk_container_update_dialog_title"),
-      AS.renderTemplate("modal_quick_template", {
-        message: AS.renderTemplate("template_bulk_container_update_dialog_contents", {
-          selected: data,
-          resource_uri: encodeURIComponent(self.getResourceUri())
-        })
-      }),
-      "full");
-
-    if ($modal.has("#bulkUpdatePane")) {
-      self.loadBulkUpdates($("#bulkUpdatePane"),data);
+    if (!$treeToolbar.find('.drag-toggle').hasClass('btn-success')) {
+      alert("Please enable reorder mode to bulk update");
     }
-
-    $modal.find(".modal-footer").replaceWith(AS.renderTemplate("template_bulk_container_update_dialog_footer"));
-
-    self.bindSummaryEvents($modal);
+    else {
+      var data = self.UrisToUpdate();
+      var $modal = AS.openCustomModal("quickModal",
+        AS.renderTemplate("template_bulk_container_update_dialog_title"),
+        AS.renderTemplate("modal_quick_template", {
+          message: AS.renderTemplate("template_bulk_container_update_dialog_contents", {
+            selected: data,
+            resource_uri: encodeURIComponent(self.getResourceUri())
+          })
+        }),
+        "full");
+  
+      if ($modal.has("#bulkUpdatePane")) {
+        self.loadBulkUpdates($("#bulkUpdatePane"),data);
+      }
+  
+      $modal.find(".modal-footer").replaceWith(AS.renderTemplate("template_bulk_container_update_dialog_footer"));
+  
+      self.bindSummaryEvents($modal);
+    }
   });
 };
   
@@ -82,28 +87,37 @@ BulkInstanceUpdate.prototype.setupTreeActions = function() {
 	var self = this;
 	var $treeToolbar = $("#tree-toolbar");
   $(document).on('loadedrecordform.aspace', function() {
-    $treeToolbar.find('.btn-group').last().after(self.$bulkUpdates);
+    $treeToolbar.prepend(self.$bulkUpdates);
   });
   
-  if ($treeToolbar.find('.drag-toggle').hasClass('btn-success')) {
-    toggleBulkUpdatesBtn($treeToolbar.find('.drag-toggle'));
-  }
-  
-  $treeToolbar.on('click', '.drag-toggle', function() {
-    toggleBulkUpdatesBtn($(this));
-  });
-  
+  //if ($treeToolbar.find('.drag-toggle').hasClass('btn-success')) {
+  //  self.toggleBulkUpdatesBtn($treeToolbar.find('.drag-toggle'));
+  //}
+  //
+  //$treeToolbar.on('click', '.drag-toggle', function() {
+  //  self.toggleBulkUpdatesBtn($(this));
+  //});
+  //
   self.setupBulkUpdatesEvents();
   
-  function toggleBulkUpdatesBtn(el) {
-    if (el.hasClass('btn-success')) {
-      self.$bulkUpdates.show().prop('disabled',false);
-    }
-    else {
-      self.$bulkUpdates.hide().prop('disabled',true);
-    }    
+  //function toggleBulkUpdatesBtn(el) {
+  //  if (el.hasClass('btn-success')) {
+  //    self.$bulkUpdates.show().prop('disabled',false);
+  //  }
+  //  else {
+  //    self.$bulkUpdates.hide().prop('disabled',true);
+  //  }    
+  //}
+};
+
+BulkInstanceUpdate.prototype.toggleBulkUpdatesBtn = function(el) {
+  var self = this;
+  if (el.hasClass('btn-success')) {
+    self.$bulkUpdates.prop('disabled',false);
   }
-  
+  else {
+    self.$bulkUpdates.prop('disabled',true);
+  }    
 };
 
 BulkInstanceUpdate.prototype.updateBulkUpdates = function($container, load_url, ao_uris, tc_uri, onComplete) {
@@ -112,7 +126,8 @@ BulkInstanceUpdate.prototype.updateBulkUpdates = function($container, load_url, 
   if (typeof load_url == "undefined") {
     return;
   }
-  $.post(load_url, {uri: ao_uris, tc_uri: tc_uri}, function(json) {
+  var child_ind_start = $('#child_ind_start').val();
+  $.post(load_url, {uri: ao_uris, tc_uri: tc_uri, child_ind_start: child_ind_start}, function(json) {
     if (json.length > 0) {
       self.bulkUpdatesAlert($container, "success");
     }
