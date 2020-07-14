@@ -1,250 +1,252 @@
-function BulkInstanceUpdate() {
-
-  this.$bulkUpdates = this.createBulkUpdateWidget();
-
-  // only allow these types to be added to the cart
-  this.SUPPORTED_JSONMODEL_TYPES = ['archival_object'];
-
-  this.setupTreeActions();
-
-}
-
-BulkInstanceUpdate.prototype.createBulkUpdateWidget = function() {
-	var $bulkBtn = $(AS.renderTemplate("template_bulk_container_update_toolbar_action"));
-	return $bulkBtn;
-};
-
-BulkInstanceUpdate.prototype.loadBulkUpdates = function($container, data, onComplete) {
-  var self = this;
-  var load_url = $container.data("load-url");
-
-  if (typeof load_url == "undefined") {
+$(function() {
+  
+   if (typeof CURRENT_REPO_URI == "undefined") {
     return;
   }
+  
+  // setup the toolbar button and actions
+  var bulkInstanceBtnArr = {
+    label: 'Bulk Update <span class="caret"></span>',
+    cssClasses: 'btn-default dropdown-toggle',
+    groupClasses: 'dropdown',
+    onRender: function(btn, node, tree, toolbarRenderer) {
+      var $options = $('<ul>').addClass('dropdown-menu ');
+      var $liEnable = $('<li>');
+      $liEnable.append($('<a>').attr('href', 'javascript:void(0);').
+                          addClass('bulk-update-enable').
+                          text('Enable'));
+      $options.append($liEnable);
+      var $liUpdate = $('<li>');
+      $liUpdate.append($('<a>').attr('href', 'javascript:void(0);').
+                          addClass('bulk-update-open').
+                          text('Update'));
+      $options.append($liUpdate);
+      $options.appendTo(btn.closest('.btn-group'));
+      $options.on('click', '.bulk-update-enable', function() {
+       $(tree.large_tree.elt).toggleClass('drag-enabled');
+      });
+      $options.on('click', '.bulk-update-open', function() {
+       setupBulkUpdatesEvents();
+      });
+      
+      btn.attr('data-toggle', 'dropdown');
+    },
+    onClick: function(event, btn, node, tree, toolbarRenderer) {
+    },
+    isEnabled: function(node, tree, toolbarRenderer) {
+        return true;
+    },
+    isVisible: function(node, tree, toolbarRenderer) {
+        return !tree.large_tree.read_only;
+    },
+    onFormLoaded: function(btn, form, tree, toolbarRenderer) {
+        $(btn).removeClass('disabled');
+    },
+    onToolbarRendered: function(btn, toolbarRenderer) {
+        $(btn).addClass('disabled');
+    },
+  }
 
-  $.post(load_url, {uri: data}, function(html) {
-    $container.html(html);
-
-    self.bindSummaryEvents($container);
-
-    if (onComplete) {
-      onComplete();
-    }
-  });
-};
-
-BulkInstanceUpdate.prototype.UrisToUpdate = function() {
-  var uris = [];
-  var $treeContainer = $('#tree-container');
-  var items_to_update = $treeContainer.find('.multiselected-row');
-  items_to_update = items_to_update.sort(function(a, b){
-        return ($(b).find('.drag-annotation').text()) < ($(a).find('.drag-annotation').text()) ? 1 : -1;
-  });
-  items_to_update.each(function() {
-    uris.push(CURRENT_REPO_URI + "/archival_objects/" + $(this).attr('id').split("_").pop());
-  });
-  return uris;
-};
-
-BulkInstanceUpdate.prototype.getResourceUri = function() {
-  return CURRENT_REPO_URI + "/resources/" + $('#tree-container').find('tr.root-row').attr('id').split("_").pop();
-};
-
-
-BulkInstanceUpdate.prototype.setupBulkUpdatesEvents = function() {
-  var self = this;
-  console.log('foo');
-  self.$bulkUpdates.on("click", function(event) {
-    event.preventDefault();
-    if (!$treeToolbar.find('.drag-toggle').hasClass('btn-success')) {
-      alert("Please enable reorder mode to bulk update");
+  var res = TreeToolbarConfiguration["resource"];
+  var arch = TreeToolbarConfiguration["archival_object"];
+  TreeToolbarConfiguration["resource"] = [].concat(res).concat([bulkInstanceBtnArr]);
+  TreeToolbarConfiguration["archival_object"] = [].concat(arch).concat([bulkInstanceBtnArr]);
+  
+  // setup and render the modal
+  var setupBulkUpdatesEvents = function() {
+    if (!$('#tree-container').hasClass('drag-enabled')) {
+      alert("Please select 'Enable' to bulk update");
     }
     else {
-      var data = self.UrisToUpdate();
+      var data = urisToUpdate();
       var $modal = AS.openCustomModal("quickModal",
         AS.renderTemplate("template_bulk_container_update_dialog_title"),
         AS.renderTemplate("modal_quick_template", {
           message: AS.renderTemplate("template_bulk_container_update_dialog_contents", {
             selected: data,
-            resource_uri: encodeURIComponent(self.getResourceUri())
+            resource_uri: encodeURIComponent(getResourceUri())
           })
         }),
         "full");
   
       if ($modal.has("#bulkUpdatePane")) {
-        self.loadBulkUpdates($("#bulkUpdatePane"),data);
+        loadBulkUpdates($("#bulkUpdatePane"),data);
       }
   
       $modal.find(".modal-footer").replaceWith(AS.renderTemplate("template_bulk_container_update_dialog_footer"));
   
-      self.bindSummaryEvents($modal);
+      bindSummaryEvents($modal);
     }
-  });
-};
-  
-BulkInstanceUpdate.prototype.setupTreeActions = function() {
-	
-	var self = this;
-	var $treeToolbar = $("#tree-toolbar");
-  $(document).on('loadedrecordform.aspace', function() {
-    $treeToolbar.prepend(self.$bulkUpdates);
-  });
-  
-  //if ($treeToolbar.find('.drag-toggle').hasClass('btn-success')) {
-  //  self.toggleBulkUpdatesBtn($treeToolbar.find('.drag-toggle'));
-  //}
-  //
-  //$treeToolbar.on('click', '.drag-toggle', function() {
-  //  self.toggleBulkUpdatesBtn($(this));
-  //});
-  //
-  self.setupBulkUpdatesEvents();
-  
-  //function toggleBulkUpdatesBtn(el) {
-  //  if (el.hasClass('btn-success')) {
-  //    self.$bulkUpdates.show().prop('disabled',false);
-  //  }
-  //  else {
-  //    self.$bulkUpdates.hide().prop('disabled',true);
-  //  }    
-  //}
-};
-
-BulkInstanceUpdate.prototype.toggleBulkUpdatesBtn = function(el) {
-  var self = this;
-  if (el.hasClass('btn-success')) {
-    self.$bulkUpdates.prop('disabled',false);
-  }
-  else {
-    self.$bulkUpdates.prop('disabled',true);
-  }    
-};
-
-BulkInstanceUpdate.prototype.updateBulkUpdates = function($container, load_url, ao_uris, tc_uri, onComplete) {
-  var self = this;
-
-  if (typeof load_url == "undefined") {
-    return;
-  }
-  var child_ind_start = $('#child_ind_start').val();
-  $.post(load_url, {uri: ao_uris, tc_uri: tc_uri, child_ind_start: child_ind_start}, function(json) {
-    if (json.length > 0) {
-      self.bulkUpdatesAlert($container, "success");
-    }
-    else self.bulkUpdatesAlert($container, "danger");
-    
-    if (onComplete) {
-      onComplete();
-    }
-  });
-};
-
-BulkInstanceUpdate.prototype.previewBulkUpdates = function($container, ao_uris, tc_num) {
-
-  if (typeof ao_uris == "undefined" || typeof tc_num == "undefined") {
-    return;
-  }
-  
-  $.each(ao_uris, function(k,v) {
-   $('tr[data-uri="' + v + '"]').find('.component-report-summary-box-container').text(tc_num + ' (preview)');
-  });
-  
-};
-
-BulkInstanceUpdate.prototype.bulkUpdatesAlert = function($container, alert_type) {
-  
-  var alert_template = AS.renderTemplate("template_bulk_container_update_alert", {
-      alert_type: alert_type
-    });
-  if ($container.find('div.alert').length > 0) {
-    $container.find('div.alert').replaceWith(alert_template);
-  }
-  else $container.find('.modal-body').prepend(alert_template);
-
-}
-
-BulkInstanceUpdate.prototype.bindSummaryEvents = function($container) {
-  var self = this;
-  var ao_uris = [];
-  $('input[name="uri[]"]').each(function() {
-    ao_uris.push($(this).val());
-  });
-  
-  self.options = {
-    load_uri: $('#dartmouth_update_bulk_containers_form').attr('action'),
-    ao_uris: ao_uris,
-    tc_uri: find_tc_uri()
   };
-
-  $container.
-    on("click", ".remove-from-bulk-updates-btn", function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      var $btn = $(event.target).closest(".btn");
-      var $tr = $btn.closest("tr");
-      $tr.remove();
-    }).
-    on("click", ".clear-bulk-updates-btn", function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      $(this).find('#bulkUpdatePane').children('tbody tr').remove();
-    }).
-    on("click", ".dartmouth_bulk_container_updates_preview", function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (self.options.tc_uri === undefined) {
-        self.options.tc_uri = find_tc_uri();
+  
+  // get the uris to update
+  var urisToUpdate = function() {
+    var uris = [];
+    var $treeContainer = $('#tree-container');
+    var items_to_update = $treeContainer.find('.multiselected-row');
+    items_to_update = items_to_update.sort(function(a, b){
+          return ($(b).find('.drag-annotation').text()) < ($(a).find('.drag-annotation').text()) ? 1 : -1;
+    });
+    items_to_update.each(function() {
+      uris.push(CURRENT_REPO_URI + "/archival_objects/" + $(this).attr('id').split("_").pop());
+    });
+    return uris;
+  };
+  
+  // get the resource uri
+  var getResourceUri = function() {
+    return CURRENT_REPO_URI + "/resources/" + $('#tree-container').find('tr.root-row').attr('id').split("_").pop();
+  };
+  
+  // get the new top container uri
+  var findTcUri = function($container) {
+    return $container.find('input[name="archival_record_children[children][0][instances][0][sub_container][top_container][ref]"]').val();
+  };
+  
+  // update the options - ao uris, tc uri, load uri
+  var updateBulkUpdateOptions = function($container, bulkUpdateOptions) {
+    bulkUpdateOptions.load_uri = $('#dartmouth_update_bulk_containers_form').attr('action');
+    bulkUpdateOptions.ao_uris = findAoUris($container);
+    bulkUpdateOptions.tc_uri = findTcUri($container);
+    
+    return bulkUpdateOtions;
+  };
+  
+  // find the ao uris
+  var findAoUris = function($container) {
+    var ao_uris = [];
+    $container.find('input[name="uri[]"]').each(function() {
+      ao_uris.push($(this).val());
+    });
+    return ao_uris;
+  };
+  
+  // load the updates into the modal pane
+  var loadBulkUpdates = function($container, data, onComplete) {
+    var load_url = $container.data("load-url");
+  
+    if (typeof load_url == "undefined") {
+      return;
+    }
+  
+    $.post(load_url, {uri: data}, function(html) {
+      $container.html(html);
+  
+      bindSummaryEvents($container);
+  
+      if (onComplete) {
+        onComplete();
       }
-      if (self.options.tc_uri !== undefined && self.options.ao_uris.length > 0 && self.options.load_uri.length > 0) {
-        self.previewBulkUpdates($container, self.options.ao_uris, $('.top_container.has-popover.initialised').text());
+    });
+  };
+  
+  // do the updates
+  var updateBulkUpdates = function($container, load_url, ao_uris, tc_uri, onComplete) {
+  
+    if (typeof load_url == "undefined") {
+      return;
+    }
+    var child_ind_start = $('#child_ind_start').val();
+    $.post(load_url, {uri: ao_uris, tc_uri: tc_uri, child_ind_start: child_ind_start}, function(json) {
+      if (json.length > 0) {
+        bulkUpdatesAlert($container, "success");
       }
-      else {
-        self.bulkUpdatesAlert($container, "warning");
+      else bulkUpdatesAlert($container, "danger");
+      
+      if (onComplete) {
+        onComplete();
       }
-    }).
-    on("click", ".dartmouth_bulk_container_updates_update", function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      $container.find('#dartmouth_update_bulk_containers_form').submit();
-    }).
-    on('submit','#dartmouth_update_bulk_containers_form', function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (self.options.tc_uri === undefined) {
-        self.options.tc_uri = find_tc_uri();
-      }
-      if (self.options.tc_uri !== undefined && self.options.ao_uris.length > 0 && self.options.load_uri.length > 0) {
-        self.updateBulkUpdates($container, self.options.load_uri, self.options.ao_uris, self.options.tc_uri);
-      }
-      else {
-        self.bulkUpdatesAlert($container, "warning");
+    });
+  };
+  
+  // preview the updates
+  var previewBulkUpdates = function($container, ao_uris, tc_num) {
+  
+    if (typeof ao_uris == "undefined" || typeof tc_num == "undefined") {
+      return;
+    }
+    
+    var child_ind_start = parseInt($container.find('#child_ind_start').val(), 10);
+    console.log(child_ind_start);
+    $.each(ao_uris, function(k,v) {
+      $('tr[data-uri="' + v + '"]').find('.component-report-summary-box-container').text(tc_num + ' (preview)');
+      if (!isNaN(child_ind_start)) {
+        var indicator = k + child_ind_start;
+        $('tr[data-uri="' + v + '"]').find('.component-report-summary-file-container').text(indicator + ' (preview)');
       }
     });
     
-    function find_tc_uri() {
-      return $('input[name="archival_record_children[children][0][instances][0][sub_container][top_container][ref]').val();
+  };
+  
+  // alerts if things aren't ready or go wring
+  var bulkUpdatesAlert = function($container, alert_type) {
+    
+    var alert_template = AS.renderTemplate("template_bulk_container_update_alert", {
+        alert_type: alert_type
+      });
+    if ($container.find('div.alert').length > 0) {
+      $container.find('div.alert').replaceWith(alert_template);
     }
+    else $container.find('.modal-body').prepend(alert_template);
   
-  // trigger a resize so the modal resizes to fit the container size
-  $(window).trigger("resize");
-};
-
-BulkInstanceUpdate.prototype.insertOverlay = function() {
-  var spinnerTop = window.innerHeight/2 - $('.spinner_for_cart').height();
-  $("#archives_tree_overlay_for_cart_action").height('100%');
-  $("#archives_tree_overlay_for_cart_action").siblings(".spinner_for_cart").show().css('top',spinnerTop);
-};
+  };
   
-BulkInstanceUpdate.prototype.removeOverlay = function() {
-  $("#archives_tree_overlay_for_cart_action").height('0%');
-  $("#archives_tree_overlay_for_cart_action").siblings(".spinner_for_cart").hide().css('top','');
-};
-
-$(function() {
-  if (typeof CURRENT_REPO_URI == "undefined") {
-    return;
-  }
-
-  AS.BulkInstanceUpdate = new BulkInstanceUpdate();
+  // events in the modal - the good stuff
+  var bindSummaryEvents = function($container) {
+    
+    var bulkUpdateOptions = {};
+  
+    $container.
+      // remove and ao from the list
+      on("click", ".remove-from-bulk-updates-btn", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+  
+        var $btn = $(event.target).closest(".btn");
+        var $tr = $btn.closest("tr");
+        $tr.remove();
+      }).
+      // clear everything
+      on("click", ".clear-bulk-updates-btn", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $(this).find('#bulkUpdatePane').children('tbody tr').remove();
+      }).
+      // preview the update
+      on("click", ".dartmouth_bulk_container_updates_preview", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        updateBulkUpdateOptions($container, bulkUpdateOptions);
+        if (bulkUpdateOptions.tc_uri !== undefined && bulkUpdateOptions.ao_uris.length > 0 && bulkUpdateOptions.load_uri.length > 0) {
+          $container.find('.alert').remove();
+          previewBulkUpdates($container, bulkUpdateOptions.ao_uris, $('.top_container.has-popover.initialised').text());
+        }
+        else {
+          bulkUpdatesAlert($container, "warning");
+        }
+      }).
+      // update
+      on("click", ".dartmouth_bulk_container_updates_update", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $container.find('#dartmouth_update_bulk_containers_form').submit();
+      }).
+      // submit handler
+      on('submit','#dartmouth_update_bulk_containers_form', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        updateBulkUpdateOptions($container, bulkUpdateOptions);
+        if (bulkUpdateOptions.tc_uri !== undefined && bulkUpdateOptions.ao_uris.length > 0 && bulkUpdateOptions.load_uri.length > 0) {
+          $container.find('.alert').remove();
+          updateBulkUpdates($container, bulkUpdateOptions.load_uri, bulkUpdateOptions.ao_uris, bulkUpdateOptions.tc_uri);
+        }
+        else {
+          bulkUpdatesAlert($container, "warning");
+        }
+      });
+    
+    // trigger a resize so the modal resizes to fit the container size
+    $(window).trigger("resize");
+  };
+  
 });
