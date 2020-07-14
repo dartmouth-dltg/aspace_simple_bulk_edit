@@ -23,10 +23,11 @@ $(function() {
       $options.append($liUpdate);
       $options.appendTo(btn.closest('.btn-group'));
       $options.on('click', '.bulk-update-enable', function() {
-       $(tree.large_tree.elt).toggleClass('drag-enabled');
+        $(tree.large_tree.elt).toggleClass('drag-enabled');
+        $(this).toggleClass('bulk-enabled');
       });
       $options.on('click', '.bulk-update-open', function() {
-       setupBulkUpdatesEvents();
+        setupBulkUpdatesEvents();
       });
       
       btn.attr('data-toggle', 'dropdown');
@@ -46,11 +47,13 @@ $(function() {
         $(btn).addClass('disabled');
     },
   }
-
-  var res = TreeToolbarConfiguration["resource"];
-  var arch = TreeToolbarConfiguration["archival_object"];
-  TreeToolbarConfiguration["resource"] = [].concat(res).concat([bulkInstanceBtnArr]);
-  TreeToolbarConfiguration["archival_object"] = [].concat(arch).concat([bulkInstanceBtnArr]);
+  
+  if (typeof(TreeToolbarConfiguration) !== 'undefined') {
+    var res = TreeToolbarConfiguration["resource"];
+    var arch = TreeToolbarConfiguration["archival_object"];
+    TreeToolbarConfiguration["resource"] = [].concat(res).concat([bulkInstanceBtnArr]);
+    TreeToolbarConfiguration["archival_object"] = [].concat(arch).concat([bulkInstanceBtnArr]);
+  }
   
   // setup and render the modal
   var setupBulkUpdatesEvents = function() {
@@ -109,14 +112,14 @@ $(function() {
     bulkUpdateOptions.ao_uris = findAoUris($container);
     bulkUpdateOptions.tc_uri = findTcUri($container);
     
-    return bulkUpdateOtions;
+    return bulkUpdateOptions;
   };
   
   // find the ao uris
   var findAoUris = function($container) {
-    var ao_uris = [];
-    $container.find('input[name="uri[]"]').each(function() {
-      ao_uris.push($(this).val());
+    var ao_uris = {};
+    $container.find('input[name^="uri_"]').each(function() {
+      ao_uris[$(this).val()] = $(this).parent().siblings('.component-report-summary-title').children('input').val();
     });
     return ao_uris;
   };
@@ -147,9 +150,11 @@ $(function() {
       return;
     }
     var child_ind_start = $('#child_ind_start').val();
-    $.post(load_url, {uri: ao_uris, tc_uri: tc_uri, child_ind_start: child_ind_start}, function(json) {
+    $.post(load_url, {uri:  JSON.stringify(ao_uris), tc_uri: tc_uri, child_ind_start: child_ind_start}, function(json) {
       if (json.length > 0) {
         bulkUpdatesAlert($container, "success");
+        $container.modal('toggle');
+        window.location.reload();
       }
       else bulkUpdatesAlert($container, "danger");
       
@@ -167,7 +172,6 @@ $(function() {
     }
     
     var child_ind_start = parseInt($container.find('#child_ind_start').val(), 10);
-    console.log(child_ind_start);
     $.each(ao_uris, function(k,v) {
       $('tr[data-uri="' + v + '"]').find('.component-report-summary-box-container').text(tc_num + ' (preview)');
       if (!isNaN(child_ind_start)) {
@@ -236,7 +240,7 @@ $(function() {
         event.preventDefault();
         event.stopPropagation();
         updateBulkUpdateOptions($container, bulkUpdateOptions);
-        if (bulkUpdateOptions.tc_uri !== undefined && bulkUpdateOptions.ao_uris.length > 0 && bulkUpdateOptions.load_uri.length > 0) {
+        if (bulkUpdateOptions.tc_uri !== undefined && Object.keys(bulkUpdateOptions.ao_uris).length > 0 && bulkUpdateOptions.load_uri.length > 0) {
           $container.find('.alert').remove();
           updateBulkUpdates($container, bulkUpdateOptions.load_uri, bulkUpdateOptions.ao_uris, bulkUpdateOptions.tc_uri);
         }

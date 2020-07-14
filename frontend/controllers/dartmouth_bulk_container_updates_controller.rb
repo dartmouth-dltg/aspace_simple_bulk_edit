@@ -10,13 +10,7 @@ class DartmouthBulkContainerUpdatesController < ApplicationController
     tc_uri = ASUtils.as_array(params[:tc_uri])
     child_ind_start = ASUtils.as_array(params[:child_ind_start]).empty? ? nil : ASUtils.as_array(params[:child_ind_start])
     
-    #ao_uris.each_with_index do |uri, index|
-      #ao_id = JSONModel.parse_reference(uri)[:id]
-      #repo_id = JSONModel.parse_reference(uri)[:repository]
-      #indicator_2 = child_ind_start.nil? ? nil : (index + child_ind_start).to_s
-      # update_ao(ao_id, repo_id, tc_uri, indicator_2)
-    #end
-    response = JSONModel::HTTP.post_form("/plugins/dartmouth_bulk_container_update/repositories/#{session[:repo_id]}/update", "uri[]" => ao_uris,"tc_uri" => tc_uri, "child_ind_start" => child_ind_start )
+    response = JSONModel::HTTP.post_form("/plugins/dartmouth_bulk_container_update/repositories/#{session[:repo_id]}/update", "uri[]" => ao_uris, "tc_uri" => tc_uri, "child_ind_start" => child_ind_start )
     render :json => ASUtils.json_parse(response.body), :status => response.code
   end
   

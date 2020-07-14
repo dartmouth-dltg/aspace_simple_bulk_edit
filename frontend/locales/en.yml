@@ -8,13 +8,14 @@ en:
     loading: Loading the archival objects to update...
     preview: Preview Updates
     success: All archival objects have ben updated. Please close this window and refresh the page.
-    title: Change Container Instances for Files & Items
+    title: Change Titles and Container Instances for Files & Items
     update: Update Instances
     warning: Check that you have archival objects to change and that you have selected a top container!
     
     summary:
       box_number: Box Number
       child_number: File Number
+      remove: Remove
       title: Title
       uri: URI
     

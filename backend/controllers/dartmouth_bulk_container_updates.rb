@@ -26,13 +26,13 @@ class ArchivesSpaceService < Sinatra::Base
   .permissions([:update_resource_record])
   .returns([200, :updated]) \
   do
-    logger=Logger.new($stderr)
-    logger.debug("ind2: #{params[:child_ind_start]}")
-    params[:uri].each_with_index do |uri, index|
-      ao_id = JSONModel.parse_reference(uri)[:id]
-      repo_id = params[:repo_id]
-      indicator_2 = params[:child_ind_start].nil? ? nil : (index + params[:child_ind_start].to_i).to_s
-      update_ao(ao_id, repo_id, params[:tc_uri], indicator_2)
+    params[:uri].each do |uri_hash|
+      ASUtils.json_parse(uri_hash).each_with_index do |(uri,title), index|
+        ao_id = JSONModel.parse_reference(uri)[:id]
+        repo_id = params[:repo_id]
+        indicator_2 = params[:child_ind_start].empty? ? nil : (index + params[:child_ind_start].to_i).to_s
+        update_ao(ao_id, title, repo_id, params[:tc_uri], indicator_2)
+      end
     end
     
     json_response(params[:uri])
@@ -40,11 +40,14 @@ class ArchivesSpaceService < Sinatra::Base
   
   private
   
-  def update_ao(id, repo_id, new_tc_id, indicator_2, inst = nil)
-    logger = Logger.new($stderr)
-    logger.debug("ind 2: #{indicator_2}")
+  def update_ao(id, title, repo_id, new_tc_id, indicator_2, inst = nil)
+
     RequestContext.open(:repo_id => repo_id) do
       ao, ao_json = get_ao_object(id)
+      # update the title
+      unless title.nil?
+        ao['title'] = title
+      end
       
       if ao_json['instances'].find{ |i| i.has_key?("sub_container")}.nil?
         if inst.nil?
@@ -68,13 +71,12 @@ class ArchivesSpaceService < Sinatra::Base
       end
       # add it back in
       ao_json['instances'] << inst
-      logger.debug("AO JSON: #{ao_json}")
+
       # update the ao
       ao.update_from_json(JSONModel(:archival_object).from_hash(ao_json))
-      
+
       # update any descendants
       update_ao_descendants(id, repo_id, new_tc_id, indicator_2, inst)
-
     end
     
   end
@@ -92,7 +94,8 @@ class ArchivesSpaceService < Sinatra::Base
     if descendants.count > 0
       descendants.each do |item_uri|
         child_id = JSONModel.parse_reference(item_uri)[:id]
-        update_ao(child_id, repo_id, new_tc_id, indicator_2, inst)
+        # set the title to be nil so we don't update it for descendants
+        update_ao(child_id, nil, repo_id, new_tc_id, indicator_2, inst)
       end
     end
   end
