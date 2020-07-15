@@ -45,7 +45,7 @@ class ArchivesSpaceService < Sinatra::Base
     RequestContext.open(:repo_id => repo_id) do
       ao, ao_json = get_ao_object(id)
       
-      # update the title
+      # update the title if one exists
       unless title.nil?
         ao['title'] = title
       end
