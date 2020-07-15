@@ -19,19 +19,19 @@ class ArchivesSpaceService < Sinatra::Base
   Endpoint.post('/plugins/aspace_simple_bulk_edit/repositories/:repo_id/update')
   .description("Return resolved JSON of the records to update")
   .params(["repo_id", :repo_id],
-          ["uri", [String], "The uris of the records to update"],
-          ["tc_uri", String, "The uri of the top conatiner to link to"],
-          ["child_ind_start", String, "The start of the child indicators"]
+          ["uri", [String], "The uris of the records to update"]
           )
   .permissions([:update_resource_record])
   .returns([200, :updated]) \
   do
     params[:uri].each do |uri_hash|
-      ASUtils.json_parse(uri_hash).each_with_index do |(uri,title), index|
-        ao_id = JSONModel.parse_reference(uri)[:id]
+      ASUtils.json_parse(uri_hash).each_with_index do |ao|
+        ao_id = JSONModel.parse_reference(ao['uri'])[:id]
         repo_id = params[:repo_id]
-        indicator_2 = params[:child_ind_start].empty? ? nil : (index + params[:child_ind_start].to_i).to_s
-        update_ao(ao_id, title, repo_id, params[:tc_uri], indicator_2)
+        indicator_2 = ao['child_indicator']
+        tc_uri = ao['tc_uri'].nil? ? "" : ao['tc_uri']
+        title = ao['title'].nil? ? nil : ao['title']
+        update_ao(ao_id, title, repo_id, tc_uri, indicator_2)
       end
     end
     
@@ -44,33 +44,14 @@ class ArchivesSpaceService < Sinatra::Base
 
     RequestContext.open(:repo_id => repo_id) do
       ao, ao_json = get_ao_object(id)
+      
       # update the title
       unless title.nil?
         ao['title'] = title
       end
       
-      if ao_json['instances'].find{ |i| i.has_key?("sub_container")}.nil?
-        if inst.nil?
-          # create instance
-          inst = dart_create_container_instance("mixed_materials", new_tc_id, indicator_2)
-        end
-      else
-        # find the container instance (naively assume only one)
-        inst = ao_json['instances'].find{ |i| i.has_key?("sub_container")}
-        # remove it
-        ao_json['instances'] = ao_json['instances'] - [inst]
-        # update it
-        inst['sub_container']['top_container']['ref'] = new_tc_id
-        # update child indicator if needed and add type if not present
-        unless indicator_2.nil?
-          inst['sub_container']['indicator_2'] = indicator_2
-          unless inst['sub_container']['type_2']
-            inst['sub_container']['type_2'] = "folder"
-          end
-        end
-      end
-      # add it back in
-      ao_json['instances'] << inst
+      # create or update the container instance
+      update_container_instance(ao_json, new_tc_id, indicator_2, inst)
 
       # update the ao
       ao.update_from_json(JSONModel(:archival_object).from_hash(ao_json))
@@ -98,6 +79,42 @@ class ArchivesSpaceService < Sinatra::Base
         update_ao(child_id, nil, repo_id, new_tc_id, indicator_2, inst)
       end
     end
+  end
+  
+  def update_container_instance(ao_json, new_tc_id, indicator_2, inst)
+    
+    # create instance if there isn't one and a new_tc_id is supplied
+    if ao_json['instances'].find{ |i| i.has_key?("sub_container")}.nil? && !new_tc_id.empty?
+      if inst.nil?
+        inst = dart_create_container_instance("mixed_materials", new_tc_id, indicator_2)
+      end
+      
+    # otherwise update the existing container
+    else
+      # find the container instance (naively assume only one)
+      inst = ao_json['instances'].find{ |i| i.has_key?("sub_container")}
+      
+      # remove it
+      ao_json['instances'] = ao_json['instances'] - [inst]
+      
+      # update it if there is a new_tc_id
+      unless new_tc_id.empty?
+        inst['sub_container']['top_container']['ref'] = new_tc_id
+      end
+      
+      # update child indicator if needed and add type if not present
+      unless indicator_2.nil?
+        inst['sub_container']['indicator_2'] = indicator_2
+        unless inst['sub_container']['type_2']
+          inst['sub_container']['type_2'] = "folder"
+        end
+      end
+    end
+    
+    # add it back in
+    ao_json['instances'] << inst
+    
+    ao_json
   end
   
   # shorthand for creating a mixed materials, folder instance hash

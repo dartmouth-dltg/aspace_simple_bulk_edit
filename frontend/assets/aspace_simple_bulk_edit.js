@@ -103,15 +103,15 @@ $(function() {
   
   // get the new top container uri
   var findGlobalTcUri = function($container) {
-    return $container.find('input[name="archival_record_children[children][0][instances][0][sub_container][top_container][ref]"]').val();
+    return $container.find('#bulkUpdateContainerTypeahead').find('input[name="archival_record_children[children][0][instances][0][sub_container][top_container][ref]"]').val();
   };
   
   // get the ao tc uri
   // if the uri for that ao is not filled, default to the global tc
   var findAoTcUri = function($container, el) {
-    ao_tc_uri = el.parent().siblings('.aspace-simple-bulk-edit-summary-new-container').find('input[id^="token"]').val();
-    
-    if (ao_tc_uri.length < 1){
+    ao_tc_uri = el.parent().siblings('.aspace-simple-bulk-edit-summary-new-container').find('input[name*="[instances][0][sub_container][top_container][ref]"]').val();
+
+    if (typeof ao_tc_uri === 'undefined'){
       if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked')) {
         ao_tc_uri = findGlobalTcUri($container);
       }
@@ -166,7 +166,7 @@ $(function() {
   var loadSimpleBulkEdits = function($container, data, onComplete) {
     var load_url = $container.data("load-url");
   
-    if (typeof load_url == "undefined") {
+    if (typeof load_url === 'undefined') {
       return;
     }
   
@@ -188,20 +188,19 @@ $(function() {
 
     if (validate($container, simpleBulkEditsOptions)) {
       $container.find('.alert').remove();
-    console.log(simpleBulkEditsOptions.load_uri);
-    console.log(JSON.stringify(simpleBulkEditsOptions.aos));
-      //$.post(simpleBulkEditsOptions.load_uri, {uri:  JSON.stringify(simpleBulkEditsOptions.aos)}, function(json) {
-      //  if (json.length > 0) {
-      //    simpleBulkEdits($container, "success");
-      //    $container.modal('toggle');
-      //    window.location.reload();
-      //  }
-      //  else simpleBulkEditsAlert($container, "danger");
-      //  
-      //  if (onComplete) {
-      //    onComplete();
-      //  }
-      //});
+
+      $.post(simpleBulkEditsOptions.load_uri, {uri:  JSON.stringify(simpleBulkEditsOptions.aos)}, function(json) {
+        if (json.length > 0) {
+          simpleBulkEditsAlert($container, "success");
+          $container.modal('toggle');
+          window.location.reload();
+        }
+        else simpleBulkEditsAlert($container, "danger");
+        
+        if (onComplete) {
+          onComplete();
+        }
+      });
     }
     else {
       simpleBulkEditsAlert($container, "warning");
@@ -237,18 +236,18 @@ $(function() {
     // check each ao data set - specifically the title
     // aos are structured like {load_uri: LOAD_URI aos: {{URI1 => {title => TITLE, tc_uri => TC_URI, child_indicator => CHILD_IND}, URI2 => {}}}
     $(options.aos).each(function(k,v) {
-      if (v.title.length < 1) {
+      if (v.title.replace(/\s+/g,"").length < 1) {
         $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-title input').addClass('bg-danger');
         valid = false;
       }
     });
     
     // check the global tc_uri
-    if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked') && findGlobalTcUri($container) !== 'undefined') {
+    if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked') && typeof findGlobalTcUri($container) === 'undefined') {
       $container.find('#aspace-simple-bulk-edit-use-global-tc').parent('label').addClass('bg-danger');
       valid = false;
     }
-    
+
     // remove any validation warnings
     if (valid) {
       $container.find('#aspace-simple-bulk-edit-use-global-tc').parent('label').removeClass('bg-danger');

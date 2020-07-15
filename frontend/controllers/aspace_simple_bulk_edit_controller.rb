@@ -7,10 +7,7 @@ class AspaceSimpleBulkEditController < ApplicationController
   def update
     
     ao_uris = ASUtils.as_array(params[:uri])
-    tc_uri = ASUtils.as_array(params[:tc_uri])
-    child_ind_start = ASUtils.as_array(params[:child_ind_start]).empty? ? nil : ASUtils.as_array(params[:child_ind_start])
-    
-    response = JSONModel::HTTP.post_form("/plugins/aspace_simple_bulk_edit/repositories/#{session[:repo_id]}/update", "uri[]" => ao_uris, "tc_uri" => tc_uri, "child_ind_start" => child_ind_start )
+    response = JSONModel::HTTP.post_form("/plugins/aspace_simple_bulk_edit/repositories/#{session[:repo_id]}/update", "uri[]" => ao_uris)
     render :json => ASUtils.json_parse(response.body), :status => response.code
   end
   
@@ -28,7 +25,5 @@ class AspaceSimpleBulkEditController < ApplicationController
     render_aspace_partial :partial => "aspace_simple_bulk_edit/summary"
     
   end
-  
-  # all following this needs to be in the backend
 
 end
