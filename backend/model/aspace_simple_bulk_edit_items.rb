@@ -1,31 +1,31 @@
 require 'aspace_logger'
-class DartmouthBulkContainerUpdateItems
+class AspaceSimpleBulkEditItems
   
   include JSONModel
     
-  attr_accessor :dartmouth_bulk_container_update_items
+  attr_accessor :aspace_simple_bulk_edit_items
     
   def initialize(uris)
     @uris = uris
-    @dartmouth_bulk_container_update_items = []
-    build_bulk_container_upate_items
+    @aspace_simple_bulk_edit_items = []
+    build_aspace_simple_bulk_edit_items
   end
 
-  def build_bulk_container_upate_items
+  def build_aspace_simple_bulk_edit_items
     @uris.each do | uri |
       if record_exists?(uri)
-        build_bulk_container_upate_item_for(uri)
+        build_aspace_simple_bulk_edit_item_for(uri)
       end
     end
   end
 
-  def build_bulk_container_upate_item_for(uri)
+  def build_aspace_simple_bulk_edit_item_for(uri)
 
-    bulk_container_upate_item = { "selected" => {"ref" => uri} }
+    bulk_edit_item = { "selected" => {"ref" => uri} }
 
     parsed = JSONModel.parse_reference(uri)
-    bulk_container_upate_item[parsed[:type]] = { "ref" => uri }
-    @dartmouth_bulk_container_update_items << bulk_container_upate_item
+    bulk_edit_item[parsed[:type]] = { "ref" => uri }
+    @aspace_simple_bulk_edit_items << bulk_edit_item
     
   end
   

@@ -4,19 +4,19 @@ class ArchivesSpaceService < Sinatra::Base
   
   include JSONModel
   
-  Endpoint.post('/plugins/dartmouth_bulk_container_update/repositories/:repo_id/summary')
+  Endpoint.post('/plugins/aspace_simple_bulk_edit/repositories/:repo_id/summary')
   .description("Return resolved JSON of the records to update")
   .params(["repo_id", :repo_id],
           ["uri", [String], "The uris of the records to update"])
   .permissions([:update_resource_record])
   .returns([200, "[(:dartmouth_bulk_container_update_item)]"]) \
   do
-    bulk_updates = DartmouthBulkContainerUpdateItems.new(params[:uri])
+    bulk_updates = AspaceSimpleBulkEditItems.new(params[:uri])
 
-    json_response(resolve_references(bulk_updates.dartmouth_bulk_container_update_items, ["archival_object","archival_object::_resolved::instances::sub_container::top_container"]))
+    json_response(resolve_references(bulk_updates.aspace_simple_bulk_edit_items, ["archival_object","archival_object::_resolved::instances::sub_container::top_container"]))
   end
   
-  Endpoint.post('/plugins/dartmouth_bulk_container_update/repositories/:repo_id/update')
+  Endpoint.post('/plugins/aspace_simple_bulk_edit/repositories/:repo_id/update')
   .description("Return resolved JSON of the records to update")
   .params(["repo_id", :repo_id],
           ["uri", [String], "The uris of the records to update"],

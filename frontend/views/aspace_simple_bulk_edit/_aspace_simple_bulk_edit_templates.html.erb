@@ -1,0 +1,78 @@
+<div id="template_aspace_simple_bulk_edit_toolbar_action"><!--
+      <button id="aspace_simple_bulk_edit" title="<%= I18n.t("aspace_simple_bulk_edit.title") %>" class="btn btn-default btn-xs show-aspace_simple_bulk_edit-btn" disabled>
+        <span class="glyphicon glyphicon-refresh"></span>
+         <%= I18n.t("aspace_simple_bulk_edit.update") %>
+        <span class="badge aspace_simple_bulk_edit-count"></span>
+      </button>
+    </div>
+--></div>
+
+<div id="template_aspace_simple_bulk_edit_dialog_title"><!--
+  <%= I18n.t("aspace_simple_bulk_edit.title") %>
+--></div>
+
+<div id="template_aspace_simple_bulk_edit_dialog_contents"><!--
+  <%= form_tag({:controller => :aspace_simple_bulk_edit, :action => :update}, {:class => "form-horizontal", :id => "aspace_simple_bulk_edit_form", :target => "_blank" }) do -%>
+  {if ($.isEmptyObject(selected))}
+    <div class="alert alert-info"><%= I18n.t("aspace_simple_bulk_edit.is_empty") %></div>
+  {else}
+      <div id="bulkUpdateContainerTypeahead" class="row">
+        <div class="controls col-sm-6">
+          <%= I18n.t("aspace_simple_bulk_edit.choose_top_container") %>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="aspace-simple-bulk-edit-use-global-tc"><%= I18n.t("aspace_simple_bulk_edit.use_global") %>
+            </label>
+          </div>
+          <div class="input-group linker-wrapper multiplicity-one">
+            <input type="text" class="linker" id="archival_record_children_children__0__instances__0__sub_container__top_container__ref_" data-label="Top Container" data-label_plural="Top Containers" data-name="ref" data-path="archival_record_children[children][0][instances][0][sub_container][top_container]" data-url="/top_containers/search/typeahead.json?uri=${resource_uri}" data-browse-url="/top_containers/bulk_operations/browse" data-selected="{}" data-multiplicity="one" data-types="[&quot;top_container&quot;]" data-exclude="[]" style="display: none;">
+          </div>
+        </div>
+        <div class="controls col-sm-6">
+          <%= I18n.t("aspace_simple_bulk_edit.choose_child_indicator_start") %>
+          <div class="input-group">
+            <input type="number" id="child_ind_start" name="child_ind_start">
+            <button class="btn btn-default" id="aspace-simple-edit-fill-indicators"><%= I18n.t("aspace_simple_bulk_edit.fill_child_indicators") %></button>
+          </div>
+        </div>
+      </div>
+      <div id="bulkUpdatePane" data-load-url="<%= url_for :controller => :aspace_simple_bulk_edit, :action => :summary %>">
+        <div class="alert alert-info">
+          <%= I18n.t("aspace_simple_bulk_edit.loading") %>
+        </div>
+      </div>
+  {/if}
+  <% end %>
+--></div>
+
+<div id="template_aspace_simple_bulk_edit_dialog_footer"><!--
+<div class="modal-footer">
+  <button class="btn btn-primary pull-left aspace_simple_bulk_edits_update"><%= I18n.t("aspace_simple_bulk_edit.update") %></button>
+  <button class="btn btn-default pull-right" data-dismiss="modal"><%= I18n.t("actions.close") %></button>
+  <button class="btn btn-warning pull-right clear-bulk-updates-btn" data-dismiss="modal"><%= I18n.t("aspace_simple_bulk_edit.clear_selection_button")  %></button>
+</div>
+
+--></div>
+
+<div id="template_aspace_simple_bulk_edit_alert"><!--
+<div class="alert alert-${alert_type} alert-dismissible fade in" role="alert">
+<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+<p>
+  {if alert_type == "warning"}
+  <%= I18n.t("aspace_simple_bulk_edit.warning") %>
+  {/if}
+  {if alert_type == "danger"}
+  <%= I18n.t("aspace_simple_bulk_edit.danger") %>
+  {/if}
+  {if alert_type == "success"}
+   <case "success:}> <%= I18n.t("aspace_simple_bulk_edit.success") %>
+  {/if}
+</p>
+</div>
+--></div>
+
+<% if current_user && current_repo %>
+<script>
+  var CURRENT_REPO_URI = '<%= current_repo.uri %>'
+</script>
+<% end %>

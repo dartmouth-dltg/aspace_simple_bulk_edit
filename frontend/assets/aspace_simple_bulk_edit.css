@@ -4,13 +4,13 @@
     margin-bottom: 20px;
 }
 
-.bulk-update-enable.bulk-enabled::before {
+.simple-bulk-edit-enable.simple-bulk-edit-enabled::before {
     float: right;
     color: green;
     content: "\e013";
     font-family: "Glyphicons Halflings";
 }
 
-.component-report-summary-title input {
+.aspace-simple-bulk-edit-summary-title input {
     width: 100%;
 }

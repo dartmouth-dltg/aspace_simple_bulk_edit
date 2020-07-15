@@ -1,5 +1,5 @@
 ArchivesSpace::Application.routes.draw do
-  match('/plugins/dartmouth_bulk_container_update/update' => 'dartmouth_bulk_container_updates#update', :via => [:post])
-  match('/plugins/dartmouth_bulk_container_update/summary' => 'dartmouth_bulk_container_updates#summary', :via => [:post])
+  match('/plugins/aspace_simple_bulk_edit/update' => 'aspace_simple_bulk_edit#update', :via => [:post])
+  match('/plugins/aspace_simple_bulk_edit/summary' => 'aspace_simple_bulk_edit#summary', :via => [:post])
 
 end

@@ -1,0 +1,50 @@
+<% if @dartmouth_bulk_container_update_items.empty? %>
+  <div class="alert alert-info"><%= I18n.t("aspace_simple_bulk_edit.is_empty") %></div>
+<% else %>
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th><%= I18n.t("aspace_simple_bulk_edit.summary.title") %></th>
+        <th><%= I18n.t("aspace_simple_bulk_edit.summary.container") %></th>
+        <th><%= I18n.t("aspace_simple_bulk_edit.summary.new_container") %></th>
+        <th><%= I18n.t("aspace_simple_bulk_edit.summary.child_indicator") %></th>
+        <th><!-- actions --></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @dartmouth_bulk_container_update_items.each_with_index do |ao, index| %>
+        
+        <%
+        item = ao["archival_object"]["_resolved"]
+        next if !["file","item"].include?(item["level"])
+        inst = item["instances"].find{|instance| instance.has_key?("sub_container")}
+        if inst.nil?
+          container = "No container found"
+        else
+          if inst["sub_container"]["top_container"] && inst["sub_container"]["top_container"]["_resolved"] && inst["sub_container"]["top_container"]["_resolved"]["indicator"]
+            container = inst["sub_container"]["top_container"]["_resolved"]["display_string"]
+          end
+        end
+        %>
+        <tr data-uri="<%= ao["selected"]["ref"] %>">
+          <td class="aspace-simple-bulk-edit-summary-title"><input type="text" value="<%= item['title'] %>"></td>
+          <td class="aspace-simple-bulk-edit-summary-old-container"><%= container %></td>
+          <td class="aspace-simple-bulk-edit-summary-new-container">
+            <div class="input-group linker-wrapper multiplicity-one">
+              <input type="text" id="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref_" class="linker" data-label="Top Container" data-label_plural="Top Containers" data-name="ref" data-path="archival_record_children[children][<%= index + 1 %>][instances][0][sub_container][top_container]" data-url="/top_containers/search/typeahead.json?uri=<%= item['resource']['ref'] %>" data-browse-url="/top_containers/bulk_operations/browse" data-selected="{}" data-multiplicity="one" data-types="[&quot;top_container&quot;]" data-exclude="[]" style="display: none;">
+            </div>
+          </td>
+          <td class="aspace-simple-bulk-edit-summary-child-indicator"><input type="text" value="<%= inst["sub_container"]["indicator_2"] rescue "" %>"></td>
+          <td class="aspace-simple-bulk-edit-summary-actions">
+            <%= hidden_field_tag "uri_#{ao["selected"]["ref"]}", ao["selected"]["ref"] %>
+            <div class="btn-group">
+              <button class="btn btn-xs btn-warning remove-from-bulk-updates-btn" data-uri="<%= ao["selected"]["ref"] %>">
+                <span class="glyphicon glyphicon-remove"></span> <%= I18n.t("aspace_simple_bulk_edit.summary.remove") %>
+              </button>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

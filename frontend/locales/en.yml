@@ -1,21 +1,24 @@
 en:
-  dartmouth_bulk_container_updates:
+  aspace_simple_bulk_edit:
     choose_top_container: Select the top container which will be used to update all of the archival obejcts in the list below. Each archival object will be associated with the chosen top container.
     choose_child_indicator_start: Choose the starting number for the child indicator(s) (optional). This will renumber the child indicators starting from the chosen number and increasing by one in order of the archival objects shown below.
     clear_selection_button: Clear all items
     danger: Something went wrong with the update.
+    fill_child_indicators: Fill
     is_empty: There are no archival obejcts selected.
     loading: Loading the archival objects to update...
     preview: Preview Updates
     success: All archival objects have ben updated. Please close this window and refresh the page.
     title: Change Titles and Container Instances for Files & Items
     update: Update Instances
-    warning: Check that you have archival objects to change and that you have selected a top container!
+    use_global: Use global top container
+    warning: Check that you have archival objects to change, that you have selected a global top container if the use global top container checkbox is selected, and that all archival objects have titles.
     
     summary:
-      box_number: Box Number
-      child_number: File Number
+      child_indicator: Child Indicator
+      container: Container
+      new_container: New Container
       remove: Remove
       title: Title
       uri: URI
-    
+      
