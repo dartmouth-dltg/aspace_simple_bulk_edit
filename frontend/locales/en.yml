@@ -1,7 +1,9 @@
 en:
   aspace_simple_bulk_edit:
     choose_top_container: Select the top container which may be used to update all of the archival objects in the list below. Each archival object will be associated with the chosen top container if the use global checkbox is selected and a new container has not been individually chosen for that archival object.
+    choose_top_container_title: Top Container
     choose_child_indicator_start: Choose the starting number for the child indicator(s) (optional). Click 'Fill' to renumber the child indicators starting from the chosen number and increasing by one in order of the archival objects shown below.
+    choose_child_indicator_start_title: Child Indicator
     clear_selection_button: Clear all items
     danger: Something went wrong with the update.
     fill_child_indicators: Fill
@@ -9,7 +11,7 @@ en:
     loading: Loading the archival objects to update...
     preview: Preview Updates
     success: All archival objects have ben updated. Please close this window and refresh the page.
-    title: Change Titles and Container Instances for Files & Items
+    title: Simple Bulk Edit
     update: Update Instances
     use_global: Use global top container
     warning: Check that you have archival objects to change, that you have selected a global top container if the use global top container checkbox is selected, and that all archival objects have titles.
@@ -17,8 +19,11 @@ en:
     summary:
       child_indicator: Child Indicator
       container: Current Container
+      date: Date(s)
+      date_begin: Begin
+      date_end: End
+      date_expression: Expression
       new_container: New Container
-      remove: Remove
       title: Title
       uri: URI
       

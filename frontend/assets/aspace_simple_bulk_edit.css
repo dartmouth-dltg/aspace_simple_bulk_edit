@@ -14,3 +14,7 @@
 .aspace-simple-bulk-edit-summary-title input {
     width: 100%;
 }
+
+input[id^="ao_expression_date"] {
+    width: 100%;
+}

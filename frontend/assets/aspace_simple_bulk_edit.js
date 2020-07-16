@@ -173,6 +173,7 @@ $(function() {
     $.post(load_url, {uri: data}, function(html) {
       $container.html(html);
       $container.find(".linker:not(.initialised)").linker();
+      $container.find('.input-group.date').datepicker();
       bindSummaryEvents($container);
       
       if (onComplete) {
