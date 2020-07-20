@@ -11,6 +11,9 @@
     font-family: "Glyphicons Halflings";
 }
 
+.aspace-simple-bulk-edit-summary-title {
+    min-width: 25%;
+}
 .aspace-simple-bulk-edit-summary-title input {
     width: 100%;
 }
@@ -37,4 +40,22 @@ input[id^="ao_expression_date"] {
 
 .aspace-simple-bulk-edit-date-expression .input-group {
     width: 100%;
+}
+
+.aspace-simple-bulk-edit-current-container, 
+.aspace-simple-bulk-edit-instance-type,
+.aspace-simple-bulk-edit-container-type {
+    width: 100%;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+.aspace-simple-bulk-edit-current-container .current-container {
+    font-style: italic;
+    margin-left: 8px;
+}
+
+.aspace-simple-bulk-edit-type-warn {
+    padding: 4px;
 }

@@ -20,6 +20,15 @@ class AspaceSimpleBulkEditController < ApplicationController
     else
       response = JSONModel::HTTP.post_form("/plugins/aspace_simple_bulk_edit/repositories/#{session[:repo_id]}/summary", "uri[]" => uris)
       @dartmouth_bulk_container_update_items = ASUtils.json_parse(response.body)
+      
+      # get the date type enumeration values
+      @date_types = JSONModel::HTTP.get_json("/config/enumerations/names/date_type")
+      
+      # get the instance types values
+      @instance_types = JSONModel::HTTP.get_json("/config/enumerations/names/instance_instance_type")
+      
+      # get the chld type values
+      @container_types = JSONModel::HTTP.get_json("/config/enumerations/names/container_type")
     end
     
     render_aspace_partial :partial => "aspace_simple_bulk_edit/summary"

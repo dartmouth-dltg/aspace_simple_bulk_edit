@@ -142,10 +142,12 @@ $(function() {
         title: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-title').children('input').val(),
         tc_uri: findAoTcUri($container, $(this)),
         child_indicator: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-child-indicator').children('input').val(),
+        child_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-child-indicator').children('select option:selected').val(),
         date_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('select option:selected').val(),
         date_begin: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').children('.aspace-simple-bulk-edit-date-begin').find('input').val(),
         date_end: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').children('.aspace-simple-bulk-edit-date-end').find('input').val(),
         date_expression: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').children('.aspace-simple-bulk-edit-date-expression').find('textarea').val(),
+        instance_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-new-container').children('select[id^="aspace_simple_bulk_edit_instance_type"] option:selected').val(),
       };
       aos.push(ao);
     });
@@ -219,6 +221,19 @@ $(function() {
     }
   };
   
+  var simpleBulkEditsTypeWarn = function(el, type, message) {
+    if (el.children('option:selected').val() == "none") {
+      var type_warn = AS.renderTemplate("template_aspace_simple_bulk_edit_type_warn", {
+        type: type,
+        message: message,
+      });
+      el.closest('div').append(type_warn);
+    }
+    else {
+      el.closest('div').find('.aspace-simple-bulk-edit-type-warn').remove();
+    }
+  };
+  
   // alerts if things aren't ready or go wrong
   var simpleBulkEditsAlert = function($container, alert_type) {
     
@@ -240,8 +255,9 @@ $(function() {
   // validate each entry
   // Rules
   // 1. the title must not be empty
-  // 2. If the use global tc is checked, then the global tc uri must have a value
-  // we must have a valid load_uri
+  // 2. if the use global tc is checked, then the global tc uri must have a value
+  // 3. we must have a valid load_uri
+  // 4. dates must be valid and have the correct properties
   var validate = function($container, options) {
     var valid = true;
     
@@ -335,6 +351,27 @@ $(function() {
             $(this).closest('td').find('.aspace-simple-bulk-edit-date-end').show();
             break;
         }
+      }).
+      // container type
+      on('change', '.aspace-simple-bulk-edit-container-type select', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        simpleBulkEditsTypeWarn($(this), 'child', 'child type and indicator');
+      }).
+      // date type
+      on('change', '.aspace-simple-bulk-edit-date-type select', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        simpleBulkEditsTypeWarn($(this), 'date', 'date');
+      }).
+      // instance type
+      on('change', '.aspace-simple-bulk-edit-instance-type select', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        simpleBulkEditsTypeWarn($(this), 'instance', 'instance');
       }).
       // remove and ao from the list
       on("click", ".remove-from-bulk-updates-btn", function(event) {
