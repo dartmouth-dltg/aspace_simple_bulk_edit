@@ -39,7 +39,7 @@ class ArchivesSpaceService < Sinatra::Base
         date["end"] = ao["date_end"] unless ao["date_end"].empty?
         date["expression"] = ao["date_expression"] unless ao["date_expression"].empty?
         
-        AspaceSimpleBulkEditUpdate::update_ao(ao_id, title, repo_id, tc_uri, indicator_2, date)
+        AspaceSimpleBulkEditHandler::update_ao(ao_id, title, repo_id, tc_uri, indicator_2, date)
       end
     end
     

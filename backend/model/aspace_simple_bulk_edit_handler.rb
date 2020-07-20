@@ -1,5 +1,5 @@
 require 'aspace_logger'
-class AspaceSimpleBulkEditUpdate
+class AspaceSimpleBulkEditHandler
   
   def self.update_ao(id, title, repo_id, new_tc_id, indicator_2, inst = nil, date)
 

@@ -198,7 +198,7 @@ $(function() {
       $container.find('.alert').remove();
 
       $.post(simpleBulkEditsOptions.load_uri, {uri:  JSON.stringify(simpleBulkEditsOptions.aos)}, function(json) {
-        $container.scrollTop();
+        $container.find('.modal-body').animate({ scrollTop: 0 }, 'slow');
         if (Object.keys(json).length > 0) {
           if (json.issues.length > 0) {
             $container.find('.modal-body').prepend('<div class="alert alert-warning alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><p>' + json.issues + '</p></div>');
