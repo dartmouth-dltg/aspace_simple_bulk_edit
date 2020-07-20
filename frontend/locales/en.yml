@@ -10,11 +10,19 @@ en:
     is_empty: There are no archival obejcts selected.
     loading: Loading the archival objects to update...
     preview: Preview Updates
-    success: All archival objects have ben updated. Please close this window and refresh the page.
+    success: All archival objects have been updated. Please close this window to refresh the page.
+    success_with_issues: "All archival objects have been updated, though the following issues were encountered:<br /> %{content}"
     title: Simple Bulk Edit
     update: Update Instances
     use_global: Use global top container
     warning: Check that you have archival objects to change, that you have selected a global top container if the use global top container checkbox is selected, and that all archival objects have titles.
+    
+    error:
+      invalid_date: "Invalid date definition (%{what}) for %{date_str} for %{title}. The date will not be processed."
+    
+    warn:
+      single_date_end: "Single date %{date_str} for %{title} has end date that will be ignored."
+      no_title: "New title is empty for %{title}. Keeping original title."
     
     summary:
       child_indicator: Child Indicator

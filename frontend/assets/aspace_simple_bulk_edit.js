@@ -45,6 +45,7 @@ $(function() {
     },
     onToolbarRendered: function(btn, toolbarRenderer) {
         $(btn).addClass('disabled');
+        $(btn).closest('#tree-container').removeClass('drag-enabled');
     },
   }
   
@@ -127,20 +128,24 @@ $(function() {
   var updateSimpleBulkEditsOptions = function($container) {
     var simpleBulkEditsOptions = {};
     simpleBulkEditsOptions.load_uri = $('#aspace_simple_bulk_edit_form').attr('action');
-    simpleBulkEditsOptions.aos = FindAoData($container);
+    simpleBulkEditsOptions.aos = findAoData($container);
     
     return simpleBulkEditsOptions;
   };
   
   // find the ao uris
-  var FindAoData = function($container) {
+  var findAoData = function($container) {
     aos = [];
     $container.find('input[name^="uri_"]').each(function() {
       ao = {
         uri: $(this).val(),
         title: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-title').children('input').val(),
         tc_uri: findAoTcUri($container, $(this)),
-        child_indicator: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-child-indicator').children('input').val()
+        child_indicator: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-child-indicator').children('input').val(),
+        date_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('select option:selected').val(),
+        date_begin: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').children('.aspace-simple-bulk-edit-date-begin').find('input').val(),
+        date_end: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').children('.aspace-simple-bulk-edit-date-end').find('input').val(),
+        date_expression: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').children('.aspace-simple-bulk-edit-date-expression').find('textarea').val(),
       };
       aos.push(ao);
     });
@@ -173,7 +178,9 @@ $(function() {
     $.post(load_url, {uri: data}, function(html) {
       $container.html(html);
       $container.find(".linker:not(.initialised)").linker();
-      $container.find('.input-group.date').datepicker();
+      $container.find('.input-group.date').datepicker({
+        format: "yyyy-mm-dd"
+      });
       bindSummaryEvents($container);
       
       if (onComplete) {
@@ -191,10 +198,14 @@ $(function() {
       $container.find('.alert').remove();
 
       $.post(simpleBulkEditsOptions.load_uri, {uri:  JSON.stringify(simpleBulkEditsOptions.aos)}, function(json) {
-        if (json.length > 0) {
-          simpleBulkEditsAlert($container, "success");
-          $container.modal('toggle');
-          window.location.reload();
+        $container.scrollTop();
+        if (Object.keys(json).length > 0) {
+          if (json.issues.length > 0) {
+            $container.find('.modal-body').prepend('<div class="alert alert-warning alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><p>' + json.issues + '</p></div>');
+          }
+          else {
+            simpleBulkEditsAlert($container, "success");
+          }
         }
         else simpleBulkEditsAlert($container, "danger");
         
@@ -212,13 +223,18 @@ $(function() {
   var simpleBulkEditsAlert = function($container, alert_type) {
     
     var alert_template = AS.renderTemplate("template_aspace_simple_bulk_edit_alert", {
-        alert_type: alert_type
+        alert_type: alert_type,
       });
     if ($container.find('div.alert').length > 0) {
       $container.find('div.alert').replaceWith(alert_template);
     }
     else $container.find('.modal-body').prepend(alert_template);
   
+  };
+  
+  var validDate = function(str) {
+    var m = str.split("-").toString();
+    return (m) ? new Date(m) : null;
   };
   
   // validate each entry
@@ -234,12 +250,47 @@ $(function() {
       valid = false;
     }
     
-    // check each ao data set - specifically the title
-    // aos are structured like {load_uri: LOAD_URI aos: {{URI1 => {title => TITLE, tc_uri => TC_URI, child_indicator => CHILD_IND}, URI2 => {}}}
+    // check each ao data set - specifically the title and dates
+    // aos are structured like
+    // {load_uri: LOAD_URI,
+    // aos: {{URI1 => {title => TITLE, tc_uri => TC_URI, child_indicator => CHILD_IND, date_type => date_type, date_expression => date_expression, date_begin => date_begin ...}, URI2 => {}}}
     $(options.aos).each(function(k,v) {
       if (v.title.replace(/\s+/g,"").length < 1) {
         $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-title input').addClass('bg-danger');
         valid = false;
+      }
+
+      if (v.date_type != "none") {
+        // begin and end dates must be of form YYYY, YYYY-MM or YYYY-MM-DD
+        if (v.date_begin.length > 0) {
+          if (!validDate(v.date_begin)) {
+            valid = false;
+            $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-date .aspace-simple-bulk-edit-summary-date-begin').addClass('bg-danger');
+          }
+        }
+        
+        if (v.date_end.length > 0) {
+          if (!validDate(v.date_end)) {
+            valid = false;
+            $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-date .aspace-simple-bulk-edit-summary-date-end').addClass('bg-danger');
+          }
+        }
+        
+        // all dates must have an expression or a begin date
+        if (v.date_expression.replace(/\s+/g,"").length == 0 && v.date_begin.length == 0) {
+          valid = false;
+          $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-date').addClass('bg-danger');
+        }
+        
+        // begin date must be before end date
+        if (v.date_begin.length > 0 && v.date_end.length > 0) {
+          var begin = new Date(v.date_begin.split("-").toString());
+          var end = new Date(v.date_end.split("-").toString());
+          if (begin > end) {
+            valid = false;
+            $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-date').addClass('bg-danger');
+          }
+        }
       }
     });
     
@@ -252,7 +303,7 @@ $(function() {
     // remove any validation warnings
     if (valid) {
       $container.find('#aspace-simple-bulk-edit-use-global-tc').parent('label').removeClass('bg-danger');
-      $container.find('.aspace-simple-bulk-edit-summary-title input').removeClass('bg-danger');
+      $container.find('.aspace-simple-bulk-edit-summary-title input, .aspace-simple-bulk-edit-summary-date').removeClass('bg-danger');
     }
     
     return valid;
@@ -262,6 +313,29 @@ $(function() {
   var bindSummaryEvents = function($container) {
   
     $container.
+      // dates
+      on('change', ".aspace-simple-bulk-edit-date-type select", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        switch ($(this).val()) {
+          case "none" :
+            $(this).closest('td').find('.aspace-simple-bulk-edit-date-expression').hide();
+            $(this).closest('td').find('.aspace-simple-bulk-edit-date-begin').hide();
+            $(this).closest('td').find('.aspace-simple-bulk-edit-date-end').hide();
+            break;
+          case "single" :
+            $(this).closest('td').find('.aspace-simple-bulk-edit-date-expression').show();
+            $(this).closest('td').find('.aspace-simple-bulk-edit-date-begin').show();
+            $(this).closest('td').find('.aspace-simple-bulk-edit-date-end').hide();
+            break;
+          default :
+            $(this).closest('td').find('.aspace-simple-bulk-edit-date-expression').show();
+            $(this).closest('td').find('.aspace-simple-bulk-edit-date-begin').show();
+            $(this).closest('td').find('.aspace-simple-bulk-edit-date-end').show();
+            break;
+        }
+      }).
       // remove and ao from the list
       on("click", ".remove-from-bulk-updates-btn", function(event) {
         event.preventDefault();
@@ -282,6 +356,14 @@ $(function() {
         event.preventDefault();
         event.stopPropagation();
         fillIndicators($container);
+      }).
+      // close
+      on('click', '.aspace_simple_bulk_edits_close', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $container.modal('toggle');
+        $container.parent().find('#tree-container').removeClass('drag-enabled');
+        window.location.reload();
       }).
       // update
       on("click", ".aspace_simple_bulk_edits_update", function(event) {

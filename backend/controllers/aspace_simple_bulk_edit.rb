@@ -24,6 +24,7 @@ class ArchivesSpaceService < Sinatra::Base
   .permissions([:update_resource_record])
   .returns([200, :updated]) \
   do
+    @simple_bulk_edit_errors = []
     params[:uri].each do |uri_hash|
       ASUtils.json_parse(uri_hash).each_with_index do |ao|
         ao_id = JSONModel.parse_reference(ao['uri'])[:id]
@@ -31,24 +32,37 @@ class ArchivesSpaceService < Sinatra::Base
         indicator_2 = ao['child_indicator']
         tc_uri = ao['tc_uri'].nil? ? "" : ao['tc_uri']
         title = ao['title'].nil? ? nil : ao['title']
-        update_ao(ao_id, title, repo_id, tc_uri, indicator_2)
+        
+        date = {}
+        date["date_type"] = ao["date_type"] unless ao["date_type"].empty?
+        date["begin"] = ao["date_begin"] unless ao["date_begin"].empty?
+        date["end"] = ao["date_end"] unless ao["date_end"].empty?
+        date["expression"] = ao["date_expression"] unless ao["date_expression"].empty?
+        
+        update_ao(ao_id, title, repo_id, tc_uri, indicator_2, date)
       end
     end
     
-    json_response(params[:uri])
+    json_response("updated" => params[:uri], "issues" => @simple_bulk_edit_errors)
   end
   
   private
   
-  def update_ao(id, title, repo_id, new_tc_id, indicator_2, inst = nil)
+  def update_ao(id, title, repo_id, new_tc_id, indicator_2, inst = nil, date)
 
     RequestContext.open(:repo_id => repo_id) do
       ao, ao_json = get_ao_object(id)
       
       # update the title if one exists
-      unless title.nil?
+      if title.nil?
+        @simple_bulk_edit_errors << I18n.t("simple_bulk_edit.error.no_title", :title => ao_json['title'])
+        return
+      else
         ao['title'] = title
       end
+      
+      # update the date
+      update_date_for_ao(ao_json, date)
       
       # create or update the container instance
       update_container_instance(ao_json, new_tc_id, indicator_2, inst)
@@ -81,12 +95,60 @@ class ArchivesSpaceService < Sinatra::Base
     end
   end
   
+  # see archivesspace/backend/app/lib/bulk_import/bulk_import_mixins.rb
+  def update_date_for_ao(ao_json, new_date)
+    date = ao_json["dates"].first
+    new_date["label"] = date.nil? ? "creation" : date["label"]
+    date_str = "(Date: type:#{new_date['date_type']}, label: #{new_date['dates_label']}, begin: #{new_date['date_begin']}, end: #{new_date['date_end']}, expression: #{new_date['expression']})"
+    
+    # only check dates if we are actually updating or creating a new one
+    unless new_date["date_type"] == "none"
+      invalids = JSONModel::Validations.check_date(new_date)
+      unless (invalids.nil? || invalids.empty?)
+        err_msg = ""
+        invalids.each do |inv|
+          err_msg << " #{inv[0]}: #{inv[1]}"
+        end
+        @simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_date", :what => err_msg, :date_str => date_str, :title => ao_json['title'])
+        return nil
+      end
+    end
+    if new_date["date_type"] == "single" && !new_date["date_end"].nil?
+      @simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.warn.single_date_end", :date_str => date_str, :title => ao_json['title'])
+    end
+    
+    # update or remove or create the date (first one since that's what we were editing)
+    date = ao_json["dates"].first
+    
+    # remove the date
+    if new_date["date_type"] == "none"
+      ao_json["dates"] = ao_json["dates"] - [date]
+      
+    # or update or create
+    else
+      if date.nil?
+        date = JSONModel(:date).new(new_date).to_hash
+      else
+        ao_json["dates"] = ao_json["dates"] - [date]
+        
+        date["expression"] = new_date["exp"].nil? ? nil : new_date["exp"]
+        date["begin"] = new_date["begin"].nil? ? nil : new_date["begin"]
+        date["end"] = new_date["end"].nil? ? nil : new_date["end"]
+        date["date_type"] = new_date["date_type"]
+      end    
+      ao_json["dates"] << date
+    end
+    
+    ao_json
+  end
+  
+  # see archivesspace/backend/app/lib/bulk_import/container_instance_handler.rb
   def update_container_instance(ao_json, new_tc_id, indicator_2, inst)
     
     # create instance if there isn't one and a new_tc_id is supplied
     if ao_json['instances'].find{ |i| i.has_key?("sub_container")}.nil? && !new_tc_id.empty?
       if inst.nil?
-        inst = dart_create_container_instance("mixed_materials", new_tc_id, indicator_2)
+        inst = simple_bulk_edit_create_container_instance("mixed_materials", new_tc_id, indicator_2)
       end
       
     # otherwise update the existing container
@@ -116,9 +178,9 @@ class ArchivesSpaceService < Sinatra::Base
     
     ao_json
   end
-  
+
   # shorthand for creating a mixed materials, folder instance hash
-  def dart_create_container_instance(instance_type, tc_uri, child_ind = nil)
+  def simple_bulk_edit_create_container_instance(instance_type, tc_uri, child_ind = nil)
     instance = nil
     begin
       sc = {'top_container' => {'ref' => tc_uri}, 'jsonmodeltype' => 'sub_container'}

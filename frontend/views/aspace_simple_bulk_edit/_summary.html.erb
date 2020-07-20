@@ -31,8 +31,9 @@
         
         # dates: naively grab the first date
         date = item['dates'].first
+        date_type = "none"
         unless date.nil?
-          date_type = date['type']
+          date_type = date['date_type']
           date_label = date['label']
           date_begin = date['begin']
           date_end = date['end']
@@ -41,38 +42,38 @@
         %>
         <tr data-uri="<%= ao["selected"]["ref"] %>">
           <td class="aspace-simple-bulk-edit-summary-title"><input type="text" value="<%= item['title'] %>"></td>
-          <td class="aspace-simple-bulk-edit-summary-date">
-            <% jsonmodel_definition(:date) do |form| %>
-              <% form.emit_template("date") %>
-              <div class="input-group aspace-simple-bulk-edit-date-type">
-                <%= form.label_and_select "date_type", form.possible_options_for("date_type", true,:exclude => ["range"]), :required => true %>
-              </div>
-            <% end %>
+          <td class="aspace-simple-bulk-edit-summary-date date-type-<%= date_type %>">
+            
+            <div class="input-group aspace-simple-bulk-edit-date-type">
+              <%= select_tag "aspace_simple_bulk_edit_date_type_select[]", options_for_select([["","none"],[I18n.t("enumerations.date_type.bulk"),"bulk"],[I18n.t("enumerations.date_type.inclusive"),"inclusive"],[I18n.t("enumerations.date_type.single"),"single"]], date_type), :required => true %>
+            </div>
 
-              <div class="aspace-simple-bulk-edit-date-expression">
-                <%= I18n.t("aspace_simple_bulk_edit.summary.date_expression") %>
-                <div class="input-group">
-                  <input id="ao_expression_date_<%= ao["selected"]["ref"] %>" type="text" value="<%= date_expression rescue '' %>" name="ao_expression_date_<%= ao["selected"]["ref"] %>" class="form-control" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false">
-                </div>
+            <div class="aspace-simple-bulk-edit-date-expression">
+              <%= I18n.t("aspace_simple_bulk_edit.summary.date_expression") %>
+              <div class="input-group">
+                <textarea rows="2" id="ao_expression_date_<%= ao["selected"]["ref"] %>" type="text" name="ao_expression_date_<%= ao["selected"]["ref"] %>" class="form-control" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false"><%= date_expression.nil? ? '' : date_expression %></textarea>
               </div>
-              <div class="aspace-simple-bulk-edit-date-begin">
-                <%= I18n.t("aspace_simple_bulk_edit.summary.date_begin") %>
-                <div class="input-group date">
-                  <input id="ao_begin_date_<%= ao["selected"]["ref"] %>" type="text" value="<%= date_begin rescue '' %>" name="ao_begin_date_<%= ao["selected"]["ref"] %>" class="date-field form-control" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false">
-                  <span class="input-group-addon">
-                    <i class="glyphicon glyphicon-calendar"></i>
-                  </span>
-                </div>
+            </div>
+            
+            <div class="aspace-simple-bulk-edit-date-begin">
+              <%= I18n.t("aspace_simple_bulk_edit.summary.date_begin") %>
+              <div class="input-group date">
+                <input id="ao_begin_date_<%= ao["selected"]["ref"] %>" type="text" value="<%= date_begin rescue '' %>" name="ao_begin_date_<%= ao["selected"]["ref"] %>" class="date-field form-control" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false">
+                <span class="input-group-addon">
+                  <i class="glyphicon glyphicon-calendar"></i>
+                </span>
               </div>
-              <div class="aspace-simple-bulk-edit-date-end">
-                <%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %>
-                <div class="input-group date">
-                  <input id="ao_end_date_<%= ao["selected"]["ref"] %>" type="text" value="<%= date_end rescue '' %>" name="ao_end_date_<%= ao["selected"]["ref"] %>" class="date-field form-control" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false">
-                  <span class="input-group-addon">
-                    <i class="glyphicon glyphicon-calendar"></i>
-                  </span>
-                </div>
+            </div>
+            
+            <div class="aspace-simple-bulk-edit-date-end">
+              <%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %>
+              <div class="input-group date">
+                <input id="ao_end_date_<%= ao["selected"]["ref"] %>" type="text" value="<%= date_end rescue '' %>" name="ao_end_date_<%= ao["selected"]["ref"] %>" class="date-field form-control" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false">
+                <span class="input-group-addon">
+                  <i class="glyphicon glyphicon-calendar"></i>
+                </span>
               </div>
+            </div>
           </td>
           <td class="aspace-simple-bulk-edit-summary-old-container"><%= container %></td>
           <td class="aspace-simple-bulk-edit-summary-new-container">

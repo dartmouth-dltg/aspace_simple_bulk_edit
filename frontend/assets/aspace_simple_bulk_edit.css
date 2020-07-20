@@ -18,3 +18,23 @@
 input[id^="ao_expression_date"] {
     width: 100%;
 }
+
+.aspace-simple-bulk-edit-summary-date.date-type-none .aspace-simple-bulk-edit-date-begin,
+.aspace-simple-bulk-edit-summary-date.date-type-none .aspace-simple-bulk-edit-date-end,
+.aspace-simple-bulk-edit-summary-date.date-type-none .aspace-simple-bulk-edit-date-expression,
+.aspace-simple-bulk-edit-summary-date.date-type-single .aspace-simple-bulk-edit-date-end {
+    display: none;
+}
+
+.aspace-simple-bulk-edit-summary-date.date-type-single .aspace-simple-bulk-edit-date-begin,
+.aspace-simple-bulk-edit-summary-date.date-type-single .aspace-simple-bulk-edit-date-expression,
+.aspace-simple-bulk-edit-summary-date.date-type-bulk .aspace-simple-bulk-edit-date-begin,
+.aspace-simple-bulk-edit-summary-date.date-type-bulk .aspace-simple-bulk-edit-date-end,
+.aspace-simple-bulk-edit-summary-date.date-type-inclusive .aspace-simple-bulk-edit-date-begin,
+.aspace-simple-bulk-edit-summary-date.date-type-inclusive .aspace-simple-bulk-edit-date-end {
+    display: inline;
+}
+
+.aspace-simple-bulk-edit-date-expression .input-group {
+    width: 100%;
+}
