@@ -14,7 +14,7 @@ data in ArchivesSpace to match the new arrangement.
 To install, just activate the plugin in your config.rb file by
 including an entry such as:
 
-     # If you have other plugins loaded, just add 'container_management_labels' to the list
+     # If you have other plugins loaded, just add 'aspace_simple_bulk_edit' to the list
      AppConfig[:plugins] = ['local', 'other_plugins', 'aspace_simple_bulk_edit']
      
 ## Using the plugin
