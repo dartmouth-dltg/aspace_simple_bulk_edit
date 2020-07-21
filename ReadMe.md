@@ -17,18 +17,18 @@ including an entry such as:
      # If you have other plugins loaded, just add 'aspace_simple_bulk_edit' to the list
      AppConfig[:plugins] = ['local', 'other_plugins', 'aspace_simple_bulk_edit']
      
-## Using the plugin
+## Using the Plugin
 The plugin adds a new button to the tree toolbar that allows a user to multiselect a set of
-archival objects (much like in re-order mode) and then apply edits to those objects. Since the 
-plugin selection mechanism works on the same principe as Reorder mode, a selected archival object's
+archival objects (much like in Reorder mode) and then apply edits to those objects. Since the 
+plugin selection mechanism works on the same principle as Reorder mode, a selected archival object's
 children cannot be selected themselves.
-
-![aspace_simple_bulk_edit_toolbar.png](images/aspace_simple_bulk_edit_toolbar.png)
 
 The button in the tree toolbar has two options: enable and update. Selecting enable allows
 the user to select a set of archival objects in any order. Once the user has selected a set
 of archival objects, the user then chooses update from the toolbar `Simple Bulk Edit`
 button menu.
+
+![aspace_simple_bulk_edit_toolbar.png](images/aspace_simple_bulk_edit_toolbar.png)
 
 This brings up a new modal window that summarizes the current information about the set of
 archival objects selected. The fields that are available for editing for each object are
@@ -57,10 +57,8 @@ select a top container to link to all of the archival objects that do not have a
 container individually selected in the summary row for that archival object.
 
 Additionally, there is an option to fill the child indicators starting from a user entered start
-point. The child indicators will be filled in the same order as the archival objects are listed
+point (numbers only). The child indicators will be filled in the same order as the archival objects are listed
 in the windows (the order in which they were originally selected).
-
-An archival object can be removed from the summary list at any point if it was selecetd by accident.
 
 ### Date, Instance & Child Types Selects
 Selecting the 'blank' option from any of the types (date, instance, child) will cause that piece
@@ -79,5 +77,17 @@ top container, child type, and child indicator.
 
 ### Creating a New Date, Container Instance and Child Type & Indicator
 If an archival object does not have a date, instance or child type associated with it, simply
-entering data in the summary edit wndow and then udpating the archival object will create
+entering data in the summary edit wndow and then updating the archival object will create
 associated date and container instances.
+
+### Removing an Object from the Edit Window
+An archival object can be removed from the summary list at any point if it was selected by 
+accident by clicking the "X" at the end of the object row.
+
+### Other Behaviors
+Closing the modal will cause the parent window to refresh and will disable Reorder mode.
+
+Joshua Shaw (joshua.d.shaw@dartmouth.edu)  
+Rauner Special Collections Library & Digital Library Technologies Group  
+Dartmouth College
+
