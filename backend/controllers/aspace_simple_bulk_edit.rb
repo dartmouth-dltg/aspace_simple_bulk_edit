@@ -24,15 +24,14 @@ class ArchivesSpaceService < Sinatra::Base
   .permissions([:update_resource_record])
   .returns([200, :updated]) \
   do
-    @simple_bulk_edit_errors = []
     params[:uri].each do |uri_hash|
       ASUtils.json_parse(uri_hash).each do |ao|
         repo_id = params[:repo_id]
-        AspaceSimpleBulkEditHandler::start_update(ao, repo_id)
+        @simple_bulk_edit = AspaceSimpleBulkEditHandler::start_update(ao, repo_id)
       end
     end
     
-    json_response("updated" => params[:uri], "issues" => @simple_bulk_edit_errors)
+    json_response("updated" => params[:uri], "issues" => @simple_bulk_edit)
   end
   
 end

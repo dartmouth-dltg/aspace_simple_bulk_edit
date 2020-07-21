@@ -2,6 +2,7 @@ require 'aspace_logger'
 class AspaceSimpleBulkEditHandler
   
   def self.start_update(ao, repo)
+    @simple_bulk_edit_errors = []
     @repo_id = repo
     
     @type_2 = ao['child_type'].empty? ? "none" : ao['child_type']
@@ -20,7 +21,9 @@ class AspaceSimpleBulkEditHandler
     date["expression"] = ao["date_expression"] unless ao["date_expression"].empty?
     
     update_ao(ao_id, title, date)
-
+    
+    return @simple_bulk_edit_errors
+    
   end
   
   def self.update_ao(id, title, date)
@@ -29,15 +32,14 @@ class AspaceSimpleBulkEditHandler
       ao, ao_json = get_ao_object(id)
       
       # update the title if one exists
-      if title.nil?
-        @simple_bulk_edit_errors << I18n.t("simple_bulk_edit.error.no_title", :title => ao_json['title'])
-        return
-      else
+      unless title.nil?
         ao_json['title'] = title
       end
       
       # update the date
-      update_date_for_ao(ao_json, date)
+      unless date.nil? || date.empty?
+        update_date_for_ao(ao_json, date)
+      end
       
       # create or update the container instance
       update_container_instance(ao_json)
