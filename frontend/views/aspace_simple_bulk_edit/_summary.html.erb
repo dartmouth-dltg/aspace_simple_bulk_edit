@@ -117,12 +117,14 @@
             </div>
           </td>
           <td class="aspace-simple-bulk-edit-summary-child-indicator">
-            <div class="input-group aspace-simple-bulk-edit-container-type">
+            <div class="input-group aspace-simple-bulk-edit-child-type">
               <p><%= I18n.t("aspace_simple_bulk_edit.summary.type") %></p>
-              <%= select_tag "aspace_simple_bulk_edit_container_type_select_#{index}", options_for_select(container_types, container_type), :required => true %>
+              <%= select_tag "aspace_simple_bulk_edit_child_type_select_#{index}", options_for_select(container_types, container_type), :required => true %>
             </div>
-            <p><%= I18n.t("aspace_simple_bulk_edit.summary.indicator") %></p>
-            <input type="text" value="<%= inst["sub_container"]["indicator_2"] rescue "" %>">
+            <div class="input-group aspace-simple-bulk-edit-child-indicator">
+              <p><%= I18n.t("aspace_simple_bulk_edit.summary.indicator") %></p>
+              <input type="text" value="<%= inst["sub_container"]["indicator_2"] rescue "" %>">
+            </div>
           </td>
           <td class="aspace-simple-bulk-edit-summary-actions">
             <%= hidden_field_tag "uri_#{ao["selected"]["ref"]}", ao["selected"]["ref"] %>

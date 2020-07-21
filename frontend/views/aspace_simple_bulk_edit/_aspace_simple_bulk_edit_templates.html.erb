@@ -77,6 +77,10 @@
   <p class="aspace-simple-bulk-edit-type-warn bg-danger">No ${type} type selected. The ${message} will be removed.</p>
 --></div>
 
+<div id="template_aspace_simple_bulk_edit_no_indicator_warn"><!--
+  <p class="aspace-simple-bulk-edit-indicator-warn bg-danger">An indicator is required if a type is selected.</p>
+--></div>
+
 <% if current_user && current_repo %>
 <script>
   var CURRENT_REPO_URI = '<%= current_repo.uri %>'

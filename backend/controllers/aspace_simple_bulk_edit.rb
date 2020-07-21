@@ -26,20 +26,9 @@ class ArchivesSpaceService < Sinatra::Base
   do
     @simple_bulk_edit_errors = []
     params[:uri].each do |uri_hash|
-      ASUtils.json_parse(uri_hash).each_with_index do |ao|
-        ao_id = JSONModel.parse_reference(ao['uri'])[:id]
+      ASUtils.json_parse(uri_hash).each do |ao|
         repo_id = params[:repo_id]
-        indicator_2 = ao['child_indicator']
-        tc_uri = ao['tc_uri'].nil? ? "" : ao['tc_uri']
-        title = ao['title'].nil? ? nil : ao['title']
-        
-        date = {}
-        date["date_type"] = ao["date_type"] unless ao["date_type"].empty?
-        date["begin"] = ao["date_begin"] unless ao["date_begin"].empty?
-        date["end"] = ao["date_end"] unless ao["date_end"].empty?
-        date["expression"] = ao["date_expression"] unless ao["date_expression"].empty?
-        
-        AspaceSimpleBulkEditHandler::update_ao(ao_id, title, repo_id, tc_uri, indicator_2, date)
+        AspaceSimpleBulkEditHandler::start_update(ao, repo_id)
       end
     end
     

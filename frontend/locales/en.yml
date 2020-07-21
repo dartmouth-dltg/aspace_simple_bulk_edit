@@ -13,9 +13,9 @@ en:
     success: All archival objects have been updated. Please close this window to refresh the page.
     success_with_issues: "All archival objects have been updated, though the following issues were encountered:<br /> %{content}"
     title: Simple Bulk Edit
-    update: Update Instances
+    update: Update
     use_global: Use global top container
-    warning: Check that you have archival objects to change, that you have selected a global top container if the use global top container checkbox is selected, and that all archival objects have titles.
+    warning: Check that you have archival objects to change, that you have selected a global top container if the use global top container checkbox is selected, and that all archival objects have the expected data. Issues are highlighted in red.
     
     error:
       invalid_date: "Invalid date definition (%{what}) for %{date_str} for %{title}. The date will not be processed."

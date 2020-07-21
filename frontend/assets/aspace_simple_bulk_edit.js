@@ -141,16 +141,17 @@ $(function() {
         uri: $(this).val(),
         title: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-title').children('input').val(),
         tc_uri: findAoTcUri($container, $(this)),
-        child_indicator: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-child-indicator').children('input').val(),
-        child_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-child-indicator').children('select option:selected').val(),
+        child_indicator: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-child-indicator').find('.aspace-simple-bulk-edit-child-indicator').find('input').val(),
+        child_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-child-indicator').find('select option:selected').val(),
         date_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('select option:selected').val(),
-        date_begin: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').children('.aspace-simple-bulk-edit-date-begin').find('input').val(),
-        date_end: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').children('.aspace-simple-bulk-edit-date-end').find('input').val(),
-        date_expression: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').children('.aspace-simple-bulk-edit-date-expression').find('textarea').val(),
-        instance_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-new-container').children('select[id^="aspace_simple_bulk_edit_instance_type"] option:selected').val(),
+        date_begin: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('.aspace-simple-bulk-edit-date-begin').find('input').val(),
+        date_end: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('.aspace-simple-bulk-edit-date-end').find('input').val(),
+        date_expression: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('.aspace-simple-bulk-edit-date-expression').find('textarea').val(),
+        instance_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-new-container').find('select[id^="aspace_simple_bulk_edit_instance_type"] option:selected').val(),
       };
       aos.push(ao);
     });
+
     return aos;
   };
   
@@ -200,7 +201,6 @@ $(function() {
       $container.find('.alert').remove();
 
       $.post(simpleBulkEditsOptions.load_uri, {uri:  JSON.stringify(simpleBulkEditsOptions.aos)}, function(json) {
-        $container.find('.modal-body').animate({ scrollTop: 0 }, 'slow');
         if (Object.keys(json).length > 0) {
           if (json.issues.length > 0) {
             $container.find('.modal-body').prepend('<div class="alert alert-warning alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><p>' + json.issues + '</p></div>');
@@ -219,6 +219,7 @@ $(function() {
     else {
       simpleBulkEditsAlert($container, "warning");
     }
+    $container.find('.modal-body').animate({ scrollTop: 0 }, 'slow');
   };
   
   var simpleBulkEditsTypeWarn = function(el, type, message) {
@@ -232,6 +233,12 @@ $(function() {
     else {
       el.closest('div').find('.aspace-simple-bulk-edit-type-warn').remove();
     }
+    
+   if (!el.parent('.aspace-simple-bulk-edit-child-type').siblings('.aspace-simple-bulk-edit-child-indicator').find('input').val()) {
+      var indicator_warn = AS.renderTemplate("template_aspace_simple_bulk_edit_no_indicator_warn");
+      el.parent('.aspace-simple-bulk-edit-child-type').siblings('.aspace-simple-bulk-edit-child-indicator').append(indicator_warn);
+    }
+    el.parent('.aspace-simple-bulk-edit-summary-child-indicator').find('.aspace-simple-bulk-edit-indicator-warn').remove();
   };
   
   // alerts if things aren't ready or go wrong
@@ -258,6 +265,7 @@ $(function() {
   // 2. if the use global tc is checked, then the global tc uri must have a value
   // 3. we must have a valid load_uri
   // 4. dates must be valid and have the correct properties
+  // 5. if a chil type is selected, we must have an indicator
   var validate = function($container, options) {
     var valid = true;
     
@@ -308,6 +316,13 @@ $(function() {
           }
         }
       }
+      
+      if (v.child_type != "none") {
+        if (v.child_indicator.length == 0) {
+          valid = false;
+          $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-child-indicator').addClass('bg-danger');
+        }
+      }
     });
     
     // check the global tc_uri
@@ -320,6 +335,7 @@ $(function() {
     if (valid) {
       $container.find('#aspace-simple-bulk-edit-use-global-tc').parent('label').removeClass('bg-danger');
       $container.find('.aspace-simple-bulk-edit-summary-title input, .aspace-simple-bulk-edit-summary-date').removeClass('bg-danger');
+      $container.find('.aspace-simple-bulk-edit-summary-child-indicator').removeClass('bg-danger');
     }
     
     return valid;
@@ -352,12 +368,26 @@ $(function() {
             break;
         }
       }).
-      // container type
-      on('change', '.aspace-simple-bulk-edit-container-type select', function(event) {
+      // child type
+      on('change', '.aspace-simple-bulk-edit-child-type select', function(event) {
         event.preventDefault();
         event.stopPropagation();
         
         simpleBulkEditsTypeWarn($(this), 'child', 'child type and indicator');
+      }).
+      // child indicator
+      on('blur', '.aspace-simple-bulk-edit-child-indicator input', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        // if there is a value we're good
+        if ($(this).val().length > 0) {
+          $(this).parent().children('.aspace-simple-bulk-edit-indicator-warn').remove();
+        }
+        // if not pop up the warning
+        if ($(this).val().length === 0 && $(this).closest('.aspace-simple-bulk-edit-summary-child-indicator').find('select option:selected').val() != "none") {
+          simpleBulkEditsTypeWarn($(this).closest('.aspace-simple-bulk-edit-summary-child-indicator').find('select'), 'child','child type and instance');
+        }
       }).
       // date type
       on('change', '.aspace-simple-bulk-edit-date-type select', function(event) {
