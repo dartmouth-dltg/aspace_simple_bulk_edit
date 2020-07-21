@@ -5,8 +5,8 @@ An ArchivesSpace plugin that adds the ability to bulk edit archival objects -
 specifically the title, date(s) and container instance including the child type and indicator.
 
 An example use case for this would be during re-processing of a collection after a processor
-has physically moved a set of folders into a new container, used re-order mode to arrange
-the archival objects in ArchivesSpace but still needs to update the instance
+has physically moved a set of folders into a new container, used Reorder mode to arrange
+the archival objects in ArchivesSpace, but still needs to update the instance
 data in ArchivesSpace to match the new arrangement.
 
 ## Installing
@@ -20,7 +20,7 @@ including an entry such as:
 ## Using the plugin
 The plugin adds a new button to the tree toolbar that allows a user to multiselect a set of
 archival objects (much like in re-order mode) and then apply edits to those objects. Since the 
-plugin selection mechanism works on the same principe as re-order mode, a selected archival object's
+plugin selection mechanism works on the same principe as Reorder mode, a selected archival object's
 children cannot be selected themselves.
 
 ![aspace_simple_bulk_edit_toolbar.png](images/aspace_simple_bulk_edit_toolbar.png)
