@@ -1,6 +1,8 @@
 require 'aspace_logger'
 class AspaceSimpleBulkEditHandler
   
+  include JSONModel
+  
   def self.start_update(ao, repo)
     @simple_bulk_edit_errors = []
     @repo_id = repo

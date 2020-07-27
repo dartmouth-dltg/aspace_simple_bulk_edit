@@ -160,7 +160,7 @@ $(function() {
     if (!isNaN($container.find('#child_ind_start').val())) {
       start_indicator = parseInt($container.find('#child_ind_start').val());
       // fill the indicators in order
-      $container.find('.aspace-simple-bulk-edit-summary-child-indicator').each(function(index, v) {
+      $container.find('.aspace-simple-bulk-edit-child-indicator').each(function(index, v) {
         var new_indicator = index + start_indicator;
         $(this).children('input').val(new_indicator);
       });
@@ -234,11 +234,12 @@ $(function() {
       el.closest('div').find('.aspace-simple-bulk-edit-type-warn').remove();
     }
     
-   if (!el.parent('.aspace-simple-bulk-edit-child-type').siblings('.aspace-simple-bulk-edit-child-indicator').find('input').val()) {
-      var indicator_warn = AS.renderTemplate("template_aspace_simple_bulk_edit_no_indicator_warn");
-      el.parent('.aspace-simple-bulk-edit-child-type').siblings('.aspace-simple-bulk-edit-child-indicator').append(indicator_warn);
-    }
-    el.parent('.aspace-simple-bulk-edit-summary-child-indicator').find('.aspace-simple-bulk-edit-indicator-warn').remove();
+    el.closest('.aspace-simple-bulk-edit-summary-child-indicator').find('.aspace-simple-bulk-edit-indicator-warn').remove();
+    
+    if (!el.parent('.aspace-simple-bulk-edit-child-type').siblings('.aspace-simple-bulk-edit-child-indicator').find('input').val()) {
+       var indicator_warn = AS.renderTemplate("template_aspace_simple_bulk_edit_no_indicator_warn");
+       el.parent('.aspace-simple-bulk-edit-child-type').siblings('.aspace-simple-bulk-edit-child-indicator').append(indicator_warn);
+     }
   };
   
   // alerts if things aren't ready or go wrong
@@ -382,7 +383,7 @@ $(function() {
 
         // if there is a value we're good
         if ($(this).val().length > 0) {
-          $(this).parent().children('.aspace-simple-bulk-edit-indicator-warn').remove();
+          $(this).siblings('.aspace-simple-bulk-edit-indicator-warn').remove();
         }
         // if not pop up the warning
         if ($(this).val().length === 0 && $(this).closest('.aspace-simple-bulk-edit-summary-child-indicator').find('select option:selected').val() != "none") {
