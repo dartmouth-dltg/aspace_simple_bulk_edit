@@ -25,6 +25,8 @@ $(function() {
       $options.on('click', '.simple-bulk-edit-enable', function() {
         $(tree.large_tree.elt).toggleClass('drag-enabled');
         $(this).toggleClass('simple-bulk-edit-enabled');
+        // hide other edit options, including reorder since that can conflict
+        $(this).closest('.btn-group').siblings().toggle();
       });
       $options.on('click', '.simple-bulk-edit-open', function() {
         setupSimpleBulkEditsEvents();
