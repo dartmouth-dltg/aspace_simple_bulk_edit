@@ -282,11 +282,14 @@ $(function() {
     // {load_uri: LOAD_URI,
     // aos: {{URI1 => {title => TITLE, tc_uri => TC_URI, child_indicator => CHILD_IND, date_type => date_type, date_expression => date_expression, date_begin => date_begin ...}, URI2 => {}}}
     $(options.aos).each(function(k,v) {
+      
+      // titles
       if (v.title.replace(/\s+/g,"").length < 1) {
         $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-title input').addClass('bg-danger');
         valid = false;
       }
 
+      // dates
       if (v.date_type != "none") {
         // begin and end dates must be of form YYYY, YYYY-MM or YYYY-MM-DD
         if (v.date_begin.length > 0) {
@@ -320,6 +323,7 @@ $(function() {
         }
       }
       
+      // instance child types
       if (v.child_type != "none") {
         if (v.child_indicator.length == 0) {
           valid = false;

@@ -3,8 +3,14 @@ class AspaceSimpleBulkEditHandler
   
   include JSONModel
   
-  def self.start_update(ao, repo)
-    @simple_bulk_edit_errors = []
+  attr_accessor :aspace_simple_bulk_edit_errors
+  
+  def initialize(ao, repo)
+    start_update(ao, repo)
+  end
+  
+  def start_update(ao, repo)
+    @aspace_simple_bulk_edit_errors = []
     @repo_id = repo
     
     @type_2 = ao['child_type'].empty? ? "none" : ao['child_type']
@@ -24,11 +30,11 @@ class AspaceSimpleBulkEditHandler
     
     update_ao(ao_id, title, date)
     
-    return @simple_bulk_edit_errors
+    return @aspace_simple_bulk_edit_errors
     
   end
   
-  def self.update_ao(id, title, date)
+  def update_ao(id, title, date)
 
     RequestContext.open(:repo_id => @repo_id) do
       ao, ao_json = get_ao_object(id)
@@ -55,14 +61,14 @@ class AspaceSimpleBulkEditHandler
     
   end
   
-  def self.get_ao_object(id)
+  def get_ao_object(id)
     ao = ArchivalObject.get_or_die(id)
     ao_json = URIResolver.resolve_references(ArchivalObject.to_jsonmodel(ao), ['repository'])
     
     return ao, ao_json
   end
   
-  def self.update_ao_descendants(id)
+  def update_ao_descendants(id)
     descendants = get_ao_descendants(id,[])
   
     if descendants.count > 0
@@ -75,7 +81,7 @@ class AspaceSimpleBulkEditHandler
   end
   
   # see archivesspace/backend/app/lib/bulk_import/bulk_import_mixins.rb
-  def self.update_date_for_ao(ao_json, new_date)
+  def update_date_for_ao(ao_json, new_date)
     
     date = ao_json["dates"].select{|i| i["label"] == "creation"}.first
     new_date["label"] = date.nil? ? "creation" : date["label"]
@@ -89,12 +95,12 @@ class AspaceSimpleBulkEditHandler
         invalids.each do |inv|
           err_msg << " #{inv[0]}: #{inv[1]}"
         end
-        @simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_date", :what => err_msg, :date_str => date_str, :title => ao_json['title'])
+        @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_date", :what => err_msg, :date_str => date_str, :title => ao_json['title'])
         return nil
       end
     end
     if new_date["date_type"] == "single" && !new_date["date_end"].nil?
-      @simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.warn.single_date_end", :date_str => date_str, :title => ao_json['title'])
+      @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.warn.single_date_end", :date_str => date_str, :title => ao_json['title'])
     end
     
     # remove the date
@@ -120,7 +126,7 @@ class AspaceSimpleBulkEditHandler
   end
   
   # see archivesspace/backend/app/lib/bulk_import/container_instance_handler.rb
-  def self.update_container_instance(ao_json)
+  def update_container_instance(ao_json)
     
     inst = ao_json['instances'].find{ |i| i.has_key?("sub_container")}
     
@@ -165,7 +171,7 @@ class AspaceSimpleBulkEditHandler
   end
 
   # shorthand for creating a mixed materials, folder instance hash
-  def self.simple_bulk_edit_create_container_instance
+  def simple_bulk_edit_create_container_instance
     instance = nil
     begin
       sc = {'top_container' => {'ref' => @tc_uri}, 'jsonmodeltype' => 'sub_container'}
@@ -183,7 +189,7 @@ class AspaceSimpleBulkEditHandler
     instance.to_hash
   end
   
-  def self.get_ao_descendants(ao_id, descendants)
+  def get_ao_descendants(ao_id, descendants)
     if descendants.empty?
       descendants = []
     end

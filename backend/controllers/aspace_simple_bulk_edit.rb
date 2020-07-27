@@ -1,9 +1,7 @@
 require 'aspace_logger'
 
 class ArchivesSpaceService < Sinatra::Base
-  
-  include JSONModel
-  
+    
   Endpoint.post('/plugins/aspace_simple_bulk_edit/repositories/:repo_id/summary')
   .description("Return resolved JSON of the records to update")
   .params(["repo_id", :repo_id],
@@ -27,11 +25,11 @@ class ArchivesSpaceService < Sinatra::Base
     params[:uri].each do |uri_hash|
       ASUtils.json_parse(uri_hash).each do |ao|
         repo_id = params[:repo_id]
-        @simple_bulk_edit = AspaceSimpleBulkEditHandler::start_update(ao, repo_id)
+        @simple_bulk_edit = AspaceSimpleBulkEditHandler.new(ao, repo_id)
       end
     end
     
-    json_response("updated" => params[:uri], "issues" => @simple_bulk_edit)
+    json_response("updated" => params[:uri], "issues" => @simple_bulk_edit.aspace_simple_bulk_edit_errors)
   end
   
 end
