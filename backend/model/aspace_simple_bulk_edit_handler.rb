@@ -3,15 +3,17 @@ class AspaceSimpleBulkEditHandler
   
   include JSONModel
   
-  attr_accessor :aspace_simple_bulk_edit_errors
+  attr_accessor :aspace_simple_bulk_edit_errors, :aspace_simple_bulk_edit_complete
   
   def initialize(ao, repo)
-    start_update(ao, repo)
-  end
-  
-  def start_update(ao, repo)
+    @aspace_simple_bulk_edit_complete = []
     @aspace_simple_bulk_edit_errors = []
     @repo_id = repo
+    start_update(ao)
+  end
+  
+  def start_update(ao)
+
     
     @type_2 = ao['child_type'].empty? ? "none" : ao['child_type']
     @indicator_2 = ao['child_indicator'].empty? ? nil : ao['child_indicator']
@@ -30,7 +32,7 @@ class AspaceSimpleBulkEditHandler
     
     update_ao(ao_id, title, date)
     
-    return @aspace_simple_bulk_edit_errors
+    return @aspace_simple_bulk_edit_errors, @aspace_simple_bulk_edit_complete
     
   end
   
@@ -54,6 +56,7 @@ class AspaceSimpleBulkEditHandler
 
       # update the ao
       ao.update_from_json(JSONModel(:archival_object).from_hash(ao_json))
+      @aspace_simple_bulk_edit_complete << id
 
       # update any descendants
       update_ao_descendants(id)

@@ -26,7 +26,8 @@ en:
     
     summary:
       child_indicator: Child Type & Indicator
-      container: Container & Instance Type
+      container: Container
+      container_and_instance: Container & Instance Type
       current_container: Current Container
       date: Date(s)
       date_begin: Begin

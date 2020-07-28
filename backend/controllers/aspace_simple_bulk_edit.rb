@@ -29,7 +29,7 @@ class ArchivesSpaceService < Sinatra::Base
       end
     end
     
-    json_response("updated" => params[:uri], "issues" => @simple_bulk_edit.aspace_simple_bulk_edit_errors)
+    json_response("updated" => @simple_bulk_edit.aspace_simple_bulk_edit_complete, "issues" => @simple_bulk_edit.aspace_simple_bulk_edit_errors)
   end
   
 end

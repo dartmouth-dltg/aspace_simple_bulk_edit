@@ -70,7 +70,6 @@ $(function() {
         AS.renderTemplate("modal_quick_template", {
           message: AS.renderTemplate("template_aspace_simple_bulk_edit_dialog_contents", {
             selected: data,
-            resource_uri: encodeURIComponent(getResourceUri())
           })
         }),
         "full");
@@ -104,9 +103,14 @@ $(function() {
     return CURRENT_REPO_URI + "/resources/" + $('#tree-container').find('tr.root-row').attr('id').split("_").pop();
   };
   
-  // get the new top container uri
+  // get global top container uri
   var findGlobalTcUri = function($container) {
     return $container.find('#bulkUpdateContainerTypeahead').find('input[name="archival_record_children[children][0][instances][0][sub_container][top_container][ref]"]').val();
+  };
+  
+  // get global tc type
+  var findGlobalTcType = function($container) {
+    return $container.find('#bulkUpdateContainerTypeahead').find('#aspace_simple_bulk_edit_global_instance_type_select option:selected').val();
   };
   
   // get the ao tc uri
@@ -124,6 +128,26 @@ $(function() {
     }
     
     return ao_tc_uri;
+  };
+  
+  // get the ao tc type
+  // if the local type is not filled, get the global type
+  var findAoInstanceType = function($container, el) {
+    ao_instance_type = el.parent().siblings('.aspace-simple-bulk-edit-summary-new-container').find('select[id^="aspace_simple_bulk_edit_instance_type"] option:selected').val();
+    
+    if (ao_instance_type == 'none'){
+      if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked')) {
+        ao_instance_type = findGlobalTcType($container);
+      }
+      else {
+        ao_instance_type = "none";
+      }
+    }
+    
+    console.log(ao_instance_type);
+
+      
+    return ao_instance_type;
   };
   
   // update the options - ao uris, tc uri, load uri
@@ -149,7 +173,7 @@ $(function() {
         date_begin: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('.aspace-simple-bulk-edit-date-begin').find('input').val(),
         date_end: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('.aspace-simple-bulk-edit-date-end').find('input').val(),
         date_expression: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('.aspace-simple-bulk-edit-date-expression').find('textarea').val(),
-        instance_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-new-container').find('select[id^="aspace_simple_bulk_edit_instance_type"] option:selected').val(),
+        instance_type: findAoInstanceType($container, $(this)),
       };
       aos.push(ao);
     });

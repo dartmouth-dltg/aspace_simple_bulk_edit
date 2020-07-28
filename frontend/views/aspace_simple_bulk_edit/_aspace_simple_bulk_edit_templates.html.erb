@@ -16,33 +16,11 @@
   {if ($.isEmptyObject(selected))}
     <div class="alert alert-info"><%= I18n.t("aspace_simple_bulk_edit.is_empty") %></div>
   {else}
-      <div id="bulkUpdateContainerTypeahead" class="row">
-        <div class="controls col-sm-6">
-        <h4><%= I18n.t("aspace_simple_bulk_edit.choose_top_container_title") %></h4>
-          <p><%= I18n.t("aspace_simple_bulk_edit.choose_top_container") %></p>
-          <div class="input-group linker-wrapper multiplicity-one">
-            <input type="text" class="linker" id="archival_record_children_children__0__instances__0__sub_container__top_container__ref_" data-label="Top Container" data-label_plural="Top Containers" data-name="ref" data-path="archival_record_children[children][0][instances][0][sub_container][top_container]" data-url="/top_containers/search/typeahead.json?uri=${resource_uri}" data-browse-url="/top_containers/bulk_operations/browse" data-selected="{}" data-multiplicity="one" data-types="[&quot;top_container&quot;]" data-exclude="[]" style="display: none;">
-          </div>
-          <div class="checkbox">
-            <label>
-              <input type="checkbox" id="aspace-simple-bulk-edit-use-global-tc"><%= I18n.t("aspace_simple_bulk_edit.use_global") %>
-            </label>
-          </div>
-        </div>
-        <div class="controls col-sm-6">
-          <h4><%= I18n.t("aspace_simple_bulk_edit.choose_child_indicator_start_title") %></h4>
-          <p><%= I18n.t("aspace_simple_bulk_edit.choose_child_indicator_start") %></p>
-          <div class="input-group">
-            <input type="number" id="child_ind_start" name="child_ind_start">
-            <button class="btn btn-default" id="aspace-simple-edit-fill-indicators"><%= I18n.t("aspace_simple_bulk_edit.fill_child_indicators") %></button>
-          </div>
-        </div>
+    <div id="bulkUpdatePane" data-load-url="<%= url_for :controller => :aspace_simple_bulk_edit, :action => :summary %>">
+      <div class="alert alert-info">
+        <%= I18n.t("aspace_simple_bulk_edit.loading") %>
       </div>
-      <div id="bulkUpdatePane" data-load-url="<%= url_for :controller => :aspace_simple_bulk_edit, :action => :summary %>">
-        <div class="alert alert-info">
-          <%= I18n.t("aspace_simple_bulk_edit.loading") %>
-        </div>
-      </div>
+    </div>
   {/if}
   <% end %>
 --></div>
@@ -74,7 +52,7 @@
 --></div>
 
 <div id="template_aspace_simple_bulk_edit_type_warn"><!--
-  <p class="aspace-simple-bulk-edit-type-warn bg-danger">No ${type} type selected. The ${message} will be removed.</p>
+  <p class="aspace-simple-bulk-edit-type-warn bg-danger">No ${type} type selected. The ${message} will be removed unless a global top container and type have been selected.</p>
 --></div>
 
 <div id="template_aspace_simple_bulk_edit_no_indicator_warn"><!--
