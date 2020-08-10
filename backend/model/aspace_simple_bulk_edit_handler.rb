@@ -117,7 +117,7 @@ class AspaceSimpleBulkEditHandler
       else
         ao_json["dates"] = ao_json["dates"] - [date]
         
-        date["expression"] = new_date["exp"].nil? ? nil : new_date["exp"]
+        date["expression"] = new_date["expression"].nil? ? nil : new_date["expression"]
         date["begin"] = new_date["begin"].nil? ? nil : new_date["begin"]
         date["end"] = new_date["end"].nil? ? nil : new_date["end"]
         date["date_type"] = new_date["date_type"]

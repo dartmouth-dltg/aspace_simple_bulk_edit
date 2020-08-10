@@ -7,7 +7,7 @@ $(function() {
   // setup the toolbar button and actions
   var simpleBulkEditBtnArr = {
     label: 'Simple Bulk Edit <span class="caret"></span>',
-    cssClasses: 'btn-default dropdown-toggle',
+    cssClasses: 'btn-default dropdown-toggle simple-bulk-edit',
     groupClasses: 'dropdown',
     onRender: function(btn, node, tree, toolbarRenderer) {
       var $options = $('<ul>').addClass('dropdown-menu ');
@@ -27,6 +27,24 @@ $(function() {
         $(this).toggleClass('simple-bulk-edit-enabled');
         // hide other edit options, including reorder since that can conflict
         $(this).closest('.btn-group').siblings().toggle();
+
+        // hide other buttons
+        if ($(tree.large_tree.elt).hasClass('drag-enabled')) {
+          $('.btn:not(.simple-bulk-edit)',toolbarRenderer.container).hide();
+        } else {
+          console.log('foo');
+          $('.btn:not(.simple-bulk-edit)',toolbarRenderer.container).show();
+          $('.cut-selection,.paste-selection,.move-node', toolbarRenderer.container).hide();
+          $(btn).blur();
+        }
+        
+        // prevent click on tree if enabled
+        $(tree.large_tree.elt).on('click', 'a.record-title', function(e){
+          if ($(tree.large_tree.elt).hasClass('drag-enabled')) {
+            e.preventDefault();
+          }
+          else {}
+        });
       });
       $options.on('click', '.simple-bulk-edit-open', function() {
         setupSimpleBulkEditsEvents();
@@ -42,8 +60,17 @@ $(function() {
     isVisible: function(node, tree, toolbarRenderer) {
         return !tree.large_tree.read_only;
     },
+    onFormChanged: function(btn, form, tree, toolbarRenderer) {
+      $(btn).removeClass('disabled');
+      if ($(tree.large_tree.elt).is('.drag-enabled')) {
+        tree.ajax_tree.blockout_form();
+      }
+    },
     onFormLoaded: function(btn, form, tree, toolbarRenderer) {
-        $(btn).removeClass('disabled');
+      $(btn).removeClass('disabled');
+      if ($(tree.large_tree.elt).is('.drag-enabled')) {
+        tree.ajax_tree.blockout_form();
+      }
     },
     onToolbarRendered: function(btn, toolbarRenderer) {
         $(btn).addClass('disabled');
