@@ -73,6 +73,8 @@
       <% @dartmouth_bulk_container_update_items.each_with_index do |ao, index| %>
         
         <%
+        ao_ref = ao["selected"]["ref"]
+        ao_id = ao_ref.split("/").last
         item = ao["archival_object"]["_resolved"]
         next if !["file","item"].include?(item["level"])
         
@@ -101,25 +103,25 @@
           date_expression = date['expression']
         end
         %>
-        <tr data-uri="<%= ao["selected"]["ref"] %>">
-          <td class="aspace-simple-bulk-edit-summary-title"><input type="text" value="<%= item['title'] %>"></td>
+        <tr data-uri="<%= ao_ref %>">
+          <td class="aspace-simple-bulk-edit-summary-title"><input data-ao-title="<%= ao_id %>" type="text" value="<%= item['title'] %>"></td>
           <td class="aspace-simple-bulk-edit-summary-date date-type-<%= date_type %>">
             
             <div class="input-group aspace-simple-bulk-edit-date-type">
-              <%= select_tag "aspace_simple_bulk_edit_date_type_select_#{index}", options_for_select(date_types, date_type), :required => true %>
+              <%= select_tag "aspace_simple_bulk_edit_date_type_select_#{index}", options_for_select(date_types, date_type), :required => true, "data-ao-date-type" => ao_id %>
             </div>
 
             <div class="aspace-simple-bulk-edit-date-expression">
               <p><%= I18n.t("aspace_simple_bulk_edit.summary.date_expression") %></p>
               <div class="input-group">
-                <textarea rows="2" id="ao_expression_date_<%= ao["selected"]["ref"] %>" type="text" name="ao_expression_date_<%= ao["selected"]["ref"] %>" class="form-control" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false"><%= date_expression.nil? ? '' : date_expression %></textarea>
+                <textarea rows="2" id="ao_expression_date_<%= ao_ref %>" type="text" name="ao_expression_date_<%= ao_ref %>" class="form-control" data-ao-date-exp="<%= ao_id %>" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false"><%= date_expression.nil? ? '' : date_expression %></textarea>
               </div>
             </div>
             
             <div class="aspace-simple-bulk-edit-date-begin">
               <p><%= I18n.t("aspace_simple_bulk_edit.summary.date_begin") %></p>
               <div class="input-group date">
-                <input id="ao_begin_date_<%= ao["selected"]["ref"] %>" type="text" value="<%= date_begin rescue '' %>" name="ao_begin_date_<%= ao["selected"]["ref"] %>" class="date-field form-control" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false">
+                <input id="ao_begin_date_<%= ao_ref %>" type="text" value="<%= date_begin rescue '' %>" name="ao_begin_date_<%= ao_ref %>" class="date-field form-control" data-ao-date-begin="<%= ao_id %>"  data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false">
                 <span class="input-group-addon">
                   <i class="glyphicon glyphicon-calendar"></i>
                 </span>
@@ -129,7 +131,7 @@
             <div class="aspace-simple-bulk-edit-date-end">
               <p><%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %></p>
               <div class="input-group date">
-                <input id="ao_end_date_<%= ao["selected"]["ref"] %>" type="text" value="<%= date_end rescue '' %>" name="ao_end_date_<%= ao["selected"]["ref"] %>" class="date-field form-control" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false">
+                <input id="ao_end_date_<%= ao_ref %>" type="text" value="<%= date_end rescue '' %>" name="ao_end_date_<%= ao_ref %>" class="date-field form-control" data-ao-date-end="<%= ao_id %>" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false">
                 <span class="input-group-addon">
                   <i class="glyphicon glyphicon-calendar"></i>
                 </span>
@@ -144,27 +146,27 @@
 
             <div class="input-group aspace-simple-bulk-edit-instance-type">
               <p><%= I18n.t("aspace_simple_bulk_edit.summary.type") %></p>
-              <%= select_tag "aspace_simple_bulk_edit_instance_type_select_#{index}", options_for_select(instance_types, instance_type), :required => true %>
+              <%= select_tag "aspace_simple_bulk_edit_instance_type_select_#{index}", options_for_select(instance_types, instance_type), :required => true, "data-ao-inst-type" => ao_id %>
             </div>
             <p><%= I18n.t("aspace_simple_bulk_edit.summary.new_container") %></p>
             <div class="input-group linker-wrapper multiplicity-one">
-              <input type="text" id="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref_" class="linker" data-label="Top Container" data-label_plural="Top Containers" data-name="ref" data-path="archival_record_children[children][<%= index + 1 %>][instances][0][sub_container][top_container]" data-url="/top_containers/search/typeahead.json?uri=<%= item['resource']['ref'] %>" data-browse-url="/top_containers/bulk_operations/browse" data-selected="{}" data-multiplicity="one" data-types="[&quot;top_container&quot;]" data-exclude="[]" style="display: none;">
+              <input type="text" id="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref_" class="linker" data-ao-inst="<%= ao_id %>" data-label="Top Container" data-label_plural="Top Containers" data-name="ref" data-path="archival_record_children[children][<%= index + 1 %>][instances][0][sub_container][top_container]" data-url="/top_containers/search/typeahead.json?uri=<%= item['resource']['ref'] %>" data-browse-url="/top_containers/bulk_operations/browse" data-selected="{}" data-multiplicity="one" data-types="[&quot;top_container&quot;]" data-exclude="[]" style="display: none;">
             </div>
           </td>
           <td class="aspace-simple-bulk-edit-summary-child-indicator">
             <div class="input-group aspace-simple-bulk-edit-child-type">
               <p><%= I18n.t("aspace_simple_bulk_edit.summary.type") %></p>
-              <%= select_tag "aspace_simple_bulk_edit_child_type_select_#{index}", options_for_select(container_types, container_type), :required => true %>
+              <%= select_tag "aspace_simple_bulk_edit_child_type_select_#{index}", options_for_select(container_types, container_type), :required => true, "data-ao-child-type" => ao_id %>
             </div>
             <div class="input-group aspace-simple-bulk-edit-child-indicator">
               <p><%= I18n.t("aspace_simple_bulk_edit.summary.indicator") %></p>
-              <input type="text" value="<%= inst["sub_container"]["indicator_2"] rescue "" %>">
+              <input type="text" data-ao-child-ind="<%= ao_id %>" value="<%= inst["sub_container"]["indicator_2"] rescue "" %>">
             </div>
           </td>
           <td class="aspace-simple-bulk-edit-summary-actions">
-            <%= hidden_field_tag "uri_#{ao["selected"]["ref"]}", ao["selected"]["ref"] %>
+            <%= hidden_field_tag "uri_#{ao_ref}", ao_ref, "data-ao-id" => ao_id %>
             <div class="btn-group">
-              <button class="btn btn-xs btn-warning remove-from-bulk-updates-btn" data-uri="<%= ao["selected"]["ref"] %>">
+              <button class="btn btn-xs btn-warning remove-from-bulk-updates-btn" data-uri="<%= ao_ref %>">
                 <span class="glyphicon glyphicon-remove"></span>
               </button>
             </div>

@@ -32,7 +32,6 @@ $(function() {
         if ($(tree.large_tree.elt).hasClass('drag-enabled')) {
           $('.btn:not(.simple-bulk-edit)',toolbarRenderer.container).hide();
         } else {
-          console.log('foo');
           $('.btn:not(.simple-bulk-edit)',toolbarRenderer.container).show();
           $('.cut-selection,.paste-selection,.move-node', toolbarRenderer.container).hide();
           $(btn).blur();
@@ -142,8 +141,8 @@ $(function() {
   
   // get the ao tc uri
   // if the uri for that ao is not filled, default to the global tc
-  var findAoTcUri = function($container, el) {
-    ao_tc_uri = el.parent().siblings('.aspace-simple-bulk-edit-summary-new-container').find('input[name*="[instances][0][sub_container][top_container][ref]"]').val();
+  var findAoTcUri = function($container, ao_id) {
+    ao_tc_uri = $container.find('input[data-ao-inst="'+ao_id+'"]').siblings('ul.token-input-list').find('input').val(); //el.parent().siblings('.aspace-simple-bulk-edit-summary-new-container').find('input[name*="[instances][0][sub_container][top_container][ref]"]').val();
 
     if (typeof ao_tc_uri === 'undefined'){
       if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked')) {
@@ -159,8 +158,8 @@ $(function() {
   
   // get the ao tc type
   // if the local type is not filled, get the global type
-  var findAoInstanceType = function($container, el) {
-    ao_instance_type = el.parent().siblings('.aspace-simple-bulk-edit-summary-new-container').find('select[id^="aspace_simple_bulk_edit_instance_type"] option:selected').val();
+  var findAoInstanceType = function($container, ao_id) {
+    ao_instance_type = $container.find('select[data-ao-inst-type="'+ao_id+'"] option:selected').val();
     
     if (ao_instance_type == 'none'){
       if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked')) {
@@ -171,9 +170,6 @@ $(function() {
       }
     }
     
-    console.log(ao_instance_type);
-
-      
     return ao_instance_type;
   };
   
@@ -190,17 +186,19 @@ $(function() {
   var findAoData = function($container) {
     aos = [];
     $container.find('input[name^="uri_"]').each(function() {
+      ao_id = $(this).data("ao-id");
       ao = {
+        id: ao_id,
         uri: $(this).val(),
-        title: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-title').children('input').val(),
+        title: $container.find('input[data-ao-title="'+ao_id+'"]').val(),
         tc_uri: findAoTcUri($container, $(this)),
-        child_indicator: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-child-indicator').find('.aspace-simple-bulk-edit-child-indicator').find('input').val(),
-        child_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-child-indicator').find('select option:selected').val(),
-        date_type: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('select option:selected').val(),
-        date_begin: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('.aspace-simple-bulk-edit-date-begin').find('input').val(),
-        date_end: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('.aspace-simple-bulk-edit-date-end').find('input').val(),
-        date_expression: $(this).parent().siblings('.aspace-simple-bulk-edit-summary-date').find('.aspace-simple-bulk-edit-date-expression').find('textarea').val(),
-        instance_type: findAoInstanceType($container, $(this)),
+        child_indicator: $container.find('input[data-ao-child-ind="'+ao_id+'"]').val(),
+        child_type: $container.find('select[data-ao-child-type="'+ao_id+'"] option:selected').val(),
+        date_type: $container.find('select[data-ao-date-type="'+ao_id+'"] option:selected').val(),
+        date_begin: $container.find('input[data-ao-date-begin="'+ao_id+'"]').val(),
+        date_end: $container.find('input[data-ao-date-end="'+ao_id+'"]').val(),
+        date_expression: $container.find('textarea[data-ao-date-exp="'+ao_id+'"]').val(),
+        instance_type: findAoInstanceType($container, ao_id),
       };
       aos.push(ao);
     });
@@ -336,7 +334,7 @@ $(function() {
       
       // titles
       if (v.title.replace(/\s+/g,"").length < 1) {
-        $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-title input').addClass('bg-danger');
+        $container.find('input[data-ao-title="'+v.id+'"]').addClass('bg-danger');
         valid = false;
       }
 
@@ -346,14 +344,14 @@ $(function() {
         if (v.date_begin.length > 0) {
           if (!validDate(v.date_begin)) {
             valid = false;
-            $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-date .aspace-simple-bulk-edit-summary-date-begin').addClass('bg-danger');
+            $container.find('input[data-ao-date-begin="'+v.id+'"]').addClass('bg-danger');
           }
         }
         
         if (v.date_end.length > 0) {
           if (!validDate(v.date_end)) {
             valid = false;
-            $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-date .aspace-simple-bulk-edit-summary-date-end').addClass('bg-danger');
+            $container.find('input[data-ao-date-end="'+v.id+'"]').addClass('bg-danger');
           }
         }
         
@@ -392,8 +390,7 @@ $(function() {
     // remove any validation warnings
     if (valid) {
       $container.find('#aspace-simple-bulk-edit-use-global-tc').parent('label').removeClass('bg-danger');
-      $container.find('.aspace-simple-bulk-edit-summary-title input, .aspace-simple-bulk-edit-summary-date').removeClass('bg-danger');
-      $container.find('.aspace-simple-bulk-edit-summary-child-indicator').removeClass('bg-danger');
+      $container.find('.aspace-simple-bulk-edit-summary-title input, .aspace-simple-bulk-edit-summary-date,.aspace-simple-bulk-edit-summary-child-indicator').removeClass('bg-danger');
     }
     
     return valid;
