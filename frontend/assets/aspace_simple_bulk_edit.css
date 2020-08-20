@@ -1,7 +1,57 @@
-@charset "UTF-8"; 
+@charset "UTF-8";
 
-#bulkUpdateContainerTypeahead {
-    margin-bottom: 20px;
+#child-fill-toggle,
+#global-tc-toggle {
+    margin-left: 8px;
+}
+
+#child-fill-toggle::after,
+#global-tc-toggle::after {
+    margin-left: 4px;
+    float: right;
+    content: "\e114";
+    font-family: "Glyphicons Halflings";
+}
+
+#child-fill-toggle.open::after,
+#global-tc-toggle.open::after {
+    content: "\e113";
+}
+
+#global-tc-explain-toggle {
+    margin-left: 8px;
+    background-color: #666;
+    color: #fff;
+}
+
+#global-tc-explain-toggle::after {
+    content: "More \002b";
+}
+
+#global-tc-explain-toggle.open::after {
+    content: "Less \2212";
+}
+
+#global-tc-explain {
+    margin-left: 2em;
+    font-style: italic;
+}
+
+#child-ind-fill,
+#bulkUpdateContainerTypeahead,
+#global-tc-explain {
+    margin-top: 8px;
+    max-width: 400px;
+    display: none;
+    font-weight: normal;
+}
+
+#bulkUpdateContainerTypeahead .col-sm-12 {
+    margin-top: 8px;
+}
+
+#bulkUpdateContainerTypeahead .col-sm-12 p {
+    font-weight: bold;
 }
 
 .simple-bulk-edit-enable.simple-bulk-edit-enabled::before {

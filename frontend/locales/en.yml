@@ -1,9 +1,8 @@
 en:
   aspace_simple_bulk_edit:
-    choose_top_container: Select the top container which may be used to update all of the archival objects in the list below. Each archival object will be associated with the chosen top container if the 'use global' checkbox is selected and a new container has not been individually chosen for that archival object.
-    choose_top_container_title: Top Container
-    choose_child_indicator_start: Choose the starting number for the child indicator(s) (optional). Click 'Fill' to renumber the child indicators starting from the chosen number and increasing by one in order of the archival objects shown below.
-    choose_child_indicator_start_title: Child Indicator
+    choose_top_container: Select a global top container
+    choose_top_container_explain: Select the top container which may be used to update all of the archival objects in the list below. Each archival object will be associated with the chosen top container if the 'use global' checkbox is selected and a new container has not been individually chosen for that archival object.
+    choose_child_indicator_start: Renumber the child indicators starting from the chosen number.
     clear_selection_button: Clear all items
     danger: Something went wrong with the update.
     fill_child_indicators: Fill
@@ -26,6 +25,7 @@ en:
     
     summary:
       child_indicator: Child Type & Indicator
+      options: Options
       container: Container
       container_and_instance: Container & Instance Type
       current_container: Current Container

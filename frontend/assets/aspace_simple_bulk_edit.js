@@ -400,6 +400,34 @@ $(function() {
   var bindSummaryEvents = function($container) {
   
     $container.
+      // child type
+      on('change', '.aspace-simple-bulk-edit-child-type select', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        simpleBulkEditsTypeWarn($(this), 'child', 'child type and indicator');
+      }).
+      // child indicator
+      on('blur', '.aspace-simple-bulk-edit-child-indicator input', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        // if there is a value we're good
+        if ($(this).val().length > 0) {
+          $(this).siblings('.aspace-simple-bulk-edit-indicator-warn').remove();
+        }
+        // if not pop up the warning
+        if ($(this).val().length === 0 && $(this).closest('.aspace-simple-bulk-edit-summary-child-indicator').find('select option:selected').val() != "none") {
+          simpleBulkEditsTypeWarn($(this).closest('.aspace-simple-bulk-edit-summary-child-indicator').find('select'), 'child','child type and instance');
+        }
+      }).
+      // child fill
+      on('click', '#child-fill-toggle', function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        $(this).toggleClass('open');
+        $container.find('#child-ind-fill').toggle();
+      }).
       // dates
       on('change', ".aspace-simple-bulk-edit-date-type select", function(event) {
         event.preventDefault();
@@ -423,33 +451,26 @@ $(function() {
             break;
         }
       }).
-      // child type
-      on('change', '.aspace-simple-bulk-edit-child-type select', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        
-        simpleBulkEditsTypeWarn($(this), 'child', 'child type and indicator');
-      }).
-      // child indicator
-      on('blur', '.aspace-simple-bulk-edit-child-indicator input', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        // if there is a value we're good
-        if ($(this).val().length > 0) {
-          $(this).siblings('.aspace-simple-bulk-edit-indicator-warn').remove();
-        }
-        // if not pop up the warning
-        if ($(this).val().length === 0 && $(this).closest('.aspace-simple-bulk-edit-summary-child-indicator').find('select option:selected').val() != "none") {
-          simpleBulkEditsTypeWarn($(this).closest('.aspace-simple-bulk-edit-summary-child-indicator').find('select'), 'child','child type and instance');
-        }
-      }).
       // date type
       on('change', '.aspace-simple-bulk-edit-date-type select', function(event) {
         event.preventDefault();
         event.stopPropagation();
         
         simpleBulkEditsTypeWarn($(this), 'date', 'date');
+      }).
+      // global tc
+      on('click', '#global-tc-toggle', function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        $(this).toggleClass('open');
+        $container.find('#bulkUpdateContainerTypeahead').toggle();
+      }).
+      // global tc extra explanation
+      on('click', '#global-tc-explain-toggle', function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        $(this).toggleClass('open');
+        $container.find('#global-tc-explain').toggle();
       }).
       // instance type
       on('change', '.aspace-simple-bulk-edit-instance-type select', function(event) {
@@ -458,7 +479,7 @@ $(function() {
         
         simpleBulkEditsTypeWarn($(this), 'instance', 'instance');
       }).
-      // remove and ao from the list
+      // remove an ao from the list
       on("click", ".remove-from-bulk-updates-btn", function(event) {
         event.preventDefault();
         event.stopPropagation();
