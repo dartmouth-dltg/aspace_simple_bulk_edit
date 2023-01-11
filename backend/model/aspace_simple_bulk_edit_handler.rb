@@ -132,9 +132,9 @@ class AspaceSimpleBulkEditHandler
   def update_container_instance(ao_json)
     
     inst = ao_json['instances'].find{ |i| i.has_key?("sub_container")}
-    
+
     # create instance if there isn't one and a tc uri and intance type are supplied
-    if inst.nil? && !@tc_uri.empty? && @instance_type != "none"
+    if (inst.nil? || inst.empty?) && !@tc_uri.empty? && @instance_type != "none" && !@instance_type.nil?
       inst = simple_bulk_edit_create_container_instance
       ao_json['instances'] << inst
       
@@ -143,10 +143,13 @@ class AspaceSimpleBulkEditHandler
       # find the first container instance since that's what we are editing
       inst = ao_json['instances'].find{ |i| i.has_key?("sub_container")}
       
+      # nothing to do
+      return if inst.nil? || inst.empty?
+
       # remove it
       ao_json['instances'] = ao_json['instances'] - [inst]
-      
-      unless @instance_type == "none"
+ 
+      unless @instance_type == "none" || @instance_type.nil?
         
         # update the type
         inst['instance_type'] = @instance_type
