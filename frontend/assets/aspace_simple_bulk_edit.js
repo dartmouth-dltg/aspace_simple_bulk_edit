@@ -379,6 +379,19 @@ $(function() {
           $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-child-indicator').addClass('bg-danger');
         }
       }
+
+      if (v.tc_uri == '' && $container.find('#aspace-simple-bulk-edit-use-global-tc').not(':checked')) {
+        if (v.child_indicator.length > 0 || v.child_type != 'none' || v.instance_type != 'none') {
+          valid = false
+          if (v.child_indicator.length > 0 || v.child_type != 'none') {
+            $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-child-indicator').addClass('bg-danger');
+          }
+          if (v.instance_type != 'none') {
+            $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-new-container').addClass('bg-danger');
+          }
+        }
+
+      }
     });
     
     // check the global tc_uri
@@ -390,7 +403,7 @@ $(function() {
     // remove any validation warnings
     if (valid) {
       $container.find('#aspace-simple-bulk-edit-use-global-tc').parent('label').removeClass('bg-danger');
-      $container.find('.aspace-simple-bulk-edit-summary-title input, .aspace-simple-bulk-edit-summary-date,.aspace-simple-bulk-edit-summary-child-indicator').removeClass('bg-danger');
+      $container.find('.aspace-simple-bulk-edit-summary-title input, .aspace-simple-bulk-edit-summary-date, .aspace-simple-bulk-edit-summary-child-indicator, .aspace-simple-bulk-edit-type-warn, .aspace-simple-bulk-edit-summary-new-container, .aspace-simple-bulk-edit-indicator-warn').removeClass('bg-danger');
     }
     
     return valid;
