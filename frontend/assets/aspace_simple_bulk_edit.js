@@ -123,7 +123,7 @@ class SimpleBulkEdit {
           return ($(b).find('.drag-annotation').text()) < ($(a).find('.drag-annotation').text()) ? 1 : -1;
     });
     itemsToUpdate.each(function() {
-      uris.push(self.repoUri + "/archival_objects/" + $(this).attr('id').split("_").pop());
+      uris.push(`${self.repoUri}/archival_objects/${$(this).attr('id').split("_").pop()}`);
     });
     return uris;
   }
@@ -261,7 +261,7 @@ class SimpleBulkEdit {
         console.log(json)
         if (Object.keys(json).length > 0) {
           if (json.issues.length > 0) {
-            $container.find('.modal-body').prepend('<div class="alert alert-warning alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><p>' + json.issues + '</p></div>');
+            $container.find('.modal-body').prepend(`<div class="alert alert-warning alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><p>${json.issues}</p></div>`);
           }
           else {
             self.simpleBulkEditsAlert($container, "success");
@@ -337,11 +337,11 @@ class SimpleBulkEdit {
     // aos are structured like
     // {loadUri: loadUri,
     // aos: {{URI1 => {title => TITLE, tc_uri => TC_URI, child_indicator => CHILD_IND, date_type => date_type, date_expression => date_expression, date_begin => date_begin ...}, URI2 => {}}}
-    $(options.aos).each(function(k,v) {
+    $(options.aos).each(function(k, v) {
       
       // titles
       if (v.title.replace(/\s+/g,"").length < 1) {
-        $container.find('input[data-ao-title="'+v.id+'"]').addClass('bg-danger');
+        $container.find(`input[data-ao-title="${v.id}"]`).addClass('bg-danger');
         valid = false;
       }
 
@@ -351,21 +351,21 @@ class SimpleBulkEdit {
         if (v.date_begin.length > 0) {
           if (!self.validDate(v.date_begin)) {
             valid = false;
-            $container.find('input[data-ao-date-begin="'+v.id+'"]').addClass('bg-danger');
+            $container.find(`input[data-ao-date-begin="${v.id}"]`).addClass('bg-danger');
           }
         }
         
         if (v.date_end.length > 0) {
           if (!self.validDate(v.date_end)) {
             valid = false;
-            $container.find('input[data-ao-date-end="'+v.id+'"]').addClass('bg-danger');
+            $container.find(`input[data-ao-date-end="${v.id}"]`).addClass('bg-danger');
           }
         }
         
         // all dates must have an expression or a begin date
-        if (v.date_expression.replace(/\s+/g,"").length == 0 && v.date_begin.length == 0) {
+        if (v.date_expression.replace(/\s+/g, "").length == 0 && v.date_begin.length == 0) {
           valid = false;
-          $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-date').addClass('bg-danger');
+          $container.find(`tr[data-uri="${v.uri}"] .aspace-simple-bulk-edit-summary-date`).addClass('bg-danger');
         }
         
         // begin date must be before end date
@@ -374,7 +374,7 @@ class SimpleBulkEdit {
           var end = new Date(v.date_end.split("-").toString());
           if (begin > end) {
             valid = false;
-            $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-date').addClass('bg-danger');
+            $container.find(`tr[data-uri="${v.uri}"] .aspace-simple-bulk-edit-summary-date`).addClass('bg-danger');
           }
         }
       }
@@ -383,7 +383,7 @@ class SimpleBulkEdit {
       if (v.child_type != "none") {
         if (v.child_indicator.length == 0) {
           valid = false;
-          $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-child-indicator').addClass('bg-danger');
+          $container.find(`tr[data-uri="${v.uri}"] .aspace-simple-bulk-edit-summary-child-indicator`).addClass('bg-danger');
         }
       }
 
@@ -391,10 +391,10 @@ class SimpleBulkEdit {
         if (v.child_indicator.length > 0 || v.child_type != 'none' || v.instance_type != 'none') {
           valid = false
           if (v.child_indicator.length > 0 || v.child_type != 'none') {
-            $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-child-indicator').addClass('bg-danger');
+            $container.find(`tr[data-uri="${v.uri}"] .aspace-simple-bulk-edit-summary-child-indicator`).addClass('bg-danger');
           }
           if (v.instance_type != 'none') {
-            $container.find('tr[data-uri="'+v.uri+'"] .aspace-simple-bulk-edit-summary-new-container').addClass('bg-danger');
+            $container.find(`tr[data-uri="${v.uri}"] .aspace-simple-bulk-edit-summary-new-container`).addClass('bg-danger');
           }
         }
 
