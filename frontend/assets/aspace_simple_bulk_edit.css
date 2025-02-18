@@ -92,6 +92,18 @@ input[id^="ao_expression_date"] {
     width: 100%;
 }
 
+#aspace_simple_bulk_edit_form .material-symbols-outlined {
+    font-size: 18px;
+}
+
+#aspace_simple_bulk_edit_form .linker-wrapper .token-input-list {
+    width: 100%;
+}
+
+#aspace_simple_bulk_edit_form .bg-danger {
+    color: #fff;
+}
+
 .aspace-simple-bulk-edit-current-container, 
 .aspace-simple-bulk-edit-instance-type,
 .aspace-simple-bulk-edit-container-type {
