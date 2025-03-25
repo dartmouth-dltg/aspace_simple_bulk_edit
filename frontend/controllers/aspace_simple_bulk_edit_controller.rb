@@ -23,10 +23,15 @@ class AspaceSimpleBulkEditController < ApplicationController
       
       # get the date type enumeration values
       @date_types = JSONModel::HTTP.get_json("/config/enumerations/names/date_type")
+      @date_labels = JSONModel::HTTP.get_json("/config/enumerations/names/date_label")
       
       # get the instance types values
       @instance_types = JSONModel::HTTP.get_json("/config/enumerations/names/instance_instance_type")
-      
+
+      # extents
+      @extent_types = JSONModel::HTTP.get_json("/config/enumerations/names/extent_extent_type")
+      @extent_portions = JSONModel::HTTP.get_json("/config/enumerations/names/extent_portion")
+
       # get the chld type values
       @container_types = JSONModel::HTTP.get_json("/config/enumerations/names/container_type")
     end

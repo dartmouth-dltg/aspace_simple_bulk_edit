@@ -1,0 +1,67 @@
+<% extents.each_with_index do |extent, ext_idx| %>
+  <div 
+    class="aspace-simple-bulk-edit-summary-extent extent-type-<%= extent['extent_type'] %>"
+    data-extent-index="<%=ext_idx%>"
+    data-index="<%= index %>"
+    data-ao-ref="<%= ao_ref %>"
+    data-ao-id="<%= ao_id %>"
+  >
+    <button class="btn btn-default remove-extent" data-extent-index="<%=ext_idx%>"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_extent") %></button>
+    <div class="form-group aspace-simple-bulk-edit-extent-type">
+      <label for="aspace_simple_bulk_edit_extent_type_select_<% index %>_<% ext_idx %>">Extent Type</label>
+      <%= select_tag "aspace_simple_bulk_edit_extent_type_select_#{index}_#{ext_idx}", options_for_select(extent_types, extent['extent_type']), :required => true, "data-ao-extent-type" => ao_id, :class => "form-control" %>
+    </div>
+
+    <div class="form-group aspace-simple-bulk-edit-extent-portion">
+      <label for="aspace_simple_bulk_edit_extent_portion_select_<% index %>_<% ext_idx %>">Extent Portion</label>
+      <%= select_tag "aspace_simple_bulk_edit_extent_portion_select_#{index}_#{ext_idx}", options_for_select(extent_portions, extent['portion']), :required => true, "data-ao-extent-portion" => ao_id, :class => "form-control" %>
+    </div>
+    
+    <div class="aspace-simple-bulk-edit-extent-number">
+      <div class="form-group">
+        <label for="ao_extent_number_<%= ao_ref %>_<%= ext_idx %>"><%= I18n.t("aspace_simple_bulk_edit.summary.extent_number") %></label>
+        <input id="ao_extent_number_<%= ao_ref %>_<%= ext_idx %>" class="form-control" data-ao-extent-number="<%= ao_id %>" type="text" value="<%= extent['number'] %>">
+      </div>
+    </div>
+    
+    <div class="aspace-simple-bulk-edit-extent-container-summary">
+      <div class="form-group">
+        <label for="ao_extent_container_summary_<%= ao_ref %>_<% ext_idx %>"><%= I18n.t("aspace_simple_bulk_edit.summary.extent_container_summary") %></label>
+        <textarea rows="2" id="ao_extent_container_summary_<%= ao_ref %>_<% ext_idx %>" type="text" name="ao_extent_container_summary_<%= ao_ref %>_<% ext_idx %>" class="form-control" data-ao-extent-container-summary="<%= ao_id %>"><%= extent['extent_container_summary'].nil? ? '' : extent['extent_container_summary'] %></textarea>
+      </div>
+    </div>
+    <input type="hidden" data-ao-extent-physical-details="<% ao_id %>" id="ao_extent_physical_details<%= ao_ref %>_<% ext_idx %>"value="<% extent['physical_details'].nil? ? '' : extent['physical_details'] %>" />
+    <input type="hidden" data-ao-extent-dimensions="<% ao_id %>" id="ao_extent_dimensions_<%= ao_ref %>_<% ext_idx %>" value="<% extent['dimensions'].nil? ? '' : extent['dimensions'] %>" />
+  </div>
+  <% end %>
+
+<div id="simple-bulk-edit-extents-template">
+  <div class="aspace-simple-bulk-edit-summary-extent extent-type-new" data-extent-index="${extentIndex}">
+    <button class="btn btn-default remove-extent" data-extent-index="${extentIndex}"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_extent") %></button>
+    <div class="form-group aspace-simple-bulk-edit-extent-type">
+      <label for="aspace_simple_bulk_edit_extent_type_select_<% index %>_${extentIndex}">Extent Type</label>
+      <%= select_tag "aspace_simple_bulk_edit_extent_type_select_#{index}_${extentIndex}", options_for_select(extent_types, "none"), :required => true, "data-ao-extent-type" => ao_id, :class => "form-control" %>
+    </div>
+
+    <div class="form-group aspace-simple-bulk-edit-extent-portion">
+      <label for="aspace_simple_bulk_edit_extent_portion_select_<% index %>_${extentIndex}">Extent Portion</label>
+      <%= select_tag "aspace_simple_bulk_edit_extent_portion_select_#{index}_${extentIndex}", options_for_select(extent_portions, "none"), :required => true, "data-ao-extent-portion" => ao_id, :class => "form-control" %>
+    </div>
+    
+    <div class="aspace-simple-bulk-edit-extent-number">
+      <div class="form-group">
+        <label for="ao_extent_number_<%= ao_ref %>_${extentIndex}"><%= I18n.t("aspace_simple_bulk_edit.summary.extent_number") %></label>
+        <input id="ao_extent_number_<%= ao_ref %>_${extentIndex}" class="form-control" data-ao-extent-number="<%= ao_id %>" type="text" value="">
+      </div>
+    </div>
+    
+    <div class="aspace-simple-bulk-edit-extent-container-summary">
+      <div class="form-group">
+        <label for="ao_extent_container_summary_<%= ao_ref %>_${extentIndex}"><%= I18n.t("aspace_simple_bulk_edit.summary.extent_container_summary") %></label>
+        <textarea rows="2" id="ao_extent_container_summary_<%= ao_ref %>_${extentIndex}" type="text" name="ao_extent_container_summary_<%= ao_ref %>_${extentIndex}" class="form-control" data-ao-extent-container-summary="<%= ao_id %>"></textarea>
+      </div>
+    </div>
+    <input type="hidden" data-ao-extent-physical-details="<% ao_id %>" id="ao_extent_physical_details<%= ao_ref %>_${extentIndex}"value="" />
+    <input type="hidden" data-ao-extent-dimensions="<% ao_id %>" id="ao_extent_dimensions_<%= ao_ref %>_${extentIndex}" value="" />
+  </div>
+</div>

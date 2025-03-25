@@ -18,12 +18,15 @@ en:
     
     error:
       invalid_date: "Invalid date definition (%{what}) for %{date_str} for %{title}. The date will not be processed."
+      invalid_extent: "Invalid extent definition (%{what}) for %{extent_str} for %{title}. The extent will not be processed."
     
     warn:
       single_date_end: "Single date %{date_str} for %{title} has end date that will be ignored."
       no_title: "New title is empty for %{title}. Keeping original title."
     
     summary:
+      add_date: Add a Date
+      add_extent: Add an extent
       child_indicator: Child Type & Indicator
       options: Options
       container: Container
@@ -33,8 +36,15 @@ en:
       date_begin: Begin
       date_end: End
       date_expression: Expression
+      extent_container_summary: Container Summary
+      extent_number: Number
+      extent_portion: Portion
+      extent_type: Extent Type
+      extents: Extents
       indicator: Indicator
       new_container: New Container
+      remove_date: Remove this Date
+      remove_extent: Remove this extent
       title: Title
       type: Type
       uri: URI

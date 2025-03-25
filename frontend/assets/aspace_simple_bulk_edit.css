@@ -122,3 +122,17 @@ input[id^="ao_expression_date"] {
 .aspace-simple-bulk-edit-indicator-warn {
     padding: 4px;
 }
+
+/* template controls */
+#simple-bulk-edit-extents-template,
+#simple-bulk-edit-dates-template  {
+    display: none;
+}
+.add-extent,
+.add-date {
+    float: right;
+}
+.remove-extent,
+.remove-date {
+    width: 100%;
+}

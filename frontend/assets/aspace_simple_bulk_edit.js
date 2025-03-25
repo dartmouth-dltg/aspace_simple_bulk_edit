@@ -186,6 +186,38 @@ class SimpleBulkEdit {
     return simpleBulkEditsOptions;
   };
   
+  assemble_extents($container, aoId) {
+    const extents = [];
+    $container.find(`.aspace-simple-bulk-edit-summary-extents-${aoId}`).each(function() {
+      const extent = {};
+      extent.extent_type = $container.find(`select[data-ao-extent-type="${aoId}"] option:selected`).val();
+      extent.extent_number = $container.find(`input[data-ao-extent-number="${aoId}"]`).val();
+      extent.extent_portion = $container.find(`select[data-ao-extent-portion="${aoId}"] option:selected`).val();
+      extent.extent_container_summary = $container.find(`textarea[data-ao-extent-container-summary="${aoId}"]`).val();
+      extent.extent_physical_details = $container.find(`input[data-ao-extent-physical-details="${aoId}"]`).val();
+      extent.extent_dimensions = $container.find(`input[data-ao-extent-dimensions="${aoId}"]`).val();
+      extents.push(extent);
+    });
+    return extents;
+  }
+
+  assembleDates($container, aoId) {
+    const dates = [];
+    $container.find(`.aspace-simple-bulk-edit-summary-dates-${aoId}`).each(function() {
+      date = {};
+      date.type = $container.find(`select[data-ao-date-type="${aoId}"] option:selected`).val();
+      date.begin = $container.find(`input[data-ao-date-begin="${aoId}"]`).val();
+      date.end = $container.find(`input[data-ao-date-end="${aoId}"]`).val();
+      date.expression = $container.find(`textarea[data-ao-date-exp="${aoId}"]`).val();
+      date.certainty = $container.find(`input[data-ao-date-certainty="${aoId}"]`).val();
+      date.era = $container.find(`input[data-ao-date-era="${aoId}"]`).val();
+      date.calendar = $container.find(`input[data-ao-date-calendar="${aoId}"]`).val();
+      dates.push(date);
+    });
+
+    return dates;
+  }
+
   // find the ao uris
   findAoData($container) {
     const self = this;
@@ -199,10 +231,8 @@ class SimpleBulkEdit {
         tc_uri: self.findAoTcUri($container, $(this)),
         child_indicator: $container.find(`input[data-ao-child-ind="${aoId}"]`).val(),
         child_type: $container.find(`select[data-ao-child-type="${aoId}"] option:selected`).val(),
-        date_type: $container.find(`select[data-ao-date-type="${aoId}"] option:selected`).val(),
-        date_begin: $container.find(`input[data-ao-date-begin="${aoId}"]`).val(),
-        date_end: $container.find(`input[data-ao-date-end="${aoId}"]`).val(),
-        date_expression: $container.find(`textarea[data-ao-date-exp="${aoId}"]`).val(),
+        dates: self.assembleDates($container, aoId),
+        extents: self.assemble_extents($container, aoId),
         instance_type: self.findAoInstanceType($container, aoId),
       };
       aos.push(ao);
@@ -345,6 +375,18 @@ class SimpleBulkEdit {
         valid = false;
       }
 
+      // extents - must have type, portion, and number
+      if (v.extent_type != "none") {
+        if (v.extent_number.length == 0) {
+          valid = false;
+          $container.find(`input[data-ao-extent-number="${v.id}"]`).addClass('bg-danger');
+        }
+        if (v.extent_portion.length == 0) {
+          valid = false;
+          $container.find(`input[data-ao-extent-portion="${v.id}"]`).addClass('bg-danger');
+        }
+      }
+
       // dates
       if (v.date_type != "none") {
         // begin and end dates must be of form YYYY, YYYY-MM or YYYY-MM-DD
@@ -462,6 +504,17 @@ class SimpleBulkEdit {
       });
     });
   }
+
+  removeElement(el) {
+    el.parent().remove();
+  }
+
+  addRepeatElement(type) {
+    const lastType = $(`[class^="aspace-simple-bulk-edit-summary-${type}s-"]`).children('div').last();
+    const nextIdx = lastType.data(`${type}-index`) + 1;
+    const template = $(`#simple-bulk-edit-${type}s-template`).clone();
+    lastType.after(template.html().replace(`${type}Id}`, nextIdx));
+  }
   
   // events in the modal - the good stuff
   bindSummaryEvents($container) {
@@ -469,6 +522,31 @@ class SimpleBulkEdit {
 
     this.initDatePicker();
     $container.
+      // extent type
+      on('change', '.aspace-simple-bulk-edit-extent-type select', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        self.simpleBulkEditsTypeWarn($(this), 'extent', 'extent type');
+      }).
+      on('click', '.add-extent', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        self.addRepeatElement('extent');
+      }).
+      on('click', '.add-date', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        self.addRepeatElement('date');
+      }).
+      on('click', '.remove-extent, .remove-date', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        self.removeElement($(this));
+      }).
       // child type
       on('change', '.aspace-simple-bulk-edit-child-type select', function(event) {
         event.preventDefault();
