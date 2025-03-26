@@ -122,6 +122,9 @@ class AspaceSimpleBulkEditHandler
 
   def update_extents_for_ao(ao_json, extents)
     extents.each do |extent|
+      # remove the extent if there is no type
+      next if extent["extent_type"] == "none"
+
       extent['portion'] = extent['portion'].nil? ? 'whole' : extent['portion']
       extent_str = "(Extent: portion:#{extent['portion']}, number:#{extent['number']}, container_summary:#{extent['container_summary']}, extent_type:#{extent['extent_type']})"
       
@@ -137,9 +140,6 @@ class AspaceSimpleBulkEditHandler
         end
       end
 
-      # remove the extent if there is no type
-      next if extent["extent_type"] == "none"
-
       # or update or create 
       ao_json["extents"] << JSONModel(:extent).new(extent).to_hash
     end
@@ -149,14 +149,16 @@ class AspaceSimpleBulkEditHandler
   
   # see archivesspace/backend/app/lib/bulk_import/bulk_import_mixins.rb
   def update_dates_for_ao(ao_json, dates)
-    date.each do |date|
+    dates.each do |date|
     
+      next if date['date_type'] == "none"
+
       date["label"] = date['label'].nil? ? "creation" : date["label"]
       date_str = "(Date: type:#{date['date_type']}, label: #{date['label']}, begin: #{date['begin']}, end: #{date['end']}, expression: #{date['expression']})"
       
       # only check dates if we are actually updating or creating a new one
-      unless new_date["date_type"] == "none"
-        invalids = JSONModel::Validations.check_date(new_date)
+      unless date["date_type"] == "none"
+        invalids = JSONModel::Validations.check_date(date)
         unless (invalids.nil? || invalids.empty?)
           err_msg = ""
           invalids.each do |inv|
@@ -170,8 +172,6 @@ class AspaceSimpleBulkEditHandler
         @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.warn.single_date_end", :date_str => date_str, :title => ao_json['title'])
       end
       
-      next if date['date_type'] == "none"
-
       # or update or create  
       ao_json["dates"] << JSONModel(:date).new(date).to_hash
     end

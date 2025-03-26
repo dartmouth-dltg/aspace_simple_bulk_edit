@@ -119,14 +119,6 @@
               container_type = inst["sub_container"]["type_2"] ? inst["sub_container"]["type_2"] : "none"
             end
           end
-
-          if item['dates'].empty?
-            item['dates'] << {"date_type" => "none"}
-          end
-
-          if item['extents'].empty?
-            item['extents'] << {"extent_type" => "none"}
-          end
       %>
         <tr data-uri="<%= ao_ref %>">
           <td class="aspace-simple-bulk-edit-summary-title">
@@ -135,7 +127,7 @@
               <input id="title_<%= ao_id %>" class="form-control" data-ao-title="<%= ao_id %>" type="text" value="<%= item['title'] %>">
             </div>
           </td>
-          <td class="aspace-simple-bulk-edit-summary-dates-<%= ao_ref %>">
+          <td class="aspace-simple-bulk-edit-summary-dates-<%= ao_id %>">
             <%= render_aspace_partial :partial => "aspace_simple_bulk_edit/dates", :locals => {
               :dates => item['dates'],
               :date_types => date_types,
@@ -145,7 +137,7 @@
               :ao_id => ao_id
               } %>
           </td>
-          <td class="aspace-simple-bulk-edit-summary-extents-<% ao_ref %>">
+          <td class="aspace-simple-bulk-edit-summary-extents-<%= ao_id %>">
             <%= render_aspace_partial :partial => "aspace_simple_bulk_edit/extents", :locals => {
               :extents => item['extents'],
               :extent_types => extent_types,

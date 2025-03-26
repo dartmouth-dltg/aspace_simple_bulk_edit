@@ -120,7 +120,7 @@ class SimpleBulkEdit {
     const $treeContainer = $('#tree-container');
     let itemsToUpdate = $treeContainer.find('.multiselected-row');
     itemsToUpdate = itemsToUpdate.sort(function(a, b){
-          return ($(b).find('.drag-annotation').text()) < ($(a).find('.drag-annotation').text()) ? 1 : -1;
+      return ($(b).find('.drag-annotation').text()) < ($(a).find('.drag-annotation').text()) ? 1 : -1;
     });
     itemsToUpdate.each(function() {
       uris.push(`${self.repoUri}/archival_objects/${$(this).attr('id').split("_").pop()}`);
@@ -186,32 +186,39 @@ class SimpleBulkEdit {
     return simpleBulkEditsOptions;
   };
   
-  assemble_extents($container, aoId) {
+  assembleExtents($container, aoId) {
     const extents = [];
-    $container.find(`.aspace-simple-bulk-edit-summary-extents-${aoId}`).each(function() {
-      const extent = {};
-      extent.extent_type = $container.find(`select[data-ao-extent-type="${aoId}"] option:selected`).val();
-      extent.extent_number = $container.find(`input[data-ao-extent-number="${aoId}"]`).val();
-      extent.extent_portion = $container.find(`select[data-ao-extent-portion="${aoId}"] option:selected`).val();
-      extent.extent_container_summary = $container.find(`textarea[data-ao-extent-container-summary="${aoId}"]`).val();
-      extent.extent_physical_details = $container.find(`input[data-ao-extent-physical-details="${aoId}"]`).val();
-      extent.extent_dimensions = $container.find(`input[data-ao-extent-dimensions="${aoId}"]`).val();
+
+    const extentsDivs = $container.find(`.aspace-simple-bulk-edit-summary-extent-${aoId}`).not('.extent-type-new');
+    extentsDivs.each(function(idx, extDiv) {
+      const extent = {
+        extent_type: $(extDiv).find(`select[data-ao-extent-type="${aoId}"] option:selected`).val(),
+        number: $(extDiv).find(`input[data-ao-extent-number="${aoId}"]`).val(),
+        portion: $(extDiv).find(`select[data-ao-extent-portion="${aoId}"] option:selected`).val(),
+        container_summary: $(extDiv).find(`textarea[data-ao-extent-container-summary="${aoId}"]`).val(),
+        physical_details: $(extDiv).find(`input[data-ao-extent-physical-details="${aoId}"]`).val(),
+        dimensions: $(extDiv).find(`input[data-ao-extent-dimensions="${aoId}"]`).val(),
+      }
       extents.push(extent);
     });
+
     return extents;
   }
 
   assembleDates($container, aoId) {
     const dates = [];
-    $container.find(`.aspace-simple-bulk-edit-summary-dates-${aoId}`).each(function() {
-      date = {};
-      date.type = $container.find(`select[data-ao-date-type="${aoId}"] option:selected`).val();
-      date.begin = $container.find(`input[data-ao-date-begin="${aoId}"]`).val();
-      date.end = $container.find(`input[data-ao-date-end="${aoId}"]`).val();
-      date.expression = $container.find(`textarea[data-ao-date-exp="${aoId}"]`).val();
-      date.certainty = $container.find(`input[data-ao-date-certainty="${aoId}"]`).val();
-      date.era = $container.find(`input[data-ao-date-era="${aoId}"]`).val();
-      date.calendar = $container.find(`input[data-ao-date-calendar="${aoId}"]`).val();
+    dates.length = 0;
+    const datesDivs = $container.find(`.aspace-simple-bulk-edit-summary-date-${aoId}`).not('.date-type-new')
+    datesDivs.each(function(idx, dateDiv) {
+      const date = {};
+      date.date_type = $(dateDiv).find(`select[data-ao-date-type="${aoId}"] option:selected`).val();
+      date.label = $(dateDiv).find(`select[data-ao-date-label="${aoId}"] option:selected`).val();
+      date.begin = $(dateDiv).find(`input[data-ao-date-begin="${aoId}"]`).val();
+      date.end = $(dateDiv).find(`input[data-ao-date-end="${aoId}"]`).val();
+      date.expression = $(dateDiv).find(`textarea[data-ao-date-exp="${aoId}"]`).val();
+      date.certainty = $(dateDiv).find(`input[data-ao-date-certainty="${aoId}"]`).val();
+      date.era = $(dateDiv).find(`input[data-ao-date-era="${aoId}"]`).val();
+      date.calendar = $(dateDiv).find(`input[data-ao-date-calendar="${aoId}"]`).val();
       dates.push(date);
     });
 
@@ -222,6 +229,7 @@ class SimpleBulkEdit {
   findAoData($container) {
     const self = this;
     const aos = [];
+
     $container.find('input[name^="uri_"]').each(function() {
       const aoId = $(this).data("ao-id");
       const ao = {
@@ -232,7 +240,7 @@ class SimpleBulkEdit {
         child_indicator: $container.find(`input[data-ao-child-ind="${aoId}"]`).val(),
         child_type: $container.find(`select[data-ao-child-type="${aoId}"] option:selected`).val(),
         dates: self.assembleDates($container, aoId),
-        extents: self.assemble_extents($container, aoId),
+        extents: self.assembleExtents($container, aoId),
         instance_type: self.findAoInstanceType($container, aoId),
       };
       aos.push(ao);
@@ -283,26 +291,26 @@ class SimpleBulkEdit {
   updateSimpleBulkEdits($container, onComplete) {
     const self = this;
     const simpleBulkEditsOptions = this.updateSimpleBulkEditsOptions($container);
-
+console.log(simpleBulkEditsOptions)
     if (this.validate($container, simpleBulkEditsOptions)) {
       $container.find('.alert').remove();
 
-      $.post(simpleBulkEditsOptions.loadUri, {uri: JSON.stringify(simpleBulkEditsOptions.aos)}, function(json) {
-        console.log(json)
-        if (Object.keys(json).length > 0) {
-          if (json.issues.length > 0) {
-            $container.find('.modal-body').prepend(`<div class="alert alert-warning alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><p>${json.issues}</p></div>`);
-          }
-          else {
-            self.simpleBulkEditsAlert($container, "success");
-          }
-        }
-        else self.simpleBulkEditsAlert($container, "danger");
+      // $.post(simpleBulkEditsOptions.loadUri, {uri: JSON.stringify(simpleBulkEditsOptions.aos)}, function(json) {
+      //   console.log(json)
+      //   if (Object.keys(json).length > 0) {
+      //     if (json.issues.length > 0) {
+      //       $container.find('.modal-body').prepend(`<div class="alert alert-warning alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><p>${json.issues}</p></div>`);
+      //     }
+      //     else {
+      //       self.simpleBulkEditsAlert($container, "success");
+      //     }
+      //   }
+      //   else self.simpleBulkEditsAlert($container, "danger");
         
-        if (onComplete) {
-          onComplete();
-        }
-      });
+      //   if (onComplete) {
+      //     onComplete();
+      //   }
+      // });
     }
     else {
       this.simpleBulkEditsAlert($container, "warning");
@@ -366,61 +374,79 @@ class SimpleBulkEdit {
     // check each ao data set - specifically the title and dates
     // aos are structured like
     // {loadUri: loadUri,
-    // aos: {{URI1 => {title => TITLE, tc_uri => TC_URI, child_indicator => CHILD_IND, date_type => date_type, date_expression => date_expression, date_begin => date_begin ...}, URI2 => {}}}
+    // aos: {{URI1 => {title => TITLE, tc_uri => TC_URI, child_indicator => CHILD_IND, dates => [{date_type => date_type, date_expression => date_expression, date_begin => date_begin ...}], extents => [{}], URI2 => {}}}
     $(options.aos).each(function(k, v) {
-      
       // titles
       if (v.title.replace(/\s+/g,"").length < 1) {
         $container.find(`input[data-ao-title="${v.id}"]`).addClass('bg-danger');
         valid = false;
       }
 
-      // extents - must have type, portion, and number
-      if (v.extent_type != "none") {
-        if (v.extent_number.length == 0) {
-          valid = false;
-          $container.find(`input[data-ao-extent-number="${v.id}"]`).addClass('bg-danger');
-        }
-        if (v.extent_portion.length == 0) {
-          valid = false;
-          $container.find(`input[data-ao-extent-portion="${v.id}"]`).addClass('bg-danger');
-        }
+      const extDiv = $container.find(`.aspace-simple-bulk-edit-summary-extents-${v.id}`);
+      if (v.extents.length === 0) {
+        extDiv.removeClass('bg-danger');
       }
-
+      v.extents.forEach((extent, idx) => {
+        // extents - must have type, portion, and number
+        if (extent.extent_type !== "none") {
+          extDiv.removeClass('bg-danger');
+          const extNumber = extDiv.find(`input[data-ao-extent-number="${v.id}"]`);
+          if (extent.number.length == 0) {
+            valid = false;
+            extNumber.addClass('bg-danger');
+          } else {
+            extNumber.removeClass('bg-danger');
+          }
+          const extPortion =  extDiv.find(`select[data-ao-extent-portion="${v.id}"]`)
+          if (extent.portion == "none") {
+            valid = false;
+            extPortion.addClass('bg-danger');
+          } else {
+            extPortion.removeClass('bg-danger');
+          }
+        } else {
+          valid = false;
+          extDiv.addClass('bg-danger');
+        }
+      });
+console.log(valid)
       // dates
-      if (v.date_type != "none") {
-        // begin and end dates must be of form YYYY, YYYY-MM or YYYY-MM-DD
-        if (v.date_begin.length > 0) {
-          if (!self.validDate(v.date_begin)) {
+      const dateDiv = $container.find(`.aspace-simple-bulk-edit-summary-dates-${v.id}`);
+      v.dates.forEach((date, idx) => {
+        if (date.date_type != "none") {
+          // begin and end dates must be of form YYYY, YYYY-MM or YYYY-MM-DD
+          if (date.begin.length > 0) {
+            if (!self.validDate(date.begin)) {
+              valid = false;
+              dateDiv.find(`input[data-ao-date-begin="${v.id}"]`).addClass('bg-danger');
+            }
+          }
+          
+          if (date.end.length > 0) {
+            if (!self.validDate(date.end)) {
+              valid = false;
+              $dateDiv.find(`input[data-ao-date-end="${v.id}"]`).addClass('bg-danger');
+            }
+          }
+          
+          // all dates must have an expression or a begin date
+          if (date.expression.replace(/\s+/g, "").length == 0 && date.begin.length == 0) {
             valid = false;
-            $container.find(`input[data-ao-date-begin="${v.id}"]`).addClass('bg-danger');
+            dateDiv.addClass('bg-danger');
+          }
+          
+          // begin date must be before end date
+          if (date.begin.length > 0 && date.end.length > 0) {
+            var begin = new Date(date.begin.split("-").toString());
+            var end = new Date(date.end.split("-").toString());
+            if (begin > end) {
+              valid = false;
+              dateDiv.addClass('bg-danger');
+            }
           }
         }
-        
-        if (v.date_end.length > 0) {
-          if (!self.validDate(v.date_end)) {
-            valid = false;
-            $container.find(`input[data-ao-date-end="${v.id}"]`).addClass('bg-danger');
-          }
-        }
-        
-        // all dates must have an expression or a begin date
-        if (v.date_expression.replace(/\s+/g, "").length == 0 && v.date_begin.length == 0) {
-          valid = false;
-          $container.find(`tr[data-uri="${v.uri}"] .aspace-simple-bulk-edit-summary-date`).addClass('bg-danger');
-        }
-        
-        // begin date must be before end date
-        if (v.date_begin.length > 0 && v.date_end.length > 0) {
-          var begin = new Date(v.date_begin.split("-").toString());
-          var end = new Date(v.date_end.split("-").toString());
-          if (begin > end) {
-            valid = false;
-            $container.find(`tr[data-uri="${v.uri}"] .aspace-simple-bulk-edit-summary-date`).addClass('bg-danger');
-          }
-        }
-      }
-      
+      });
+      console.log(valid)
       // instance child types
       if (v.child_type != "none") {
         if (v.child_indicator.length == 0) {
@@ -451,8 +477,7 @@ class SimpleBulkEdit {
 
     // remove any validation warnings
     if (valid) {
-      $container.find('#aspace-simple-bulk-edit-use-global-tc').parent('label').removeClass('bg-danger');
-      $container.find('.aspace-simple-bulk-edit-summary-title input, .aspace-simple-bulk-edit-summary-date, .aspace-simple-bulk-edit-summary-child-indicator, .aspace-simple-bulk-edit-type-warn, .aspace-simple-bulk-edit-summary-new-container, .aspace-simple-bulk-edit-indicator-warn').removeClass('bg-danger');
+      $container.find('.bg-danger').removeClass('bg-danger');
     }
     
     return valid;
@@ -510,10 +535,21 @@ class SimpleBulkEdit {
   }
 
   addRepeatElement(type) {
-    const lastType = $(`[class^="aspace-simple-bulk-edit-summary-${type}s-"]`).children('div').last();
-    const nextIdx = lastType.data(`${type}-index`) + 1;
+    const lastType = $(`[class^="aspace-simple-bulk-edit-summary-${type}s-"]`).children('div:visible').last();
+    const nextIdx = lastType.length > 0 ? lastType.data(`${type}-index`) + 1 : 0;
     const template = $(`#simple-bulk-edit-${type}s-template`).clone();
-    lastType.after(template.html().replace(`${type}Id}`, nextIdx));
+    const replaceKey = `_${type}_index_`;
+    console.log(replaceKey)
+    if (lastType.length > 0) {
+      lastType.after(template.html().replaceAll(replaceKey, nextIdx));
+    } else {
+      $(`[class^="aspace-simple-bulk-edit-summary-${type}s-"]`)
+        .append(
+          template.html()
+          .replaceAll(replaceKey, nextIdx)
+          .replaceAll(` ${type}-type-new`, '')
+        );
+    }
   }
   
   // events in the modal - the good stuff
