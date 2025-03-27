@@ -46,10 +46,10 @@
       <tr>
         <th><%= I18n.t("aspace_simple_bulk_edit.summary.title") %></th>
         <th><%= I18n.t("aspace_simple_bulk_edit.summary.date") %>
-          <button class="btn btn-default add-date"><%= I18n.t("aspace_simple_bulk_edit.summary.add_date") %></button>
+          <button class="btn btn-secondary btn-sm add-date"><%= I18n.t("aspace_simple_bulk_edit.summary.add_date") %></button>
         </th>
         <th><%= I18n.t("aspace_simple_bulk_edit.summary.extents") %>
-          <button class="btn btn-default add-extent"><%= I18n.t("aspace_simple_bulk_edit.summary.add_extent") %></button>
+          <button class="btn btn-secondary btn-sm add-extent"><%= I18n.t("aspace_simple_bulk_edit.summary.add_extent") %></button>
         </th>
         <th><%= I18n.t("aspace_simple_bulk_edit.summary.container_and_instance") %><button id="global-tc-toggle" class="btn btn-sm"><%= I18n.t("aspace_simple_bulk_edit.summary.options") %></button>
           <div id="bulkUpdateContainerTypeahead" class="row">
@@ -124,7 +124,7 @@
           <td class="aspace-simple-bulk-edit-summary-title">
             <div class="form-group">
               <label class="sr-only" for="title_<%= ao_id %>">Title</label>
-              <input id="title_<%= ao_id %>" class="form-control" data-ao-title="<%= ao_id %>" type="text" value="<%= item['title'] %>">
+              <textarea id="title_<%= ao_id %>" rows="2" class="form-control" data-ao-title="<%= ao_id %>" type="text"><%= item['title'] %></textarea>
             </div>
           </td>
           <td class="aspace-simple-bulk-edit-summary-dates-<%= ao_id %>">

@@ -207,7 +207,7 @@ class SimpleBulkEdit {
 
   assembleDates($container, aoId) {
     const dates = [];
-    dates.length = 0;
+
     const datesDivs = $container.find(`.aspace-simple-bulk-edit-summary-date-${aoId}`).not('.date-type-new')
     datesDivs.each(function(idx, dateDiv) {
       const date = {};
@@ -291,26 +291,25 @@ class SimpleBulkEdit {
   updateSimpleBulkEdits($container, onComplete) {
     const self = this;
     const simpleBulkEditsOptions = this.updateSimpleBulkEditsOptions($container);
-console.log(simpleBulkEditsOptions)
+
     if (this.validate($container, simpleBulkEditsOptions)) {
       $container.find('.alert').remove();
 
-      // $.post(simpleBulkEditsOptions.loadUri, {uri: JSON.stringify(simpleBulkEditsOptions.aos)}, function(json) {
-      //   console.log(json)
-      //   if (Object.keys(json).length > 0) {
-      //     if (json.issues.length > 0) {
-      //       $container.find('.modal-body').prepend(`<div class="alert alert-warning alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><p>${json.issues}</p></div>`);
-      //     }
-      //     else {
-      //       self.simpleBulkEditsAlert($container, "success");
-      //     }
-      //   }
-      //   else self.simpleBulkEditsAlert($container, "danger");
+      $.post(simpleBulkEditsOptions.loadUri, {uri: JSON.stringify(simpleBulkEditsOptions.aos)}, function(json) {
+        if (Object.keys(json).length > 0) {
+          if (json.issues.length > 0) {
+            $container.find('.modal-body').prepend(`<div class="alert alert-warning alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><p>${json.issues}</p></div>`);
+          }
+          else {
+            self.simpleBulkEditsAlert($container, "success");
+          }
+        }
+        else self.simpleBulkEditsAlert($container, "danger");
         
-      //   if (onComplete) {
-      //     onComplete();
-      //   }
-      // });
+        if (onComplete) {
+          onComplete();
+        }
+      });
     }
     else {
       this.simpleBulkEditsAlert($container, "warning");
@@ -409,7 +408,7 @@ console.log(simpleBulkEditsOptions)
           extDiv.addClass('bg-danger');
         }
       });
-console.log(valid)
+
       // dates
       const dateDiv = $container.find(`.aspace-simple-bulk-edit-summary-dates-${v.id}`);
       v.dates.forEach((date, idx) => {
@@ -446,7 +445,7 @@ console.log(valid)
           }
         }
       });
-      console.log(valid)
+
       // instance child types
       if (v.child_type != "none") {
         if (v.child_indicator.length == 0) {
@@ -539,7 +538,7 @@ console.log(valid)
     const nextIdx = lastType.length > 0 ? lastType.data(`${type}-index`) + 1 : 0;
     const template = $(`#simple-bulk-edit-${type}s-template`).clone();
     const replaceKey = `_${type}_index_`;
-    console.log(replaceKey)
+
     if (lastType.length > 0) {
       lastType.after(template.html().replaceAll(replaceKey, nextIdx));
     } else {

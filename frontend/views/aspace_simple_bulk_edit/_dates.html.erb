@@ -6,13 +6,13 @@
     data-ao-ref="<%= ao_ref %>"
     data-ao-id="<%= ao_id %>"
   >
-    <button class="btn btn-default remove-date" data-date-index="<%=date_idx%>"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_date") %></button>
+    <button class="btn btn-warning btn-sm remove-date" data-date-index="<%=date_idx%>"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_date") %></button>
     <div class="form-group aspace-simple-bulk-edit-date-label">
-      <label for="aspace_simple_bulk_edit_date_label_select_<%= ao_id %>_<%= date_idx %>" class="sr-only">Date Label</label>
+      <label for="aspace_simple_bulk_edit_date_label_select_<%= ao_id %>_<%= date_idx %>">Date Label</label>
       <%= select_tag "aspace_simple_bulk_edit_date_label_select_#{ao_id}_#{date_idx}", options_for_select(date_labels, date['label']), :required => true, "data-ao-date-label" => ao_id, :class => "form-control"  %>
     </div>
     <div class="form-group aspace-simple-bulk-edit-date-type">
-      <label for="aspace_simple_bulk_edit_date_type_select_<%= ao_id %>_<%= date_idx %>" class="sr-only">Date Type</label>
+      <label for="aspace_simple_bulk_edit_date_type_select_<%= ao_id %>_<%= date_idx %>">Date Type</label>
       <%= select_tag "aspace_simple_bulk_edit_date_type_select_#{ao_id}_#{date_idx}", options_for_select(date_types, date['date_type']), :required => true, "data-ao-date-type" => ao_id, :class => "form-control"  %>
     </div>
 
@@ -44,9 +44,15 @@
 <div id="simple-bulk-edit-dates-template">
   <div 
     class="aspace-simple-bulk-edit-summary-date-<%= ao_id %> date-type-new">
-    <button class="btn btn-default remove-date" data-date-index="_date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_date") %></button>
+    <button class="btn btn-warning btn-sm remove-date" data-date-index="_date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_date") %></button>
+    
+    <div class="form-group aspace-simple-bulk-edit-date-label">
+      <label for="aspace_simple_bulk_edit_date_label_select_<%= ao_id %>__date_index_">Date Label</label>
+      <%= select_tag "aspace_simple_bulk_edit_date_label_select_#{ao_id}__date_index_", options_for_select(date_labels, "none"), :required => true, "data-ao-date-label" => ao_id, :class => "form-control"  %>
+    </div>
+    
     <div class="form-group aspace-simple-bulk-edit-date-type">
-      <label for="aspace_simple_bulk_edit_date_type_select_<%= ao_id %>__date_index_" class="sr-only">Date Type</label>
+      <label for="aspace_simple_bulk_edit_date_type_select_<%= ao_id %>__date_index_">Date Type</label>
       <%= select_tag "aspace_simple_bulk_edit_date_type_select_#{ao_id}__date_index_", options_for_select(date_types, "none"), :required => true, "data-ao-date-type" => ao_id, :class => "form-control"  %>
     </div>
 

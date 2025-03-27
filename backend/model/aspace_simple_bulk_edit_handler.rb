@@ -121,6 +121,8 @@ class AspaceSimpleBulkEditHandler
   end
 
   def update_extents_for_ao(ao_json, extents)
+    ao_json['extents'] = []
+
     extents.each do |extent|
       # remove the extent if there is no type
       next if extent["extent_type"] == "none"
@@ -149,6 +151,9 @@ class AspaceSimpleBulkEditHandler
   
   # see archivesspace/backend/app/lib/bulk_import/bulk_import_mixins.rb
   def update_dates_for_ao(ao_json, dates)
+
+    ao_json['dates'] = []
+
     dates.each do |date|
     
       next if date['date_type'] == "none"
