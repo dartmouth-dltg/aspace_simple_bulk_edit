@@ -151,7 +151,6 @@ class AspaceSimpleBulkEditHandler
   
   # see archivesspace/backend/app/lib/bulk_import/bulk_import_mixins.rb
   def update_dates_for_ao(ao_json, dates)
-
     ao_json['dates'] = []
 
     dates.each do |date|
