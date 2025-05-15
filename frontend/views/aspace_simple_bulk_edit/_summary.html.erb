@@ -76,7 +76,7 @@
                 <div class="col-sm-12">
                   <div class="checkbox">
                     <label>
-                      <input type="checkbox" id="aspace-simple-bulk-edit-use-global-tc"><%= I18n.t("aspace_simple_bulk_edit.use_global") %>
+                      <input type="checkbox" id="aspace-simple-bulk-edit-use-global-tc" class="mr-2"><%= I18n.t("aspace_simple_bulk_edit.use_global") %>
                     </label>
                   </div>
                 </div>
@@ -104,8 +104,10 @@
           ao_ref = ao["selected"]["ref"]
           ao_id = ao_ref.split("/").last
           item = ao["archival_object"]["_resolved"]
-          next if !["file","item"].include?(item["level"])
-          
+          next if !["file","item","otherlevel"].include?(item["level"])
+          if item['level'] == 'otherlevel' 
+            next unless item['other_level'].downcase == 'box'
+          end
           # containers - assumes only *one* phyical container
           inst = item["instances"].find{|instance| instance.has_key?("sub_container")}
           if inst.nil?
@@ -113,6 +115,11 @@
             container_type = "none"
             instance_type = "none"
           else
+            if inst['sub_container'] && inst['sub_container']['top_container'] 
+              inst_ref = inst['sub_container']['top_container']['ref']
+            else
+              inst_ref = nil
+            end
             if inst["sub_container"]["top_container"] && inst["sub_container"]["top_container"]["_resolved"] && inst["sub_container"]["top_container"]["_resolved"]["indicator"]
               container = inst["sub_container"]["top_container"]["_resolved"]["display_string"]
               instance_type = inst["instance_type"]
@@ -151,6 +158,7 @@
             <div class="aspace-simple-bulk-edit-current-container">
               <p><%= I18n.t("aspace_simple_bulk_edit.summary.current_container") %></p>
               <div class="current-container"><%= container %></div>
+              <div class="current-instance-ref" data-ao-inst-ref="<%= ao_id %>"><%= inst_ref %></div>
             </div>
 
             <div class="form-group aspace-simple-bulk-edit-instance-type">

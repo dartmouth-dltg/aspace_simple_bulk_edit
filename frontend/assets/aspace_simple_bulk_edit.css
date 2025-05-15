@@ -133,6 +133,10 @@ input[id^="ao_expression_date"] {
     padding: 4px;
 }
 
+.current-instance-ref {
+    display: none;
+}
+
 /* template controls */
 #simple-bulk-edit-extents-template,
 #simple-bulk-edit-dates-template  {

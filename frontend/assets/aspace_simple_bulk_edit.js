@@ -146,18 +146,25 @@ class SimpleBulkEdit {
   // get the ao tc uri
   // if the uri for that ao is not filled, default to the global tc
   findAoTcUri($container, aoId) {
-    let aoTcUri = $container.find(`input[data-ao-inst="${aoId}"]`).siblings('ul.token-input-list').find('input').val(); //el.parent().siblings('.aspace-simple-bulk-edit-summary-new-container').find('input[name*="[instances][0][sub_container][top_container][ref]"]').val();
+    const currentAoTcUri = $container.find(`div[data-ao-inst-ref="${aoId}"]`).text();
+    let newAoTcUri = $container.find(`input[data-ao-inst="${aoId}"]`).siblings('ul.token-input-list').find('input').val();
 
-    if (typeof aoTcUri === 'undefined'){
+    if (typeof newAoTcUri === 'undefined'){
       if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked')) {
-        aoTcUri = findGlobalTcUri($container);
+        newAoTcUri = findGlobalTcUri($container);
       }
       else {
-        aoTcUri = "";
+        newAoTcUri = "";
       }
     }
-    
-    return aoTcUri;
+
+    if (typeof currentAoTcUri !== 'undefined') {
+      if (newAoTcUri === "") {
+        newAoTcUri = currentAoTcUri;
+      }
+    }
+
+    return newAoTcUri;
   };
   
   // get the ao tc type
@@ -235,8 +242,8 @@ class SimpleBulkEdit {
       const ao = {
         id: aoId,
         uri: $(this).val(),
-        title: $container.find(`input[data-ao-title="${aoId}"]`).val(),
-        tc_uri: self.findAoTcUri($container, $(this)),
+        title: $container.find(`textarea[data-ao-title="${aoId}"]`).val(),
+        tc_uri: self.findAoTcUri($container, aoId),
         child_indicator: $container.find(`input[data-ao-child-ind="${aoId}"]`).val(),
         child_type: $container.find(`select[data-ao-child-type="${aoId}"] option:selected`).val(),
         dates: self.assembleDates($container, aoId),
@@ -272,7 +279,6 @@ class SimpleBulkEdit {
     if (typeof loadUrl === 'undefined') {
       return;
     }
-  
     $.post(loadUrl, {uri: data}, function(html) {
       $container.html(html);
       $container.find(".linker:not(.initialised)").linker();
@@ -375,9 +381,10 @@ class SimpleBulkEdit {
     // {loadUri: loadUri,
     // aos: {{URI1 => {title => TITLE, tc_uri => TC_URI, child_indicator => CHILD_IND, dates => [{date_type => date_type, date_expression => date_expression, date_begin => date_begin ...}], extents => [{}], URI2 => {}}}
     $(options.aos).each(function(k, v) {
+
       // titles
       if (v.title.replace(/\s+/g,"").length < 1) {
-        $container.find(`input[data-ao-title="${v.id}"]`).addClass('bg-danger');
+        $container.find(`textarea[data-ao-title="${v.id}"]`).addClass('bg-danger');
         valid = false;
       }
 
