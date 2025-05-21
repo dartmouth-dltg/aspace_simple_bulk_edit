@@ -156,3 +156,8 @@ input[id^="ao_expression_date"] {
     width: 100%;
     margin-bottom: 6px;
 }
+
+.aspace-simple-bulk-edit-summary-new-container .btn.linker-create-btn {
+    width: 100%;
+    margin-top: 9px;
+}

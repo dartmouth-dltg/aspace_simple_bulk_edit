@@ -45,7 +45,7 @@ en:
       extents: Extents
       indicator: Indicator
       link_to_container: Link to Existing Container
-      new_container: Create new Container
+      new_container: Link to/Create new Container
       remove_date: Remove this Date
       remove_extent: Remove this extent
       title: Title
