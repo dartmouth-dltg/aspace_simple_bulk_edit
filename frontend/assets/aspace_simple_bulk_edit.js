@@ -147,8 +147,9 @@ class SimpleBulkEdit {
   // if the uri for that ao is not filled, default to the global tc
   findAoTcUri($container, aoId) {
     const currentAoTcUri = $container.find(`div[data-ao-inst-ref="${aoId}"]`).text();
-    let newAoTcUri = $container.find(`input[data-ao-inst="${aoId}"]`).siblings('ul.token-input-list').find('input').val();
-
+    let newAoTcUri = $container.find(`input[data-ao-inst="${aoId}"]`).siblings('ul.token-input-list').children('li.token-input-token').find('input').last().val();
+console.log("newAoTcUri", newAoTcUri);
+    //the newAoTcUri may be expressed as a
     if (typeof newAoTcUri === 'undefined'){
       if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked')) {
         newAoTcUri = findGlobalTcUri($container);
@@ -492,7 +493,7 @@ class SimpleBulkEdit {
   initDatePicker() {
     $.fn.combobox.defaults.template =
       '<div class="combobox-container input-group"><input type="hidden" /><input type="text" autocomplete="off"/><span class="input-group-btn btn dropdown-toggle" data-dropdown="dropdown"><span class="caret"/><span class="combobox-clear"><span class="icon-remove"></span></span></span></div>';
-    $('.date-field:not(.initialised)', '#aspace_simple_bulk_edit_form').each(function () {
+    $('.date-field:not(.initialised):not(.date-template)', '#aspace_simple_bulk_edit_form').each(function () {
       const $dateInput = $(this);
 
       if ($dateInput.parent().is('.input-group')) {
@@ -536,6 +537,32 @@ class SimpleBulkEdit {
     });
   }
 
+  addElement(el, type) {
+    const lastType = el.parent().children('div:visible').last();
+    const nextIdx = lastType.length > 0 ? lastType.data(`${type}-index`) + 1 : 0;
+    const template = $(`#simple-bulk-edit-${type}s-template`).clone();
+    const replaceKey = `_${type}_index_`;
+
+    if (lastType.length > 0) {
+      lastType.
+        after(
+          template.html()
+          .replaceAll(replaceKey, nextIdx)
+          .replaceAll(` ${type}-type-new`, '')
+          .replaceAll(` ${type}-template`, '')
+        );    
+    } else {
+      el
+        .before(
+          template.html()
+          .replaceAll(replaceKey, nextIdx)
+          .replaceAll(` ${type}-type-new`, '')
+          .replaceAll(`${type}-template`, '')
+        );
+    }
+  }
+
+  // remove an element
   removeElement(el) {
     el.parent().remove();
   }
@@ -547,13 +574,20 @@ class SimpleBulkEdit {
     const replaceKey = `_${type}_index_`;
 
     if (lastType.length > 0) {
-      lastType.after(template.html().replaceAll(replaceKey, nextIdx));
+      lastType.
+        after(
+          template.html()
+          .replaceAll(replaceKey, nextIdx)
+          .replaceAll(` ${type}-type-new`, '')
+          .replaceAll(`${type}-template`, '')
+        );
     } else {
       $(`[class^="aspace-simple-bulk-edit-summary-${type}s-"]`)
         .append(
           template.html()
           .replaceAll(replaceKey, nextIdx)
           .replaceAll(` ${type}-type-new`, '')
+          .replaceAll(`${type}-template`, '')
         );
     }
   }
@@ -571,17 +605,31 @@ class SimpleBulkEdit {
         
         self.simpleBulkEditsTypeWarn($(this), 'extent', 'extent type');
       }).
-      on('click', '.add-extent', function(event) {
+      on('click', '.add-extents', function(event) {
         event.preventDefault();
         event.stopPropagation();
 
         self.addRepeatElement('extent');
       }).
-      on('click', '.add-date', function(event) {
+      on('click', '.add-dates', function(event) {
         event.preventDefault();
         event.stopPropagation();
 
         self.addRepeatElement('date');
+        self.initDatePicker();
+      }).
+      on('click', '.add-single-date', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        self.addElement($(this), 'date');
+        self.initDatePicker();
+      }).
+      on('click', '.add-single-extent', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        self.addElement($(this), 'extent');
       }).
       on('click', '.remove-extent, .remove-date', function(event) {
         event.preventDefault();

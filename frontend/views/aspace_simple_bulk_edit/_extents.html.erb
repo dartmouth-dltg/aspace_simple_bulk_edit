@@ -36,7 +36,13 @@
   <% end %>
 
 <div id="simple-bulk-edit-extents-template">
-  <div class="aspace-simple-bulk-edit-summary-extent-<%= ao_id %> extent-type-new" data-extent-index="_extent_index_">
+  <div 
+    class="aspace-simple-bulk-edit-summary-extent-<%= ao_id %> extent-type-new" 
+    data-extent-index="_extent_index_"
+    data-index="<%= index %>"
+    data-ao-ref="<%= ao_ref %>"
+    data-ao-id="<%= ao_id %>"
+  >
     <button class="btn btn-warning btn-sm remove-extent" data-extent-index="_extent_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_extent") %></button>
     <div class="form-group aspace-simple-bulk-edit-extent-type">
       <label for="aspace_simple_bulk_edit_extent_type_select_<%= ao_id %>__extent_index_">Extent Type</label>

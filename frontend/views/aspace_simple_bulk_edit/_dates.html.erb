@@ -1,7 +1,7 @@
 <% dates.each_with_index do |date, date_idx| %>
   <div 
     class="aspace-simple-bulk-edit-summary-date-<%= ao_id %> date-type-<%= date['date_type'] %>"
-    data-date-index="<%=date_idx%>"
+    data-date-index="<%= date_idx%>"
     data-index="<%= index %>"
     data-ao-ref="<%= ao_ref %>"
     data-ao-id="<%= ao_id %>"
@@ -43,7 +43,12 @@
 <% end %>
 <div id="simple-bulk-edit-dates-template">
   <div 
-    class="aspace-simple-bulk-edit-summary-date-<%= ao_id %> date-type-new">
+    class="aspace-simple-bulk-edit-summary-date-<%= ao_id %> date-type-new"
+    data-date-index="_date_index_"
+    data-index="<%= index %>"
+    data-ao-ref="<%= ao_ref %>"
+    data-ao-id="<%= ao_id %>"
+  >
     <button class="btn btn-warning btn-sm remove-date" data-date-index="_date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_date") %></button>
     
     <div class="form-group aspace-simple-bulk-edit-date-label">
@@ -66,14 +71,14 @@
     <div class="aspace-simple-bulk-edit-date-begin">
       <div class="form-group date">
         <label for="ao_begin_date_<%= ao_id %>__date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.date_begin") %></label>
-        <input id="ao_begin_date_<%= ao_id %>__date_index_" type="text" value="" name="ao_begin_date_<%= ao_id %>__date_index_" class="date-field form-control" data-ao-date-begin="<%= ao_id %>"  data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false" data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_begin") %>" />
+        <input id="ao_begin_date_<%= ao_id %>__date_index_" type="text" value="" name="ao_begin_date_<%= ao_id %>__date_index_" class="date-field form-control date-template" data-ao-date-begin="<%= ao_id %>"  data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false" data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_begin") %>" />
       </div>
     </div>
 
     <div class="aspace-simple-bulk-edit-date-end">
       <div class="form-group date">
         <label for="ao_end_date_<%= ao_id %>__date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %></label>
-        <input id="ao_end_date_<%= ao_id %>__date_index_" type="text" value="" name="ao_end_date_<%= ao_id %>__date_index_" class="date-field form-control" data-ao-date-end="<%= ao_id %>" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false"data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %>" />
+        <input id="ao_end_date_<%= ao_id %>__date_index_" type="text" value="" name="ao_end_date_<%= ao_id %>__date_index_" class="date-field form-control date-template" data-ao-date-end="<%= ao_id %>" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false"data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %>" />
       </div>
     </div>
     <input type="hidden" data-ao-date-certainty="<%= ao_id %>" id="ao_date_certainty_<%= ao_id %>__date_index_" value="" />

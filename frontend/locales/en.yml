@@ -25,8 +25,10 @@ en:
       no_title: "New title is empty for %{title}. Keeping original title."
     
     summary:
-      add_date: Add a Date
-      add_extent: Add an extent
+      add_dates: Add a Date to all
+      add_extents: Add an extent to all
+      add_single_date: Add a date
+      add_single_extent: Add an extent
       child_indicator: Child Type & Indicator
       options: Options
       container: Container
@@ -42,7 +44,8 @@ en:
       extent_type: Extent Type
       extents: Extents
       indicator: Indicator
-      new_container: New Container
+      link_to_container: Link to Existing Container
+      new_container: Create new Container
       remove_date: Remove this Date
       remove_extent: Remove this extent
       title: Title

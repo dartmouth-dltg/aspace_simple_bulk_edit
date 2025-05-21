@@ -147,6 +147,10 @@ input[id^="ao_expression_date"] {
     display: block;
     margin-top: 9px;
 }
+.add-single-date,
+.add-single-extent {
+    margin: 0.75rem;
+}
 .remove-extent,
 .remove-date {
     width: 100%;

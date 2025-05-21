@@ -54,7 +54,7 @@ class AspaceSimpleBulkEditHandler
     
   end
   
-  def update_ao(id, title, dates, extents)
+  def update_ao(id, title, dates, extents, parent_json = nil)
 
     RequestContext.open(:repo_id => @repo_id) do
       ao, ao_json = get_ao_object(id)
@@ -63,25 +63,29 @@ class AspaceSimpleBulkEditHandler
       unless title.nil?
         ao_json['title'] = title
       end
-      
+
       # update the date
-      unless dates.empty?
-        update_dates_for_ao(ao_json, dates)
+      if ao_json['dates'].empty?
+        ao_json['dates'] = []
+      else
+        ao_json = update_dates_for_ao(ao_json, dates)
       end
 
-      unless extents.empty?
-        update_extents_for_ao(ao_json, extents)
+      if ao_json['extents'].empty?
+        ao_json['extents'] = []
+      else
+        ao_json = update_extents_for_ao(ao_json, extents)
       end
-      
+
       # create or update the container instance
-      update_container_instance(ao_json)
+      ao_json = update_container_instance(ao_json, parent_json)
 
       # update the ao
       ao.update_from_json(JSONModel(:archival_object).from_hash(ao_json))
       @aspace_simple_bulk_edit_complete << id
 
       # update any descendants
-      update_ao_descendants(id)
+      update_ao_descendants(id, ao_json)
     end
     
   end
@@ -93,14 +97,14 @@ class AspaceSimpleBulkEditHandler
     return ao, ao_json
   end
   
-  def update_ao_descendants(id)
+  def update_ao_descendants(id, parent_json)
     descendants = get_ao_descendants(id,[])
   
     if descendants.count > 0
       descendants.each do |item_uri|
         child_id = JSONModel.parse_reference(item_uri)[:id]
         # set the title to be nil so we don't update it for descendants
-        update_ao(child_id, nil, nil)
+        update_ao(child_id, nil, nil, parent_json)
       end
     end
   end
@@ -137,7 +141,7 @@ class AspaceSimpleBulkEditHandler
           invalids.each do |inv|
             err_msg << " #{inv[0]}: #{inv[1]}"
           end
-          @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_extent", :what => err_msg, :extent_str => date_str, :title => ao_json['title'])
+          @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_extent", :what => err_msg, :extent_str => extent_str, :title => ao_json['title'])
           return nil
         end
       end
@@ -182,10 +186,23 @@ class AspaceSimpleBulkEditHandler
     
     ao_json
   end
+
+  def merge_instances(inst, parent_inst)
+    if inst['sub_container'].has_key?("top_container") && parent_inst['sub_container'].has_key?("top_container")
+      inst['sub_container']['top_container']['ref'] = parent_inst['sub_container']['top_container']['ref']
+    end
+
+    inst
+  end
+
   
   # see archivesspace/backend/app/lib/bulk_import/container_instance_handler.rb
-  def update_container_instance(ao_json)
+  def update_container_instance(ao_json, parent_json = nil)
     
+    unless parent_json.nil?
+      parent_inst = parent_json['instances'].find{ |i| i.has_key?("sub_container")}
+    end
+
     inst = ao_json['instances'].find{ |i| i.has_key?("sub_container")}
 
     # create instance if there isn't one and a tc uri and intance type are supplied
@@ -199,7 +216,7 @@ class AspaceSimpleBulkEditHandler
       inst = ao_json['instances'].find{ |i| i.has_key?("sub_container")}
       
       # nothing to do
-      return if inst.nil? || inst.empty?
+      return ao_json if inst.nil? || inst.empty?
 
       # remove it
       ao_json['instances'] = ao_json['instances'] - [inst]
@@ -221,6 +238,10 @@ class AspaceSimpleBulkEditHandler
         else
           inst['sub_container']['indicator_2'] = @indicator_2
           inst['sub_container']['type_2'] = @type_2
+        end
+
+        unless parent_json.nil?
+          inst = merge_instances(inst, parent_inst)
         end
       
         # add it back in
