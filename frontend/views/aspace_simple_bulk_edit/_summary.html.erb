@@ -169,7 +169,25 @@
             </div>
             <div class="form-group linker-wrapper multiplicity-one">
               <label for="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref_"><%= I18n.t("aspace_simple_bulk_edit.summary.new_container") %></label>
-              <input type="text" id="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref_" class="linker form-control" data-ao-inst="<%= ao_id %>" data-label="Top Container" data-label_plural="Top Containers" data-name="ref" data-path="archival_record_children[children][<%= index + 1 %>][instances][0][sub_container][top_container]" data-url="/top_containers/search/typeahead.json?uri=<%= item['resource']['ref'] %>" data-browse-url="/top_containers/bulk_operations/browse" data-selected="{}" data-multiplicity="one" data-types="[&quot;top_container&quot;]" data-exclude="[]" style="display: none;">
+              <input 
+                type="text"
+                id="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref_"
+                aria-autocomplete="both"
+                aria-controls="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref__listbox"
+                aria-labelledby="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref__label"class="linker form-control"
+                data-ao-inst="<%= ao_id %>"
+                data-label_create="<%= t("top_container.linker.create") %>"
+                data-label_create_and_link="<%= t("linker.create_and_link") %>"
+                data-name="ref"
+                data-path="archival_record_children[children][<%= index + 1 %>][instances][0][sub_container][top_container]"
+                data-url="/top_containers/search/typeahead.json?uri=<%= item['resource']['ref'] %>"
+                data-browse-url="/top_containers/bulk_operations/browse"
+                data-selected="{}"
+                data-multiplicity="one"
+                data-types="[&quot;top_container&quot;]"
+                data-exclude="[]"
+                style="display: none;"
+              >
               <% if user_can?('update_container_record') %>
                 <div class="input-group-append flex-shrink-0">
                   <button

@@ -65,15 +65,12 @@ class AspaceSimpleBulkEditHandler
       end
 
       # update the date
-      if ao_json['dates'].empty?
-        ao_json['dates'] = []
-      else
+      unless dates.nil?
         ao_json = update_dates_for_ao(ao_json, dates)
       end
 
-      if ao_json['extents'].empty?
-        ao_json['extents'] = []
-      else
+      # update the extents
+      unless extents.nil?
         ao_json = update_extents_for_ao(ao_json, extents)
       end
 
@@ -104,7 +101,7 @@ class AspaceSimpleBulkEditHandler
       descendants.each do |item_uri|
         child_id = JSONModel.parse_reference(item_uri)[:id]
         # set the title to be nil so we don't update it for descendants
-        update_ao(child_id, nil, nil, parent_json)
+        update_ao(child_id, nil, nil, nil, parent_json)
       end
     end
   end

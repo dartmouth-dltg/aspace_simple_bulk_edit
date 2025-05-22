@@ -148,8 +148,7 @@ class SimpleBulkEdit {
   findAoTcUri($container, aoId) {
     const currentAoTcUri = $container.find(`div[data-ao-inst-ref="${aoId}"]`).text();
     let newAoTcUri = $container.find(`input[data-ao-inst="${aoId}"]`).siblings('ul.token-input-list').children('li.token-input-token').find('input').last().val();
-console.log("newAoTcUri", newAoTcUri);
-    //the newAoTcUri may be expressed as a
+
     if (typeof newAoTcUri === 'undefined'){
       if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked')) {
         newAoTcUri = findGlobalTcUri($container);
@@ -473,6 +472,11 @@ console.log("newAoTcUri", newAoTcUri);
           }
         }
 
+      }
+
+      if (v.tc_uri !== '' && v.instance_type === 'none') {
+        valid = false
+        $container.find(`tr[data-uri="${v.uri}"] .aspace-simple-bulk-edit-summary-new-container`).addClass('bg-danger');
       }
     });
     
