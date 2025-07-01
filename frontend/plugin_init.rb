@@ -39,18 +39,4 @@ Rails.application.config.after_initialize do
     end
   end
 
-  ActionView::PartialRenderer.class_eval do
-    alias_method :render_pre_aspace_simple_bulk_edit, :render
-    def render(context, options, block)
-      result = render_pre_aspace_simple_bulk_edit(context, options, block);
-
-      # Add our specific templates to shared/templates
-      if options[:partial] == "shared/templates"
-        result += render(context, options.merge(:partial => "aspace_simple_bulk_edit/aspace_simple_bulk_edit_templates"), nil)
-      end
-
-      result
-    end
-  end
-
 end
