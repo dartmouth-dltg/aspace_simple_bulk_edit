@@ -184,15 +184,6 @@ class SimpleBulkEdit {
     return aoInstanceType;
   };
   
-  // update the options - ao uris, tc uri, load uri
-  updateSimpleBulkEditsOptions($container) {
-    const simpleBulkEditsOptions = {};
-    simpleBulkEditsOptions.loadUri = $('#aspace_simple_bulk_edit_form').attr('action');
-    simpleBulkEditsOptions.aos = this.findAoData($container);
-    
-    return simpleBulkEditsOptions;
-  };
-  
   assembleExtents($container, aoId) {
     const extents = [];
 
@@ -292,6 +283,15 @@ class SimpleBulkEdit {
       }
     });
   };
+
+  // update the options - ao uris, tc uri, load uri
+  updateSimpleBulkEditsOptions($container) {
+    const simpleBulkEditsOptions = {};
+    simpleBulkEditsOptions.loadUri = $('#aspace_simple_bulk_edit_form').attr('action');
+    simpleBulkEditsOptions.aos = this.findAoData($container);
+    
+    return simpleBulkEditsOptions;
+  };
   
   // do the updates
   updateSimpleBulkEdits($container, onComplete) {
@@ -301,7 +301,7 @@ class SimpleBulkEdit {
     if (this.validate($container, simpleBulkEditsOptions)) {
       $container.find('.alert').remove();
 
-      $.post(simpleBulkEditsOptions.loadUri, {uri: JSON.stringify(simpleBulkEditsOptions.aos)}, function(json) {
+      $.post(simpleBulkEditsOptions.loadUri, {uri: JSON.stringify(simpleBulkEditsOptions.aos.reverse())}, function(json) {
         if (Object.keys(json).length > 0) {
           if (json.issues.length > 0) {
             $container.find('.modal-body').prepend(`<div class="alert alert-warning alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><p>${json.issues}</p></div>`);
