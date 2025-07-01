@@ -5,3 +5,11 @@
 <%#= javascript_include_tag "#{AppConfig[:frontend_proxy_prefix]}assets/#{AppConfig[:aspace_simple_bulk_edit_precompile_assets_filename]}.js" %>
 <%= javascript_include_tag "#{AppConfig[:frontend_proxy_prefix]}assets/aspace_simple_bulk_edit.js" %>
 
+<% if current_repo %>
+  <script>
+    $().ready(() => {
+      const simpleBulkEditActions = new SimpleBulkEdit(`<%= current_repo.uri %>`);
+      simpleBulkEditActions.init();
+    });
+  </script>
+<% end %>

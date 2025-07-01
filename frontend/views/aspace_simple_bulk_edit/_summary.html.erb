@@ -5,6 +5,9 @@
     container_types = []
     date_types = []
     instance_types = []
+    extent_types = []
+    extent_portions = []
+    date_labels = []
         
     @container_types["values"].each do |ct|
        container_types << [I18n.t("enumerations.container_type.#{ct}", default: "#{ct}"),"#{ct}"]
@@ -15,55 +18,71 @@
         date_types << [I18n.t("enumerations.date_type.#{dt}", default: "#{dt}"),"#{dt}"]
       end
     end
+
+    @date_labels['values'].each do |dl|
+      date_labels << [I18n.t("enumerations.date_label.#{dl}", default: "#{dl}"),"#{dl}"]
+    end
+    
+    @extent_types["values"].each do |et|
+      extent_types << [I18n.t("enumerations.extent_extent_type.#{et}", default: "#{et}"), "#{et}"]
+    end
+
+    @extent_portions["values"].each do |ep|
+      extent_portions << [I18n.t("enumerations.extent_portion.#{ep}", default: "#{ep}"), "#{ep}"]
+    end
     
     @instance_types["values"].each do |inst_type|
       instance_types << [I18n.t("enumerations.instance_instance_type.#{inst_type}", default: "#{inst_type}"),"#{inst_type}"]
     end
-    [container_types, date_types, instance_types].each do |a|
+    [container_types, date_types, instance_types, extent_types, extent_portions].each do |a|
       a.unshift(["","none"])
     end
     
-    resource_uri = @dartmouth_bulk_container_update_items.first["archival_object"]["_resolved"]['resource']['ref']
+    @resource_uri = @dartmouth_bulk_container_update_items.first["archival_object"]["_resolved"]['resource']['ref']
     
   %>
   <table class="table table-striped table-bordered">
     <thead>
       <tr>
         <th><%= I18n.t("aspace_simple_bulk_edit.summary.title") %></th>
-        <th><%= I18n.t("aspace_simple_bulk_edit.summary.date") %></th>
+        <th><%= I18n.t("aspace_simple_bulk_edit.summary.date") %>
+          <button class="btn btn-secondary btn-sm add-dates"><%= I18n.t("aspace_simple_bulk_edit.summary.add_dates") %></button>
+        </th>
+        <th><%= I18n.t("aspace_simple_bulk_edit.summary.extents") %>
+          <button class="btn btn-secondary btn-sm add-extents"><%= I18n.t("aspace_simple_bulk_edit.summary.add_extents") %></button>
+        </th>
         <th><%= I18n.t("aspace_simple_bulk_edit.summary.container_and_instance") %><button id="global-tc-toggle" class="btn btn-sm"><%= I18n.t("aspace_simple_bulk_edit.summary.options") %></button>
-        <div id="bulkUpdateContainerTypeahead" class="row">
-          <div class="controls col-sm-11 col-sm-offset-1 well">
-            <p><%= I18n.t("aspace_simple_bulk_edit.choose_top_container") %><button id="global-tc-explain-toggle" class="btn btn-xs"></button></p>
-            <div id="global-tc-explain">
-              <%= I18n.t("aspace_simple_bulk_edit.choose_top_container_explain") %>
-            </div>
-            <div class="row">
-              <div class="col-sm-12">
-                <div class="input-group aspace-simple-bulk-edit-global-instance-type">
-                  <p><%= I18n.t("aspace_simple_bulk_edit.summary.type") %></p>
-                  <%= select_tag "aspace_simple_bulk_edit_global_instance_type_select", options_for_select(instance_types, "mixed_materials"), :required => true, :class => "form-control" %>
-                </div>
+          <div id="bulkUpdateContainerTypeahead" class="row">
+            <div class="controls col-sm-11 col-sm-offset-1 well">
+              <p><%= I18n.t("aspace_simple_bulk_edit.choose_top_container") %><button id="global-tc-explain-toggle" class="btn btn-xs"></button></p>
+              <div id="global-tc-explain">
+                <%= I18n.t("aspace_simple_bulk_edit.choose_top_container_explain") %>
               </div>
-
-              <div class="col-sm-12">
-                <p><%= I18n.t("aspace_simple_bulk_edit.summary.container") %></p>
-                <div class="input-group linker-wrapper multiplicity-one">
-                  <input type="text" class="linker" id="archival_record_children_children__0__instances__0__sub_container__top_container__ref_" data-label="Top Container" data-label_plural="Top Containers" data-name="ref" data-path="archival_record_children[children][0][instances][0][sub_container][top_container]" data-url="/top_containers/search/typeahead.json?uri=<%= resource_uri %>" data-browse-url="/top_containers/bulk_operations/browse" data-selected="{}" data-multiplicity="one" data-types="[&quot;top_container&quot;]" data-exclude="[]" style="display: none;">
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="form-group aspace-simple-bulk-edit-global-instance-type">
+                    <label for="aspace_simple_bulk_edit_global_instance_type_select"><%= I18n.t("aspace_simple_bulk_edit.summary.type") %></label>
+                    <%= select_tag "aspace_simple_bulk_edit_global_instance_type_select", options_for_select(instance_types, "mixed_materials"), :required => true, :class => "form-control" %>
+                  </div>
                 </div>
-              </div>
 
-              <div class="col-sm-12">
-                <div class="checkbox">
-                  <label>
-                    <input type="checkbox" id="aspace-simple-bulk-edit-use-global-tc"><%= I18n.t("aspace_simple_bulk_edit.use_global") %>
-                  </label>
+                <div class="col-sm-12">
+                  <p><%= I18n.t("aspace_simple_bulk_edit.summary.container") %></p>
+                  <div class="input-group linker-wrapper multiplicity-one">
+                    <input type="text" class="linker" id="archival_record_children_children__0__instances__0__sub_container__top_container__ref_" data-label="Top Container" data-label_plural="Top Containers" data-name="ref" data-path="archival_record_children[children][0][instances][0][sub_container][top_container]" data-url="/top_containers/search/typeahead.json?uri=<%= @resource_uri %>" data-browse-url="/top_containers/bulk_operations/browse" data-selected="{}" data-multiplicity="one" data-types="[&quot;top_container&quot;]" data-exclude="[]" style="display: none;">
+                  </div>
+                </div>
+
+                <div class="col-sm-12">
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" id="aspace-simple-bulk-edit-use-global-tc" class="mr-2"><%= I18n.t("aspace_simple_bulk_edit.use_global") %>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        
         </th>
         <th><%= I18n.t("aspace_simple_bulk_edit.summary.child_indicator") %><button id="child-fill-toggle" class="btn btn-sm"><%= I18n.t("aspace_simple_bulk_edit.summary.options") %></button>
           <div id="child-ind-fill" class="row">
@@ -80,97 +99,115 @@
       </tr>
     </thead>
     <tbody>
-      <% @dartmouth_bulk_container_update_items.each_with_index do |ao, index| %>
-        
-        <%
-        ao_ref = ao["selected"]["ref"]
-        ao_id = ao_ref.split("/").last
-        item = ao["archival_object"]["_resolved"]
-        next if !["file","item"].include?(item["level"])
-        
-        # containers
-        inst = item["instances"].find{|instance| instance.has_key?("sub_container")}
-        if inst.nil?
-          container = "No container found"
-          container_type = "none"
-          instance_type = "none"
-        else
-          if inst["sub_container"]["top_container"] && inst["sub_container"]["top_container"]["_resolved"] && inst["sub_container"]["top_container"]["_resolved"]["indicator"]
-            container = inst["sub_container"]["top_container"]["_resolved"]["display_string"]
-            instance_type = inst["instance_type"]
-            container_type = inst["sub_container"]["type_2"] ? inst["sub_container"]["type_2"] : "none"
+      <% 
+        @dartmouth_bulk_container_update_items.each_with_index do |ao, index|
+          ao_ref = ao["selected"]["ref"]
+          ao_id = ao_ref.split("/").last
+          item = ao["archival_object"]["_resolved"]
+          next if !["file","item","otherlevel"].include?(item["level"])
+          if item['level'] == 'otherlevel' 
+            next unless item['other_level'].downcase == 'box'
           end
-        end
-        
-        # dates: naively grab the first date
-        date = item['dates'].first
-        date_type = "none"
-        unless date.nil?
-          date_type = date['date_type']
-          date_label = date['label']
-          date_begin = date['begin']
-          date_end = date['end']
-          date_expression = date['expression']
-        end
-        %>
+          # containers - assumes only *one* phyical container
+          inst = item["instances"].find{|instance| instance.has_key?("sub_container")}
+          if inst.nil?
+            container = "No container found"
+            container_type = "none"
+            instance_type = "none"
+          else
+            if inst['sub_container'] && inst['sub_container']['top_container'] 
+              inst_ref = inst['sub_container']['top_container']['ref']
+            else
+              inst_ref = nil
+            end
+            if inst["sub_container"]["top_container"] && inst["sub_container"]["top_container"]["_resolved"] && inst["sub_container"]["top_container"]["_resolved"]["indicator"]
+              container = inst["sub_container"]["top_container"]["_resolved"]["display_string"]
+              instance_type = inst["instance_type"]
+              container_type = inst["sub_container"]["type_2"] ? inst["sub_container"]["type_2"] : "none"
+            end
+          end
+      %>
         <tr data-uri="<%= ao_ref %>">
-          <td class="aspace-simple-bulk-edit-summary-title"><input data-ao-title="<%= ao_id %>" type="text" value="<%= item['title'] %>"></td>
-          <td class="aspace-simple-bulk-edit-summary-date date-type-<%= date_type %>">
-            
-            <div class="input-group aspace-simple-bulk-edit-date-type">
-              <%= select_tag "aspace_simple_bulk_edit_date_type_select_#{index}", options_for_select(date_types, date_type), :required => true, "data-ao-date-type" => ao_id, :class => "form-control"  %>
+          <td class="aspace-simple-bulk-edit-summary-title">
+            <div class="form-group">
+              <label class="sr-only" for="title_<%= ao_id %>">Title</label>
+              <textarea id="title_<%= ao_id %>" rows="2" class="form-control" data-ao-title="<%= ao_id %>" type="text"><%= item['title'] %></textarea>
             </div>
-
-            <div class="aspace-simple-bulk-edit-date-expression">
-              <p><%= I18n.t("aspace_simple_bulk_edit.summary.date_expression") %></p>
-              <div class="input-group">
-                <textarea rows="2" id="ao_expression_date_<%= ao_ref %>" type="text" name="ao_expression_date_<%= ao_ref %>" class="form-control" data-ao-date-exp="<%= ao_id %>" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false"><%= date_expression.nil? ? '' : date_expression %></textarea>
-              </div>
-            </div>
-            
-            <div class="aspace-simple-bulk-edit-date-begin">
-              <p><%= I18n.t("aspace_simple_bulk_edit.summary.date_begin") %></p>
-              <div class="input-group date">
-                <input id="ao_begin_date_<%= ao_ref %>" type="text" value="<%= date_begin rescue '' %>" name="ao_begin_date_<%= ao_ref %>" class="date-field form-control" data-ao-date-begin="<%= ao_id %>"  data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false">
-                <span class="input-group-addon">
-                  <i class="glyphicon glyphicon-calendar"></i>
-                </span>
-              </div>
-            </div>
-            
-            <div class="aspace-simple-bulk-edit-date-end">
-              <p><%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %></p>
-              <div class="input-group date">
-                <input id="ao_end_date_<%= ao_ref %>" type="text" value="<%= date_end rescue '' %>" name="ao_end_date_<%= ao_ref %>" class="date-field form-control" data-ao-date-end="<%= ao_id %>" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false">
-                <span class="input-group-addon">
-                  <i class="glyphicon glyphicon-calendar"></i>
-                </span>
-              </div>
-            </div>
+          </td>
+          <td class="aspace-simple-bulk-edit-summary-dates-<%= ao_id %>">
+            <%= render_aspace_partial :partial => "aspace_simple_bulk_edit/dates", :locals => {
+              :dates => item['dates'],
+              :date_types => date_types,
+              :date_labels => date_labels,
+              :index => index,
+              :ao_ref => ao_ref,
+              :ao_id => ao_id
+              } %>
+              <button class="btn btn-secondary btn-sm add-single-date"><%= I18n.t("aspace_simple_bulk_edit.summary.add_single_date") %></button>
+          </td>
+          <td class="aspace-simple-bulk-edit-summary-extents-<%= ao_id %>">
+            <%= render_aspace_partial :partial => "aspace_simple_bulk_edit/extents", :locals => {
+              :extents => item['extents'],
+              :extent_types => extent_types,
+              :extent_portions => extent_portions,
+              :index => index,
+              :ao_ref => ao_ref,
+              :ao_id => ao_id
+              } %>
+              <button class="btn btn-secondary btn-sm add-single-extent"><%= I18n.t("aspace_simple_bulk_edit.summary.add_single_extent") %></button>
           </td>
           <td class="aspace-simple-bulk-edit-summary-new-container">
             <div class="aspace-simple-bulk-edit-current-container">
               <p><%= I18n.t("aspace_simple_bulk_edit.summary.current_container") %></p>
               <div class="current-container"><%= container %></div>
+              <div class="current-instance-ref" data-ao-inst-ref="<%= ao_id %>"><%= inst_ref %></div>
             </div>
 
-            <div class="input-group aspace-simple-bulk-edit-instance-type">
-              <p><%= I18n.t("aspace_simple_bulk_edit.summary.type") %></p>
+            <div class="form-group aspace-simple-bulk-edit-instance-type">
+              <label for="aspace_simple_bulk_edit_instance_type_select_#{index}"><%= I18n.t("aspace_simple_bulk_edit.summary.type") %></label>
               <%= select_tag "aspace_simple_bulk_edit_instance_type_select_#{index}", options_for_select(instance_types, instance_type), :required => true, "data-ao-inst-type" => ao_id, :class => "form-control"  %>
             </div>
-            <p><%= I18n.t("aspace_simple_bulk_edit.summary.new_container") %></p>
-            <div class="input-group linker-wrapper multiplicity-one">
-              <input type="text" id="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref_" class="linker" data-ao-inst="<%= ao_id %>" data-label="Top Container" data-label_plural="Top Containers" data-name="ref" data-path="archival_record_children[children][<%= index + 1 %>][instances][0][sub_container][top_container]" data-url="/top_containers/search/typeahead.json?uri=<%= item['resource']['ref'] %>" data-browse-url="/top_containers/bulk_operations/browse" data-selected="{}" data-multiplicity="one" data-types="[&quot;top_container&quot;]" data-exclude="[]" style="display: none;">
+            <div class="form-group linker-wrapper multiplicity-one">
+              <label for="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref_"><%= I18n.t("aspace_simple_bulk_edit.summary.new_container") %></label>
+              <input 
+                type="text"
+                id="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref_"
+                aria-autocomplete="both"
+                aria-controls="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref__listbox"
+                aria-labelledby="archival_record_children_children__<%= index + 1 %>__instances__0__sub_container__top_container__ref__label"class="linker form-control"
+                data-ao-inst="<%= ao_id %>"
+                data-label_create="<%= t("top_container.linker.create") %>"
+                data-label_create_and_link="<%= t("linker.create_and_link") %>"
+                data-name="ref"
+                data-path="archival_record_children[children][<%= index + 1 %>][instances][0][sub_container][top_container]"
+                data-url="/top_containers/search/typeahead.json?uri=<%= item['resource']['ref'] %>"
+                data-browse-url="/top_containers/bulk_operations/browse"
+                data-selected="{}"
+                data-multiplicity="one"
+                data-types="[&quot;top_container&quot;]"
+                data-exclude="[]"
+                style="display: none;"
+              >
+              <% if user_can?('update_container_record') %>
+                <div class="input-group-append flex-shrink-0">
+                  <button
+                    type="button"
+                    class="btn btn-default linker-create-btn rde-top-containers-linker"
+                    data-target="<%= url_for :controller => :top_containers, :action => :new, :small => true, :inline => true, :created_for_collection => self.instance_variable_get(:"@resource_uri") %>"
+                  ><%= t("actions.create") %></button>
+                </div>
+
+              <% end %>
             </div>
           </td>
           <td class="aspace-simple-bulk-edit-summary-child-indicator">
-            <div class="input-group aspace-simple-bulk-edit-child-type">
-              <p><%= I18n.t("aspace_simple_bulk_edit.summary.type") %></p>
+            <div class="form-group aspace-simple-bulk-edit-child-type">
+              <label for="aspace_simple_bulk_edit_child_type_select_#{index}"><%= I18n.t("aspace_simple_bulk_edit.summary.type") %></label>
               <%= select_tag "aspace_simple_bulk_edit_child_type_select_#{index}", options_for_select(container_types, container_type), :required => true, "data-ao-child-type" => ao_id, :class => "form-control"  %>
             </div>
-            <div class="input-group aspace-simple-bulk-edit-child-indicator">
-              <p><%= I18n.t("aspace_simple_bulk_edit.summary.indicator") %></p>
-              <input type="text" data-ao-child-ind="<%= ao_id %>" value="<%= inst["sub_container"]["indicator_2"] rescue "" %>">
+            <div class="form-group aspace-simple-bulk-edit-child-indicator">
+              <label for="ao-child-indicator-<%= ao_id %>"><%= I18n.t("aspace_simple_bulk_edit.summary.indicator") %></label>
+              <input id="ao-child-indicator-<%= ao_id %>" class="form-control" type="text" data-ao-child-ind="<%= ao_id %>" value="<%= inst["sub_container"]["indicator_2"] rescue "" %>">
             </div>
           </td>
           <td class="aspace-simple-bulk-edit-summary-actions">

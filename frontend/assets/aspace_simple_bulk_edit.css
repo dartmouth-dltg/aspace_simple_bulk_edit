@@ -1,4 +1,17 @@
-@charset "UTF-8";
+/* layout */
+#aspace_simple_bulk_edit_form tbody td[class^="aspace-simple-bulk-edit-summary-dates"],
+#aspace_simple_bulk_edit_form tbody td[class^="aspace-simple-bulk-edit-summary-extents"] {
+    padding: 0;
+}
+
+div[class^="aspace-simple-bulk-edit-summary-date"],
+div[class^="aspace-simple-bulk-edit-summary-extent"] {
+    padding: 0.75rem;
+}
+div[class^="aspace-simple-bulk-edit-summary-date"]:nth-of-type(2n),
+div[class^="aspace-simple-bulk-edit-summary-extent"]:nth-of-type(2n) {
+    background-color: #ccc;
+}
 
 #child-fill-toggle,
 #global-tc-toggle {
@@ -61,9 +74,6 @@
     font-family: "Glyphicons Halflings";
 }
 
-.aspace-simple-bulk-edit-summary-title {
-    min-width: 25%;
-}
 .aspace-simple-bulk-edit-summary-title input {
     width: 100%;
 }
@@ -92,6 +102,18 @@ input[id^="ao_expression_date"] {
     width: 100%;
 }
 
+#aspace_simple_bulk_edit_form .material-symbols-outlined {
+    font-size: 18px;
+}
+
+#aspace_simple_bulk_edit_form .linker-wrapper .token-input-list {
+    width: 100%;
+}
+
+#aspace_simple_bulk_edit_form .bg-danger {
+    color: #fff;
+}
+
 .aspace-simple-bulk-edit-current-container, 
 .aspace-simple-bulk-edit-instance-type,
 .aspace-simple-bulk-edit-container-type {
@@ -109,4 +131,33 @@ input[id^="ao_expression_date"] {
 .aspace-simple-bulk-edit-type-warn,
 .aspace-simple-bulk-edit-indicator-warn {
     padding: 4px;
+}
+
+.current-instance-ref {
+    display: none;
+}
+
+/* template controls */
+#simple-bulk-edit-extents-template,
+#simple-bulk-edit-dates-template  {
+    display: none;
+}
+.add-extent,
+.add-date {
+    display: block;
+    margin-top: 9px;
+}
+.add-single-date,
+.add-single-extent {
+    margin: 0.75rem;
+}
+.remove-extent,
+.remove-date {
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+.aspace-simple-bulk-edit-summary-new-container .btn.linker-create-btn {
+    width: 100%;
+    margin-top: 9px;
 }

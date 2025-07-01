@@ -35,7 +35,7 @@
 --></div>
 
 <div id="template_aspace_simple_bulk_edit_alert"><!--
-<div class="alert alert-${alert_type} alert-dismissible fade in" role="alert">
+<div class="alert alert-${alert_type} alert-dismissible fade show" role="alert">
 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
 <p>
   {if alert_type == "warning"}
@@ -45,7 +45,7 @@
   <%= I18n.t("aspace_simple_bulk_edit.danger") %>
   {/if}
   {if alert_type == "success"}
-   <case "success:}> <%= I18n.t("aspace_simple_bulk_edit.success") %>
+   <%= I18n.t("aspace_simple_bulk_edit.success") %>
   {/if}
 </p>
 </div>
@@ -58,9 +58,3 @@
 <div id="template_aspace_simple_bulk_edit_no_indicator_warn"><!--
   <p class="aspace-simple-bulk-edit-indicator-warn bg-danger">An indicator is required if a type is selected.</p>
 --></div>
-
-<% if current_user && current_repo %>
-<script>
-  var CURRENT_REPO_URI = '<%= current_repo.uri %>'
-</script>
-<% end %>
