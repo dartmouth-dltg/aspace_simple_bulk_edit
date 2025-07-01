@@ -39,6 +39,10 @@ Date - Date Type
 Date - Date Expression
 Date - Date Begin
 Date - Date End
+Extent - Extent Type
+Extent - Extent Portion
+Extent - Extent Number
+Extent - Extent Summary
 Instance - Instance Type
 Instance - Top Container
 Child Indicator
@@ -46,6 +50,12 @@ Child Type
 ```
 
 ![images/aspace_simple_bulk_edit_modal.png](images/aspace_simple_bulk_edit_modal.png)
+
+Note that the plugin will process and update the selected AOs in *reverse* order to attempt to 
+keep hierarchical container information in sync. So, for example, if you have selected a set of
+files and nested items, ensure that you select them in hierarchical order - e.g. file before items.
+The plugin will then updates the items first and then the file. During the file update, the items
+will be updated again to ensure that the container information is in sync with the parent file.
 
 ### Date and Instance data
 The date and instance data are those taken from the first creation date and the first container 
