@@ -151,7 +151,7 @@ class SimpleBulkEdit {
 
     if (typeof newAoTcUri === 'undefined'){
       if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked')) {
-        newAoTcUri = findGlobalTcUri($container);
+        newAoTcUri = this.findGlobalTcUri($container);
       }
       else {
         newAoTcUri = "";
@@ -481,7 +481,7 @@ class SimpleBulkEdit {
     });
     
     // check the global tc_uri
-    if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked') && typeof findGlobalTcUri($container) === 'undefined') {
+    if ($container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked') && typeof this.findGlobalTcUri($container) === 'undefined') {
       $container.find('#aspace-simple-bulk-edit-use-global-tc').parent('label').addClass('bg-danger');
       valid = false;
     }
