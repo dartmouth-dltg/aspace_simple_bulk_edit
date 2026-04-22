@@ -683,7 +683,9 @@ class SimpleBulkEdit {
           case "single" :
             $(this).closest('td').find('.aspace-simple-bulk-edit-date-expression').show();
             $(this).closest('td').find('.aspace-simple-bulk-edit-date-begin').show();
-            $(this).closest('td').find('.aspace-simple-bulk-edit-date-end').hide();
+            const dateEnd = $(this).closest('td').find('.aspace-simple-bulk-edit-date-end');
+            dateEnd.find('input[id^=ao_end_date]').val('');
+            dateEnd.hide();
             break;
           default :
             $(this).closest('td').find('.aspace-simple-bulk-edit-date-expression').show();
