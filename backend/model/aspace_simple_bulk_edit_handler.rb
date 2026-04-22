@@ -180,7 +180,7 @@ class AspaceSimpleBulkEditHandler
           return ao_json
         end
       end
-      if date["type"] == "single" && !date["end"].nil?
+      if date["date_type"] == "single" && !date["end"].nil?
         @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.warn.single_date_end", :date_str => date_str, :title => ao_json['title'])
         return ao_json
       end
