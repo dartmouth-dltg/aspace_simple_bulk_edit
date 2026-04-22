@@ -29,8 +29,7 @@
         <input id="ao_begin_date_<%= ao_id %>_<%= date_idx %>" type="text" value="<%= date['begin'] rescue '' %>" name="ao_begin_date_<%= ao_id %>" class="date-field form-control" data-ao-date-begin="<%= ao_id %>"  data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false" data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_begin") %>" />
       </div>
     </div>
-
-    <div class="aspace-simple-bulk-edit-date-end">
+    <div class="aspace-simple-bulk-edit-date-end" <% if date['date_type'] == 'single'%>style="display:none;"<% end %>>
       <div class="form-group date">
         <label for="ao_end_date_<%= ao_id %>_<%= date_idx %>"><%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %></label>
         <input id="ao_end_date_<%= ao_id %>_<%= date_idx %>" type="text" value="<%= date['end'] rescue '' %>" name="ao_end_date_<%= ao_id %>" class="date-field form-control" data-ao-date-end="<%= ao_id %>" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false"data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %>" />
