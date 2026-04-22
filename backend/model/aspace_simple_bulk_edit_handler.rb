@@ -9,6 +9,7 @@ class AspaceSimpleBulkEditHandler
     @aspace_simple_bulk_edit_complete = []
     @aspace_simple_bulk_edit_errors = []
     @repo_id = repo
+
     start_update(ao)
   end
   
@@ -58,7 +59,7 @@ class AspaceSimpleBulkEditHandler
 
     RequestContext.open(:repo_id => @repo_id) do
       ao, ao_json = get_ao_object(id)
-      
+
       # update the title if one exists
       unless title.nil?
         ao_json['title'] = title
@@ -90,7 +91,7 @@ class AspaceSimpleBulkEditHandler
   def get_ao_object(id)
     ao = ArchivalObject.get_or_die(id)
     ao_json = URIResolver.resolve_references(ArchivalObject.to_jsonmodel(ao), ['repository'])
-    
+
     return ao, ao_json
   end
   
@@ -139,7 +140,7 @@ class AspaceSimpleBulkEditHandler
             err_msg << " #{inv[0]}: #{inv[1]}"
           end
           @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_extent", :what => err_msg, :extent_str => extent_str, :title => ao_json['title'])
-          return nil
+          return ao_json
         end
       end
 
@@ -155,11 +156,17 @@ class AspaceSimpleBulkEditHandler
     ao_json['dates'] = []
 
     dates.each do |date|
-    
+
+      # remove empty values since they won't validate properly
+      date.delete_if { |key, value| value.nil? || value.empty? }
+      
       next if date['date_type'] == "none"
 
       date["label"] = date['label'].nil? ? "creation" : date["label"]
-      date_str = "(Date: type:#{date['date_type']}, label: #{date['label']}, begin: #{date['begin']}, end: #{date['end']}, expression: #{date['expression']})"
+      date_str = "(Date: type:#{date['date_type']}, label: #{date['label']})"
+      date_str += ", begin: #{date['begin']}" if date['begin']
+      date_str += ", end: #{date['end']}" if date['end']
+      date_str += ", expression: #{date['expression']})" if date['expression']
       
       # only check dates if we are actually updating or creating a new one
       unless date["date_type"] == "none"
@@ -170,17 +177,18 @@ class AspaceSimpleBulkEditHandler
             err_msg << " #{inv[0]}: #{inv[1]}"
           end
           @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_date", :what => err_msg, :date_str => date_str, :title => ao_json['title'])
-          return nil
+          return ao_json
         end
       end
-      if date["type"] == "single" && !date["end"].nil?
+      if date["date_type"] == "single" && !date["end"].nil?
         @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.warn.single_date_end", :date_str => date_str, :title => ao_json['title'])
+        return ao_json
       end
       
       # or update or create  
       ao_json["dates"] << JSONModel(:date).new(date).to_hash
     end
-    
+
     ao_json
   end
 
