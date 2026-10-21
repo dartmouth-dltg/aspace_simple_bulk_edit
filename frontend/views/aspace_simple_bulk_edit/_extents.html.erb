@@ -8,12 +8,12 @@
   >
     <button class="btn btn-warning btn-sm remove-extent" data-extent-index="<%=ext_idx%>"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_extent") %></button>
     <div class="form-group aspace-simple-bulk-edit-extent-type">
-      <label for="aspace_simple_bulk_edit_extent_type_select_<%= ao_id %>_<%= ext_idx %>">Extent Type</label>
+      <label for="aspace_simple_bulk_edit_extent_type_select_<%= ao_id %>_<%= ext_idx %>"><%= I18n.t("aspace_simple_bulk_edit.summary.extent_type") %></label>
       <%= select_tag "aspace_simple_bulk_edit_extent_type_select_#{ao_id}_#{ext_idx}", options_for_select(extent_types, extent['extent_type']), :required => true, "data-ao-extent-type" => ao_id, :class => "form-control" %>
     </div>
 
     <div class="form-group aspace-simple-bulk-edit-extent-portion">
-      <label for="aspace_simple_bulk_edit_extent_portion_select_<%= ao_id %>_<%= ext_idx %>">Extent Portion</label>
+      <label for="aspace_simple_bulk_edit_extent_portion_select_<%= ao_id %>_<%= ext_idx %>"><%= I18n.t("aspace_simple_bulk_edit.summary.extent_portion") %></label>
       <%= select_tag "aspace_simple_bulk_edit_extent_portion_select_#{ao_id}_#{ext_idx}", options_for_select(extent_portions, extent['portion']), :required => true, "data-ao-extent-portion" => ao_id, :class => "form-control" %>
     </div>
     

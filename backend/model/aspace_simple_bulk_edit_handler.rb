@@ -22,18 +22,8 @@ class AspaceSimpleBulkEditHandler
     ao_id = JSONModel.parse_reference(ao['uri'])[:id]
     title = ao['title'].nil? ? nil : ao['title']
     
-    dates = []
-    ao['dates'].each do |date|
-      date['label'] = date['label'] unless date['label'].empty?
-      date["date_type"] = date["date_type"] unless date["date_type"].empty?
-      date["begin"] = date["begin"] unless date["begin"].empty?
-      date["end"] = date["end"] unless date["end"].empty?
-      date["expression"] = date["expression"] unless date["expression"].empty?
-      date["era"] = date["era"] unless date["era"].empty?
-      date["certainty"] = date["certainty"] unless date["certainty"].empty?
-      date["calendar"] = date["calendar"] unless date["calendar"].empty?
-      dates << date
-    end
+    # empty values are dropped in update_dates_for_ao
+    dates = ao['dates']
 
     extents = []
     ao['extents'].each do |ext|
@@ -97,12 +87,10 @@ class AspaceSimpleBulkEditHandler
   def update_ao_descendants(id, parent_json)
     descendants = get_ao_descendants(id,[])
   
-    if descendants.count > 0
-      descendants.each do |item_uri|
-        child_id = JSONModel.parse_reference(item_uri)[:id]
-        # set the title to be nil so we don't update it for descendants
-        update_ao(child_id, nil, nil, nil, parent_json)
-      end
+    descendants.each do |item_uri|
+      child_id = JSONModel.parse_reference(item_uri)[:id]
+      # set the title to be nil so we don't update it for descendants
+      update_ao(child_id, nil, nil, nil, parent_json)
     end
   end
 
@@ -111,8 +99,8 @@ class AspaceSimpleBulkEditHandler
 
     fields = ["extent_type", "portion", "number"]
 
-    if fields.all? {|field| !hash.has_key?(field) || hash[field].empty?}
-      fields.each do |field|
+    fields.each do |field|
+      if !hash.has_key?(field) || hash[field].empty?
         errors << [field, "you must provide an extent type, portion and number"]
       end
     end
@@ -131,16 +119,11 @@ class AspaceSimpleBulkEditHandler
       extent['portion'] = extent['portion'].nil? ? 'whole' : extent['portion']
       extent_str = "(Extent: portion:#{extent['portion']}, number:#{extent['number']}, container_summary:#{extent['container_summary']}, extent_type:#{extent['extent_type']})"
       
-      unless extent['extent_type'] == 'none'
-        invalids = validate_extents(extent)
-        unless (invalids.nil? || invalids.empty?)
-          err_msg = ""
-          invalids.each do |inv|
-            err_msg << " #{inv[0]}: #{inv[1]}"
-          end
-          @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_extent", :what => err_msg, :extent_str => extent_str, :title => ao_json['title'])
-          return ao_json
-        end
+      invalids = validate_extents(extent)
+      unless invalids.empty?
+        err_msg = invalids.map { |inv| " #{inv[0]}: #{inv[1]}" }.join
+        @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_extent", :what => err_msg, :extent_str => extent_str, :title => ao_json['title'])
+        return ao_json
       end
 
       new_extents << JSONModel(:extent).new(extent).to_hash
@@ -167,17 +150,11 @@ class AspaceSimpleBulkEditHandler
       date_str += ", end: #{date['end']}" if date['end']
       date_str += ", expression: #{date['expression']})" if date['expression']
       
-      # only check dates if we are actually updating or creating a new one
-      unless date["date_type"] == "none"
-        invalids = JSONModel::Validations.check_date(date)
-        unless (invalids.nil? || invalids.empty?)
-          err_msg = ""
-          invalids.each do |inv|
-            err_msg << " #{inv[0]}: #{inv[1]}"
-          end
-          @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_date", :what => err_msg, :date_str => date_str, :title => ao_json['title'])
-          return ao_json
-        end
+      invalids = JSONModel::Validations.check_date(date)
+      unless invalids.empty?
+        err_msg = invalids.map { |inv| " #{inv[0]}: #{inv[1]}" }.join
+        @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_date", :what => err_msg, :date_str => date_str, :title => ao_json['title'])
+        return ao_json
       end
       if date["date_type"] == "single" && !date["end"].nil?
         @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.warn.single_date_end", :date_str => date_str, :title => ao_json['title'])
@@ -256,20 +233,14 @@ class AspaceSimpleBulkEditHandler
 
   # shorthand for creating a mixed materials, folder instance hash
   def simple_bulk_edit_create_container_instance
-    instance = nil
-    begin
-      sc = {'top_container' => {'ref' => @tc_uri}, 'jsonmodeltype' => 'sub_container'}
-      unless @indicator_2.nil? || @type_2 == "none"
-        sc["type_2"] = @type_2
-        sc["indicator_2"] = @indicator_2
-      end
-      instance = JSONModel(:instance).new._always_valid!
-      instance.instance_type = @instance_type
-      instance.sub_container = JSONModel(:sub_container).from_hash(sc)
-    rescue Exception => e
-      msg = e.message #+ "\n" + e.backtrace()[0]
-      raise Exception.new(msg)
+    sc = {'top_container' => {'ref' => @tc_uri}, 'jsonmodeltype' => 'sub_container'}
+    unless @indicator_2.nil? || @type_2 == "none"
+      sc["type_2"] = @type_2
+      sc["indicator_2"] = @indicator_2
     end
+    instance = JSONModel(:instance).new._always_valid!
+    instance.instance_type = @instance_type
+    instance.sub_container = JSONModel(:sub_container).from_hash(sc)
     instance.to_hash
   end
   

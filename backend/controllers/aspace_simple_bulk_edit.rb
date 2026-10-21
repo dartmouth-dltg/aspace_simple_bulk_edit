@@ -7,7 +7,7 @@ class ArchivesSpaceService < Sinatra::Base
   .params(["repo_id", :repo_id],
           ["uri", [String], "The uris of the records to update"])
   .permissions([:update_resource_record])
-  .returns([200, "[(:dartmouth_bulk_container_update_item)]"]) \
+  .returns([200, "[(:aspace_simple_bulk_edit_item)]"]) \
   do
     bulk_updates = AspaceSimpleBulkEditItems.new(params[:uri])
 
@@ -15,9 +15,9 @@ class ArchivesSpaceService < Sinatra::Base
   end
   
   Endpoint.post('/plugins/aspace_simple_bulk_edit/repositories/:repo_id/update')
-  .description("Return resolved JSON of the records to update")
+  .description("Update the selected archival objects (and descendant top containers)")
   .params(["repo_id", :repo_id],
-          ["uri", [String], "The uris of the records to update"]
+          ["uri", [String], "JSON strings of the edits to apply to each archival object"]
           )
   .permissions([:update_resource_record])
   .returns([200, :updated]) \

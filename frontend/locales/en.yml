@@ -6,11 +6,9 @@ en:
     clear_selection_button: Clear all items
     danger: Something went wrong with the update.
     fill_child_indicators: Fill
-    is_empty: There are no archival obejcts selected.
+    is_empty: There are no archival objects selected.
     loading: Loading the archival objects to update...
-    preview: Preview Updates
     success: All archival objects have been updated. Please close this window to refresh the page.
-    success_with_issues: "All archival objects have been updated, though the following issues were encountered:<br /> %{content}"
     title: Simple Bulk Edit
     update: Update
     use_global: Use global top container
@@ -22,7 +20,6 @@ en:
     
     warn:
       single_date_end: "Single date %{date_str} for %{title} has end date that will be ignored."
-      no_title: "New title is empty for %{title}. Keeping original title."
     
     summary:
       add_dates: Add a Date to all
@@ -38,17 +35,17 @@ en:
       date_begin: Begin
       date_end: End
       date_expression: Expression
+      date_label: Date Label
+      date_type: Date Type
       extent_container_summary: Container Summary
       extent_number: Number
       extent_portion: Portion
       extent_type: Extent Type
       extents: Extents
       indicator: Indicator
-      link_to_container: Link to Existing Container
       new_container: Link to/Create new Container
       remove_date: Remove this Date
       remove_extent: Remove this extent
       title: Title
       type: Type
-      uri: URI
       

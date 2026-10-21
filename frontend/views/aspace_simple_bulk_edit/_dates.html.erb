@@ -8,11 +8,11 @@
   >
     <button class="btn btn-warning btn-sm remove-date" data-date-index="<%=date_idx%>"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_date") %></button>
     <div class="form-group aspace-simple-bulk-edit-date-label">
-      <label for="aspace_simple_bulk_edit_date_label_select_<%= ao_id %>_<%= date_idx %>">Date Label</label>
+      <label for="aspace_simple_bulk_edit_date_label_select_<%= ao_id %>_<%= date_idx %>"><%= I18n.t("aspace_simple_bulk_edit.summary.date_label") %></label>
       <%= select_tag "aspace_simple_bulk_edit_date_label_select_#{ao_id}_#{date_idx}", options_for_select(date_labels, date['label']), :required => true, "data-ao-date-label" => ao_id, :class => "form-control"  %>
     </div>
     <div class="form-group aspace-simple-bulk-edit-date-type">
-      <label for="aspace_simple_bulk_edit_date_type_select_<%= ao_id %>_<%= date_idx %>">Date Type</label>
+      <label for="aspace_simple_bulk_edit_date_type_select_<%= ao_id %>_<%= date_idx %>"><%= I18n.t("aspace_simple_bulk_edit.summary.date_type") %></label>
       <%= select_tag "aspace_simple_bulk_edit_date_type_select_#{ao_id}_#{date_idx}", options_for_select(date_types, date['date_type']), :required => true, "data-ao-date-type" => ao_id, :class => "form-control"  %>
     </div>
 
@@ -32,7 +32,7 @@
     <div class="aspace-simple-bulk-edit-date-end" <% if date['date_type'] == 'single'%>style="display:none;"<% end %>>
       <div class="form-group date">
         <label for="ao_end_date_<%= ao_id %>_<%= date_idx %>"><%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %></label>
-        <input id="ao_end_date_<%= ao_id %>_<%= date_idx %>" type="text" value="<%= date['end'] rescue '' %>" name="ao_end_date_<%= ao_id %>" class="date-field form-control" data-ao-date-end="<%= ao_id %>" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false"data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %>" />
+        <input id="ao_end_date_<%= ao_id %>_<%= date_idx %>" type="text" value="<%= date['end'] rescue '' %>" name="ao_end_date_<%= ao_id %>" class="date-field form-control" data-ao-date-end="<%= ao_id %>" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false" data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %>" />
       </div>
     </div>
     <input type="hidden" data-ao-date-certainty="<%= ao_id %>" id="ao_date_certainty_<%= ao_id %>_<%= date_idx %>" value="<%= date['certainty'] %>" />

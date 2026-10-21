@@ -7,7 +7,7 @@
 
 <% if current_repo %>
   <script>
-    $().ready(() => {
+    $(() => {
       const simpleBulkEditActions = new SimpleBulkEdit(`<%= current_repo.uri %>`);
       simpleBulkEditActions.init();
     });

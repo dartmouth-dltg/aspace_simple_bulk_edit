@@ -6,12 +6,12 @@
   >
     <button class="btn btn-warning btn-sm remove-extent" data-extent-index="_extent_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_extent") %></button>
     <div class="form-group aspace-simple-bulk-edit-extent-type">
-      <label for="aspace_simple_bulk_edit_extent_type_select_%AO_ID%__extent_index_">Extent Type</label>
+      <label for="aspace_simple_bulk_edit_extent_type_select_%AO_ID%__extent_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.extent_type") %></label>
       <%= select_tag "aspace_simple_bulk_edit_extent_type_select_%AO_ID%__extent_index_", options_for_select(extent_types, "none"), :required => true, "data-ao-extent-type" => "%AO_ID%", :class => "form-control" %>
     </div>
 
     <div class="form-group aspace-simple-bulk-edit-extent-portion">
-      <label for="aspace_simple_bulk_edit_extent_portion_select_%AO_ID%__extent_index_">Extent Portion</label>
+      <label for="aspace_simple_bulk_edit_extent_portion_select_%AO_ID%__extent_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.extent_portion") %></label>
       <%= select_tag "aspace_simple_bulk_edit_extent_portion_select_%AO_ID%__extent_index_", options_for_select(extent_portions, "none"), :required => true, "data-ao-extent-portion" => "%AO_ID%", :class => "form-control" %>
     </div>
     
@@ -28,7 +28,7 @@
         <textarea rows="2" id="ao_extent_container_summary_%AO_ID%__extent_index_" type="text" name="ao_extent_container_summary_%AO_ID%__extent_index_" class="form-control" data-ao-extent-container-summary="%AO_ID%"></textarea>
       </div>
     </div>
-    <input type="hidden" data-ao-extent-physical-details="%AO_ID%" id="ao_extent_physical_details_%AO_ID%__extent_index_"value="" />
+    <input type="hidden" data-ao-extent-physical-details="%AO_ID%" id="ao_extent_physical_details_%AO_ID%__extent_index_" value="" />
     <input type="hidden" data-ao-extent-dimensions="%AO_ID%" id="ao_extent_dimensions_%AO_ID%__extent_index_" value="" />
   </div>
 </div>
