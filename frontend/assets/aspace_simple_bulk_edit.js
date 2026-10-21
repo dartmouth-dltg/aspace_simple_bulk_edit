@@ -9,7 +9,7 @@ class SimpleBulkEdit {
     this.simpleBulkEditBtnArr = {
       label: 'Simple Bulk Edit <span class="caret"></span>',
       cssClasses: 'btn-default dropdown-toggle simple-bulk-edit',
-      groupClasses: 'dropdown',
+      groupCssClasses: 'dropdown',
       onRender: function(btn, node, tree, toolbarRenderer) {
         const $options = $('<ul>').addClass('dropdown-menu ');
         const $liEnable = $('<li>');
@@ -120,7 +120,7 @@ class SimpleBulkEdit {
     const $treeContainer = $('#tree-container');
     let itemsToUpdate = $treeContainer.find('.multiselected-row');
     itemsToUpdate = itemsToUpdate.sort(function(a, b){
-      return ($(b).find('.drag-annotation').text()) < ($(a).find('.drag-annotation').text()) ? 1 : -1;
+      return parseInt($(a).find('.drag-annotation').text(), 10) - parseInt($(b).find('.drag-annotation').text(), 10);
     });
     itemsToUpdate.each(function() {
       uris.push(`${self.repoUri}/archival_objects/${$(this).attr('id').split("_").pop()}`);
@@ -249,8 +249,8 @@ class SimpleBulkEdit {
   
   // fill the child indicators
   fillIndicators($container) {
-    if (!isNaN($container.find('#child_ind_start').val())) {
-      startIndicator = parseInt($container.find('#child_ind_start').val());
+    const startIndicator = parseInt($container.find('#child_ind_start').val(), 10);
+    if (!isNaN(startIndicator)) {
       // fill the indicators in order
       $container.find('.aspace-simple-bulk-edit-child-indicator').each(function(index, v) {
         const newIndicator = index + startIndicator;
@@ -304,7 +304,12 @@ class SimpleBulkEdit {
       $.post(simpleBulkEditsOptions.loadUri, {uri: JSON.stringify(simpleBulkEditsOptions.aos.reverse())}, function(json) {
         if (Object.keys(json).length > 0) {
           if (json.issues.length > 0) {
-            $container.find('.modal-body').prepend(`<div class="alert alert-warning alert-dismissible fade in" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><p>${json.issues}</p></div>`);
+            // issues include record titles, so add them as text, not html
+            const $alert = $('<div class="alert alert-warning alert-dismissible fade show" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+            json.issues.forEach(function(issue) {
+              $alert.append($('<p>').text(issue));
+            });
+            $container.find('.modal-body').prepend($alert);
           }
           else {
             self.simpleBulkEditsAlert($container, "success");
@@ -356,8 +361,13 @@ class SimpleBulkEdit {
   }
   
   validDate(str) {
-    const m = str.split("-").toString();
-    return (m) ? new Date(m) : null;
+    // YYYY, YYYY-MM or YYYY-MM-DD, with a real month and day
+    const m = /^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$/.exec(str);
+    if (!m) return null;
+    const month = m[2] ? parseInt(m[2], 10) : 1;
+    const day = m[3] ? parseInt(m[3], 10) : 1;
+    const d = new Date(Date.UTC(parseInt(m[1], 10), month - 1, day));
+    return (d.getUTCMonth() === month - 1 && d.getUTCDate() === day) ? d : null;
   }
   
   // validate each entry
@@ -392,18 +402,20 @@ class SimpleBulkEdit {
       if (v.extents.length === 0) {
         extDiv.removeClass('bg-danger');
       }
+      const extDivs = extDiv.children(`.aspace-simple-bulk-edit-summary-extent-${v.id}`).not('.extent-type-new');
       v.extents.forEach((extent, idx) => {
+        const thisExt = extDivs.eq(idx);
         // extents - must have type, portion, and number
         if (extent.extent_type !== "none") {
           extDiv.removeClass('bg-danger');
-          const extNumber = extDiv.find(`input[data-ao-extent-number="${v.id}"]`);
+          const extNumber = thisExt.find(`input[data-ao-extent-number="${v.id}"]`);
           if (extent.number.length == 0) {
             valid = false;
             extNumber.addClass('bg-danger');
           } else {
             extNumber.removeClass('bg-danger');
           }
-          const extPortion =  extDiv.find(`select[data-ao-extent-portion="${v.id}"]`)
+          const extPortion = thisExt.find(`select[data-ao-extent-portion="${v.id}"]`);
           if (extent.portion == "none") {
             valid = false;
             extPortion.addClass('bg-danger');
@@ -431,7 +443,7 @@ class SimpleBulkEdit {
           if (date.end.length > 0) {
             if (!self.validDate(date.end)) {
               valid = false;
-              $dateDiv.find(`input[data-ao-date-end="${v.id}"]`).addClass('bg-danger');
+              dateDiv.find(`input[data-ao-date-end="${v.id}"]`).addClass('bg-danger');
             }
           }
           
@@ -443,9 +455,10 @@ class SimpleBulkEdit {
           
           // begin date must be before end date
           if (date.begin.length > 0 && date.end.length > 0) {
-            var begin = new Date(date.begin.split("-").toString());
-            var end = new Date(date.end.split("-").toString());
-            if (begin > end) {
+            // same leniency as the backend: end '2000' is fine for begin '2000-05'
+            const begin = self.validDate(date.begin);
+            const end = self.validDate(date.end);
+            if (begin && end && end < begin && !date.begin.startsWith(date.end)) {
               valid = false;
               dateDiv.addClass('bg-danger');
             }
@@ -461,7 +474,7 @@ class SimpleBulkEdit {
         }
       }
 
-      if (v.tc_uri == '' && $container.find('#aspace-simple-bulk-edit-use-global-tc').not(':checked')) {
+      if (v.tc_uri == '' && !$container.find('#aspace-simple-bulk-edit-use-global-tc').is(':checked')) {
         if (v.child_indicator.length > 0 || v.child_type != 'none' || v.instance_type != 'none') {
           valid = false
           if (v.child_indicator.length > 0 || v.child_type != 'none') {
