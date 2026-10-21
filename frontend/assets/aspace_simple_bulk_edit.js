@@ -541,29 +541,26 @@ class SimpleBulkEdit {
     });
   }
 
-  addElement(el, type) {
-    const lastType = el.parent().children('div:visible').last();
+  // add a date or extent to one ao's cell, built from the single shared template
+  addTemplateTo($cell, aoId, type) {
+    const lastType = $cell.children('div').last();
     const nextIdx = lastType.length > 0 ? lastType.data(`${type}-index`) + 1 : 0;
-    const template = $(`#simple-bulk-edit-${type}s-template`).clone();
-    const replaceKey = `_${type}_index_`;
+    const html = $(`#simple-bulk-edit-${type}s-template`).html()
+      .replaceAll('%AO_ID%', aoId)
+      .replaceAll(`_${type}_index_`, nextIdx)
+      .replaceAll(` ${type}-type-new`, '')
+      .replaceAll(` ${type}-template`, '');
 
     if (lastType.length > 0) {
-      lastType.
-        after(
-          template.html()
-          .replaceAll(replaceKey, nextIdx)
-          .replaceAll(` ${type}-type-new`, '')
-          .replaceAll(` ${type}-template`, '')
-        );    
+      lastType.after(html);
     } else {
-      el
-        .before(
-          template.html()
-          .replaceAll(replaceKey, nextIdx)
-          .replaceAll(` ${type}-type-new`, '')
-          .replaceAll(`${type}-template`, '')
-        );
+      $cell.prepend(html);
     }
+  }
+
+  addElement(el, type) {
+    const aoId = el.data('ao-id');
+    this.addTemplateTo($(`.aspace-simple-bulk-edit-summary-${type}s-${aoId}`), aoId, type);
   }
 
   // remove an element
@@ -571,29 +568,12 @@ class SimpleBulkEdit {
     el.parent().remove();
   }
 
+  // add a date or extent to every ao
   addRepeatElement(type) {
-    const lastType = $(`[class^="aspace-simple-bulk-edit-summary-${type}s-"]`).children('div:visible').last();
-    const nextIdx = lastType.length > 0 ? lastType.data(`${type}-index`) + 1 : 0;
-    const template = $(`#simple-bulk-edit-${type}s-template`).clone();
-    const replaceKey = `_${type}_index_`;
-
-    if (lastType.length > 0) {
-      lastType.
-        after(
-          template.html()
-          .replaceAll(replaceKey, nextIdx)
-          .replaceAll(` ${type}-type-new`, '')
-          .replaceAll(`${type}-template`, '')
-        );
-    } else {
-      $(`[class^="aspace-simple-bulk-edit-summary-${type}s-"]`)
-        .append(
-          template.html()
-          .replaceAll(replaceKey, nextIdx)
-          .replaceAll(` ${type}-type-new`, '')
-          .replaceAll(`${type}-template`, '')
-        );
-    }
+    const self = this;
+    $(`[class^="aspace-simple-bulk-edit-summary-${type}s-"]`).each(function() {
+      self.addTemplateTo($(this), $(this).find(`.add-single-${type}`).data('ao-id'), type);
+    });
   }
   
   // events in the modal - the good stuff
