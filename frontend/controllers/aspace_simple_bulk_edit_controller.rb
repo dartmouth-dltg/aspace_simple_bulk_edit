@@ -16,10 +16,10 @@ class AspaceSimpleBulkEditController < ApplicationController
     uris = ASUtils.as_array(params[:uri])
 
     if uris.empty?
-      @dartmouth_bulk_container_update_items = []
+      @bulk_edit_items = []
     else
       response = JSONModel::HTTP.post_form("/plugins/aspace_simple_bulk_edit/repositories/#{session[:repo_id]}/summary", "uri[]" => uris)
-      @dartmouth_bulk_container_update_items = ASUtils.json_parse(response.body)
+      @bulk_edit_items = ASUtils.json_parse(response.body)
       
       # get the date type enumeration values
       @date_types = JSONModel::HTTP.get_json("/config/enumerations/names/date_type")

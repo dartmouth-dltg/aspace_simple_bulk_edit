@@ -7,12 +7,12 @@
     <button class="btn btn-warning btn-sm remove-date" data-date-index="_date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_date") %></button>
     
     <div class="form-group aspace-simple-bulk-edit-date-label">
-      <label for="aspace_simple_bulk_edit_date_label_select_%AO_ID%__date_index_">Date Label</label>
+      <label for="aspace_simple_bulk_edit_date_label_select_%AO_ID%__date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.date_label") %></label>
       <%= select_tag "aspace_simple_bulk_edit_date_label_select_%AO_ID%__date_index_", options_for_select(date_labels, "none"), :required => true, "data-ao-date-label" => "%AO_ID%", :class => "form-control"  %>
     </div>
     
     <div class="form-group aspace-simple-bulk-edit-date-type">
-      <label for="aspace_simple_bulk_edit_date_type_select_%AO_ID%__date_index_">Date Type</label>
+      <label for="aspace_simple_bulk_edit_date_type_select_%AO_ID%__date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.date_type") %></label>
       <%= select_tag "aspace_simple_bulk_edit_date_type_select_%AO_ID%__date_index_", options_for_select(date_types, "none"), :required => true, "data-ao-date-type" => "%AO_ID%", :class => "form-control"  %>
     </div>
 
@@ -33,7 +33,7 @@
     <div class="aspace-simple-bulk-edit-date-end">
       <div class="form-group date">
         <label for="ao_end_date_%AO_ID%__date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %></label>
-        <input id="ao_end_date_%AO_ID%__date_index_" type="text" value="" name="ao_end_date_%AO_ID%__date_index_" class="date-field form-control date-template" data-ao-date-end="%AO_ID%" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false"data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %>" />
+        <input id="ao_end_date_%AO_ID%__date_index_" type="text" value="" name="ao_end_date_%AO_ID%__date_index_" class="date-field form-control date-template" data-ao-date-end="%AO_ID%" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false" data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %>" />
       </div>
     </div>
     <input type="hidden" data-ao-date-certainty="%AO_ID%" id="ao_date_certainty_%AO_ID%__date_index_" value="" />

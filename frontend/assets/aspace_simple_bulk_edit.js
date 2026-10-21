@@ -39,11 +39,10 @@ class SimpleBulkEdit {
           }
           
           // prevent click on tree if enabled
-          $(tree.large_tree.elt).on('click', 'a.record-title', function(e){
+          $(tree.large_tree.elt).off('click.simpleBulkEdit').on('click.simpleBulkEdit', 'a.record-title', function(e){
             if ($(tree.large_tree.elt).hasClass('drag-enabled')) {
               e.preventDefault();
             }
-            else {}
           });
         });
         $options.on('click', '.simple-bulk-edit-open', function() {
@@ -51,11 +50,6 @@ class SimpleBulkEdit {
         });
         
         btn.attr('data-toggle', 'dropdown');
-      },
-      onClick: function(event, btn, node, tree, toolbarRenderer) {
-      },
-      isEnabled: function(node, tree, toolbarRenderer) {
-          return true;
       },
       isVisible: function(node, tree, toolbarRenderer) {
           return !tree.large_tree.read_only;
@@ -127,11 +121,6 @@ class SimpleBulkEdit {
     });
     return uris;
   }
-  
-  // get the resource uri
-  getResourceUri() {
-    return `${this.repoUri}/resources/${$('#tree-container').find('tr.root-row').attr('id').split("_").pop()}`;
-  };
   
   // get global top container uri
   findGlobalTcUri($container) {
@@ -276,7 +265,9 @@ class SimpleBulkEdit {
       $container.find('.input-group.date').datepicker({
         format: "yyyy-mm-dd"
       });
-      self.bindSummaryEvents($container);
+      // events are delegated from the modal, so only the new inputs need setup
+      self.initDatePicker();
+      $(window).trigger("resize");
       
       if (onComplete) {
         onComplete();
@@ -303,7 +294,7 @@ class SimpleBulkEdit {
 
       $.post(simpleBulkEditsOptions.loadUri, {uri: JSON.stringify(simpleBulkEditsOptions.aos.reverse())}, function(json) {
         if (Object.keys(json).length > 0) {
-          if (json.issues.length > 0) {
+          if (json.issues && json.issues.length > 0) {
             // issues include record titles, so add them as text, not html
             const $alert = $('<div class="alert alert-warning alert-dismissible fade show" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
             json.issues.forEach(function(issue) {
@@ -320,6 +311,8 @@ class SimpleBulkEdit {
         if (onComplete) {
           onComplete();
         }
+      }).fail(function() {
+        self.simpleBulkEditsAlert($container, "danger");
       });
     }
     else {
@@ -386,6 +379,10 @@ class SimpleBulkEdit {
       valid = false;
     }
     
+    if (options.aos.length === 0) {
+      valid = false;
+    }
+
     // check each ao data set - specifically the title and dates
     // aos are structured like
     // {loadUri: loadUri,
@@ -398,16 +395,13 @@ class SimpleBulkEdit {
         valid = false;
       }
 
+      // an extent with no type is removed by the backend, so only check the rest
       const extDiv = $container.find(`.aspace-simple-bulk-edit-summary-extents-${v.id}`);
-      if (v.extents.length === 0) {
-        extDiv.removeClass('bg-danger');
-      }
       const extDivs = extDiv.children(`.aspace-simple-bulk-edit-summary-extent-${v.id}`).not('.extent-type-new');
       v.extents.forEach((extent, idx) => {
         const thisExt = extDivs.eq(idx);
-        // extents - must have type, portion, and number
+        // extents - must have portion and number
         if (extent.extent_type !== "none") {
-          extDiv.removeClass('bg-danger');
           const extNumber = thisExt.find(`input[data-ao-extent-number="${v.id}"]`);
           if (extent.number.length == 0) {
             valid = false;
@@ -422,9 +416,6 @@ class SimpleBulkEdit {
           } else {
             extPortion.removeClass('bg-danger');
           }
-        } else {
-          valid = false;
-          extDiv.addClass('bg-danger');
         }
       });
 
@@ -508,8 +499,6 @@ class SimpleBulkEdit {
   }
 
   initDatePicker() {
-    $.fn.combobox.defaults.template =
-      '<div class="combobox-container input-group"><input type="hidden" /><input type="text" autocomplete="off"/><span class="input-group-btn btn dropdown-toggle" data-dropdown="dropdown"><span class="caret"/><span class="combobox-clear"><span class="icon-remove"></span></span></span></div>';
     $('.date-field:not(.initialised):not(.date-template)', '#aspace_simple_bulk_edit_form').each(function () {
       const $dateInput = $(this);
 
@@ -720,15 +709,15 @@ class SimpleBulkEdit {
         event.preventDefault();
         event.stopPropagation();
   
-        var $btn = $(event.target).closest(".btn");
-        var $tr = $btn.closest("tr");
+        const $btn = $(event.target).closest(".btn");
+        const $tr = $btn.closest("tr");
         $tr.remove();
       }).
       // clear everything
       on("click", ".clear-bulk-updates-btn", function(event) {
         event.preventDefault();
         event.stopPropagation();
-        $(this).find('#bulkUpdatePane').children('tbody tr').remove();
+        $container.find('#bulkUpdatePane tbody tr').remove();
       }).
       // fill
       on('click', '#aspace-simple-edit-fill-indicators', function(event) {
