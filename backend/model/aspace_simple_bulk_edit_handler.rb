@@ -5,12 +5,10 @@ class AspaceSimpleBulkEditHandler
   
   attr_accessor :aspace_simple_bulk_edit_errors, :aspace_simple_bulk_edit_complete
   
-  def initialize(ao, repo)
+  def initialize(repo)
     @aspace_simple_bulk_edit_complete = []
     @aspace_simple_bulk_edit_errors = []
     @repo_id = repo
-
-    start_update(ao)
   end
   
   def start_update(ao)
@@ -44,8 +42,8 @@ class AspaceSimpleBulkEditHandler
       extent['number'] = ext['number'] unless ext['number'].empty?
       extent['container_summary'] = ext['container_summary'] unless ext['container_summary'].empty?
       extent['portion'] = ext['portion'] unless ext['portion'].empty?
-      extent['physical_details'] = ext['physical_details'] unless ext['physical_details']
-      extent['dimensions'] = ext['dimensions'] unless ext['dimensions']
+      extent['physical_details'] = ext['physical_details'] unless ext['physical_details'].to_s.empty?
+      extent['dimensions'] = ext['dimensions'] unless ext['dimensions'].to_s.empty?
       extents << extent unless extent.empty?
     end
 
@@ -123,7 +121,7 @@ class AspaceSimpleBulkEditHandler
   end
 
   def update_extents_for_ao(ao_json, extents)
-    ao_json['extents'] = []
+    new_extents = []
 
     extents.each do |extent|
       # remove the extent if there is no type
@@ -144,16 +142,16 @@ class AspaceSimpleBulkEditHandler
         end
       end
 
-      # or update or create 
-      ao_json["extents"] << JSONModel(:extent).new(extent).to_hash
+      new_extents << JSONModel(:extent).new(extent).to_hash
     end
-    
+
+    ao_json['extents'] = new_extents
     ao_json
   end
   
   # see archivesspace/backend/app/lib/bulk_import/bulk_import_mixins.rb
   def update_dates_for_ao(ao_json, dates)
-    ao_json['dates'] = []
+    new_dates = []
 
     dates.each do |date|
 
@@ -185,10 +183,10 @@ class AspaceSimpleBulkEditHandler
         return ao_json
       end
       
-      # or update or create  
-      ao_json["dates"] << JSONModel(:date).new(date).to_hash
+      new_dates << JSONModel(:date).new(date).to_hash
     end
 
+    ao_json['dates'] = new_dates
     ao_json
   end
 

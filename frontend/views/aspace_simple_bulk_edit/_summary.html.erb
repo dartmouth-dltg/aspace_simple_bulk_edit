@@ -143,7 +143,7 @@
               :ao_ref => ao_ref,
               :ao_id => ao_id
               } %>
-              <button class="btn btn-secondary btn-sm add-single-date"><%= I18n.t("aspace_simple_bulk_edit.summary.add_single_date") %></button>
+              <button class="btn btn-secondary btn-sm add-single-date" data-ao-id="<%= ao_id %>"><%= I18n.t("aspace_simple_bulk_edit.summary.add_single_date") %></button>
           </td>
           <td class="aspace-simple-bulk-edit-summary-extents-<%= ao_id %>">
             <%= render_aspace_partial :partial => "aspace_simple_bulk_edit/extents", :locals => {
@@ -154,7 +154,7 @@
               :ao_ref => ao_ref,
               :ao_id => ao_id
               } %>
-              <button class="btn btn-secondary btn-sm add-single-extent"><%= I18n.t("aspace_simple_bulk_edit.summary.add_single_extent") %></button>
+              <button class="btn btn-secondary btn-sm add-single-extent" data-ao-id="<%= ao_id %>"><%= I18n.t("aspace_simple_bulk_edit.summary.add_single_extent") %></button>
           </td>
           <td class="aspace-simple-bulk-edit-summary-new-container">
             <div class="aspace-simple-bulk-edit-current-container">
@@ -222,4 +222,6 @@
       <% end %>
     </tbody>
   </table>
+  <%= render_aspace_partial :partial => "aspace_simple_bulk_edit/date_template", :locals => {:date_types => date_types, :date_labels => date_labels} %>
+  <%= render_aspace_partial :partial => "aspace_simple_bulk_edit/extent_template", :locals => {:extent_types => extent_types, :extent_portions => extent_portions} %>
 <% end %>

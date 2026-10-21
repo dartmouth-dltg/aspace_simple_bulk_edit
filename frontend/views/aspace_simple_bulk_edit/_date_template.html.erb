@@ -1,0 +1,43 @@
+<div id="simple-bulk-edit-dates-template">
+  <div 
+    class="aspace-simple-bulk-edit-summary-date-%AO_ID% date-type-new"
+    data-date-index="_date_index_"
+    data-ao-id="%AO_ID%"
+  >
+    <button class="btn btn-warning btn-sm remove-date" data-date-index="_date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.remove_date") %></button>
+    
+    <div class="form-group aspace-simple-bulk-edit-date-label">
+      <label for="aspace_simple_bulk_edit_date_label_select_%AO_ID%__date_index_">Date Label</label>
+      <%= select_tag "aspace_simple_bulk_edit_date_label_select_%AO_ID%__date_index_", options_for_select(date_labels, "none"), :required => true, "data-ao-date-label" => "%AO_ID%", :class => "form-control"  %>
+    </div>
+    
+    <div class="form-group aspace-simple-bulk-edit-date-type">
+      <label for="aspace_simple_bulk_edit_date_type_select_%AO_ID%__date_index_">Date Type</label>
+      <%= select_tag "aspace_simple_bulk_edit_date_type_select_%AO_ID%__date_index_", options_for_select(date_types, "none"), :required => true, "data-ao-date-type" => "%AO_ID%", :class => "form-control"  %>
+    </div>
+
+    <div class="aspace-simple-bulk-edit-date-expression">
+      <div class="form-group">
+        <label for="ao_expression_date_%AO_ID%__date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.date_expression") %></label>
+        <textarea rows="2" id="ao_expression_date_%AO_ID%__date_index_" type="text" name="ao_expression_date_%AO_ID%__date_index_" class="form-control" data-ao-date-exp="%AO_ID%" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false"></textarea>
+      </div>
+    </div>
+
+    <div class="aspace-simple-bulk-edit-date-begin">
+      <div class="form-group date">
+        <label for="ao_begin_date_%AO_ID%__date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.date_begin") %></label>
+        <input id="ao_begin_date_%AO_ID%__date_index_" type="text" value="" name="ao_begin_date_%AO_ID%__date_index_" class="date-field form-control date-template" data-ao-date-begin="%AO_ID%"  data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false" data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_begin") %>" />
+      </div>
+    </div>
+
+    <div class="aspace-simple-bulk-edit-date-end">
+      <div class="form-group date">
+        <label for="ao_end_date_%AO_ID%__date_index_"><%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %></label>
+        <input id="ao_end_date_%AO_ID%__date_index_" type="text" value="" name="ao_end_date_%AO_ID%__date_index_" class="date-field form-control date-template" data-ao-date-end="%AO_ID%" data-format="yyyy-mm-dd" data-date="<%= Date.today %>" data-autoclose="true" data-force-parse="false"data-label="<%= I18n.t("aspace_simple_bulk_edit.summary.date_end") %>" />
+      </div>
+    </div>
+    <input type="hidden" data-ao-date-certainty="%AO_ID%" id="ao_date_certainty_%AO_ID%__date_index_" value="" />
+    <input type="hidden" data-ao-date-era="%AO_ID%" id="ao_date_era_%AO_ID%__date_index_" value="" />
+    <input type="hidden" data-ao-date-calendar="%AO_ID%" id="ao_date_calendar_%AO_ID%__date_index_" value="" />
+  </div>
+</div>
