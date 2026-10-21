@@ -80,8 +80,9 @@ class AspaceSimpleBulkEditHandler
       ao.update_from_json(JSONModel(:archival_object).from_hash(ao_json))
       @aspace_simple_bulk_edit_complete << id
 
-      # update any descendants
-      update_ao_descendants(id, ao_json)
+      # update any descendants - only the root of a selection cascades, since
+      # get_ao_descendants already collects the whole subtree
+      update_ao_descendants(id, ao_json) if parent_json.nil?
     end
     
   end
@@ -190,21 +191,23 @@ class AspaceSimpleBulkEditHandler
     ao_json
   end
 
-  def merge_instances(inst, parent_inst)
-    if inst['sub_container'].has_key?("top_container") && parent_inst['sub_container'].has_key?("top_container")
+  def inherit_top_container(ao_json, parent_json)
+    parent_inst = parent_json['instances'].find { |i| i.has_key?("sub_container") }
+    inst = ao_json['instances'].find { |i| i.has_key?("sub_container") }
+
+    if parent_inst && inst && parent_inst['sub_container']['top_container'] && inst['sub_container']['top_container']
       inst['sub_container']['top_container']['ref'] = parent_inst['sub_container']['top_container']['ref']
     end
 
-    inst
+    ao_json
   end
 
-  
   # see archivesspace/backend/app/lib/bulk_import/container_instance_handler.rb
   def update_container_instance(ao_json, parent_json = nil)
-    
-    unless parent_json.nil?
-      parent_inst = parent_json['instances'].find{ |i| i.has_key?("sub_container")}
-    end
+
+    # descendants only inherit the top container; their own type, indicator and
+    # instance are left alone
+    return inherit_top_container(ao_json, parent_json) unless parent_json.nil?
 
     inst = ao_json['instances'].find{ |i| i.has_key?("sub_container")}
 
@@ -243,10 +246,6 @@ class AspaceSimpleBulkEditHandler
           inst['sub_container']['type_2'] = @type_2
         end
 
-        unless parent_json.nil?
-          inst = merge_instances(inst, parent_inst)
-        end
-      
         # add it back in
         ao_json['instances'] << inst
       end

@@ -16,7 +16,7 @@ class AspaceSimpleBulkEditController < ApplicationController
     uris = ASUtils.as_array(params[:uri])
 
     if uris.empty?
-      @bulk_instance_items = []
+      @dartmouth_bulk_container_update_items = []
     else
       response = JSONModel::HTTP.post_form("/plugins/aspace_simple_bulk_edit/repositories/#{session[:repo_id]}/summary", "uri[]" => uris)
       @dartmouth_bulk_container_update_items = ASUtils.json_parse(response.body)

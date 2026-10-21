@@ -53,7 +53,7 @@
         </th>
         <th><%= I18n.t("aspace_simple_bulk_edit.summary.container_and_instance") %><button id="global-tc-toggle" class="btn btn-sm"><%= I18n.t("aspace_simple_bulk_edit.summary.options") %></button>
           <div id="bulkUpdateContainerTypeahead" class="row">
-            <div class="controls col-sm-11 col-sm-offset-1 well">
+            <div class="controls col-sm-11 offset-sm-1 card card-body">
               <p><%= I18n.t("aspace_simple_bulk_edit.choose_top_container") %><button id="global-tc-explain-toggle" class="btn btn-xs"></button></p>
               <div id="global-tc-explain">
                 <%= I18n.t("aspace_simple_bulk_edit.choose_top_container_explain") %>
@@ -86,7 +86,7 @@
         </th>
         <th><%= I18n.t("aspace_simple_bulk_edit.summary.child_indicator") %><button id="child-fill-toggle" class="btn btn-sm"><%= I18n.t("aspace_simple_bulk_edit.summary.options") %></button>
           <div id="child-ind-fill" class="row">
-            <div class="col-sm-11 col-sm-offset-1 well">
+            <div class="col-sm-11 offset-sm-1 card card-body">
               <p><%= I18n.t("aspace_simple_bulk_edit.choose_child_indicator_start") %></p>
               <div class="input-group">
                 <input type="number" id="child_ind_start" name="child_ind_start">
@@ -213,7 +213,7 @@
           <td class="aspace-simple-bulk-edit-summary-actions">
             <%= hidden_field_tag "uri_#{ao_ref}", ao_ref, "data-ao-id" => ao_id %>
             <div class="btn-group">
-              <button class="btn btn-xs btn-warning remove-from-bulk-updates-btn" data-uri="<%= ao_ref %>">
+              <button class="btn btn-sm btn-warning remove-from-bulk-updates-btn" data-uri="<%= ao_ref %>">
                 <span class="glyphicon glyphicon-remove"></span>
               </button>
             </div>
