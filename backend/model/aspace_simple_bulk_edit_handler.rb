@@ -20,7 +20,8 @@ class AspaceSimpleBulkEditHandler
     @tc_uri = ao['tc_uri'].empty? ? "" : ao['tc_uri']
     
     ao_id = JSONModel.parse_reference(ao['uri'])[:id]
-    title = ao['title'].nil? ? nil : ao['title']
+    # a blank title would fail validation, so keep the existing one
+    title = ao['title'].to_s.strip.empty? ? nil : ao['title']
     
     # empty values are dropped in update_dates_for_ao
     dates = ao['dates']
@@ -100,7 +101,7 @@ class AspaceSimpleBulkEditHandler
     fields = ["extent_type", "portion", "number"]
 
     fields.each do |field|
-      if !hash.has_key?(field) || hash[field].empty?
+      if hash[field].to_s.empty? || hash[field] == "none"
         errors << [field, "you must provide an extent type, portion and number"]
       end
     end
