@@ -8,6 +8,7 @@ en:
     fill_child_indicators: Fill
     is_empty: There are no archival objects selected.
     loading: Loading the archival objects to update...
+    skipped: "Only file, item and box level archival objects can be edited. These selected records will not be changed:"
     success: All archival objects have been updated. Please close this window to refresh the page.
     title: Simple Bulk Edit
     update: Update

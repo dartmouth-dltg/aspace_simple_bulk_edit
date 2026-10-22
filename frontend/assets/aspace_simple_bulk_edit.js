@@ -290,7 +290,8 @@ class SimpleBulkEdit {
     const simpleBulkEditsOptions = this.updateSimpleBulkEditsOptions($container);
 
     if (this.validate($container, simpleBulkEditsOptions)) {
-      $container.find('.alert').remove();
+      // only the result alerts, not the skipped records notice in the pane
+      $container.find('.modal-body > .alert').remove();
 
       $.post(simpleBulkEditsOptions.loadUri, {uri: JSON.stringify(simpleBulkEditsOptions.aos.reverse())}, function(json) {
         if (Object.keys(json).length > 0) {
@@ -346,8 +347,9 @@ class SimpleBulkEdit {
     const alertTemplate = AS.renderTemplate("template_aspace_simple_bulk_edit_alert", {
         alert_type: alertType,
       });
-    if ($container.find('div.alert').length > 0) {
-      $container.find('div.alert').replaceWith(alertTemplate);
+    const $existing = $container.find('.modal-body > div.alert');
+    if ($existing.length > 0) {
+      $existing.replaceWith(alertTemplate);
     } else {
       $container.find('.modal-body').prepend(alertTemplate);
     }
