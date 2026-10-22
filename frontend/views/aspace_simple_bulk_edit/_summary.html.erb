@@ -39,8 +39,22 @@
     end
     
     @resource_uri = @bulk_edit_items.first["archival_object"]["_resolved"]['resource']['ref']
-    
+
+    editable_items, skipped_items = @bulk_edit_items.partition do |ao|
+      item = ao["archival_object"]["_resolved"]
+      ["file", "item"].include?(item["level"]) || (item["level"] == "otherlevel" && item["other_level"].to_s.downcase == "box")
+    end
   %>
+  <% unless skipped_items.empty? %>
+    <div class="alert alert-warning aspace-simple-bulk-edit-skipped">
+      <p><%= I18n.t("aspace_simple_bulk_edit.skipped") %></p>
+      <ul>
+        <% skipped_items.each do |ao| %>
+          <li><%= ao["archival_object"]["_resolved"]["display_string"] || ao["archival_object"]["_resolved"]["title"] %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
   <table class="table table-striped table-bordered">
     <thead>
       <tr>
@@ -100,14 +114,10 @@
     </thead>
     <tbody>
       <% 
-        @bulk_edit_items.each_with_index do |ao, index|
+        editable_items.each_with_index do |ao, index|
           ao_ref = ao["selected"]["ref"]
           ao_id = ao_ref.split("/").last
           item = ao["archival_object"]["_resolved"]
-          next if !["file","item","otherlevel"].include?(item["level"])
-          if item['level'] == 'otherlevel' 
-            next unless item['other_level'].downcase == 'box'
-          end
           # containers - assumes only *one* phyical container
           inst = item["instances"].find{|instance| instance.has_key?("sub_container")}
           if inst.nil?
