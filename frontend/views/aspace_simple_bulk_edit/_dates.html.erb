@@ -13,7 +13,8 @@
     </div>
     <div class="form-group aspace-simple-bulk-edit-date-type">
       <label for="aspace_simple_bulk_edit_date_type_select_<%= ao_id %>_<%= date_idx %>"><%= I18n.t("aspace_simple_bulk_edit.summary.date_type") %></label>
-      <%= select_tag "aspace_simple_bulk_edit_date_type_select_#{ao_id}_#{date_idx}", options_for_select(date_types, date['date_type']), :required => true, "data-ao-date-type" => ao_id, :class => "form-control"  %>
+      <%# 'range' isn't offered, so show it as 'inclusive' rather than blank (which deletes the date) %>
+      <%= select_tag "aspace_simple_bulk_edit_date_type_select_#{ao_id}_#{date_idx}", options_for_select(date_types, date['date_type'] == 'range' ? 'inclusive' : date['date_type']), :required => true, "data-ao-date-type" => ao_id, :class => "form-control"  %>
     </div>
 
     <div class="aspace-simple-bulk-edit-date-expression">
