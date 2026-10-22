@@ -5,10 +5,11 @@ class AspaceSimpleBulkEditHandler
   
   attr_accessor :aspace_simple_bulk_edit_errors, :aspace_simple_bulk_edit_complete
   
-  def initialize(repo)
+  def initialize(repo, selected_uris = [])
     @aspace_simple_bulk_edit_complete = []
     @aspace_simple_bulk_edit_errors = []
     @repo_id = repo
+    @selected_uris = selected_uris
   end
   
   def start_update(ao)
@@ -149,17 +150,20 @@ class AspaceSimpleBulkEditHandler
       date_str = "(Date: type:#{date['date_type']}, label: #{date['label']})"
       date_str += ", begin: #{date['begin']}" if date['begin']
       date_str += ", end: #{date['end']}" if date['end']
-      date_str += ", expression: #{date['expression']})" if date['expression']
-      
+      date_str += ", expression: #{date['expression']}" if date['expression']
+      date_str += ")"
+
       invalids = JSONModel::Validations.check_date(date)
       unless invalids.empty?
         err_msg = invalids.map { |inv| " #{inv[0]}: #{inv[1]}" }.join
         @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.error.invalid_date", :what => err_msg, :date_str => date_str, :title => ao_json['title'])
         return ao_json
       end
+      # the end field is hidden for single dates, so drop it rather than
+      # rejecting every date edit on this record
       if date["date_type"] == "single" && !date["end"].nil?
         @aspace_simple_bulk_edit_errors << I18n.t("aspace_simple_bulk_edit.warn.single_date_end", :date_str => date_str, :title => ao_json['title'])
-        return ao_json
+        date.delete("end")
       end
       
       new_dates << JSONModel(:date).new(date).to_hash
@@ -254,6 +258,9 @@ class AspaceSimpleBulkEditHandler
     grand_children = ao.children.map {|child| ArchivalObject.to_jsonmodel(child)}
     if not grand_children.empty?
       grand_children.each do |descendant|
+        # a selected descendant has its own edits and cascades to its own
+        # subtree, so the parent's top container must not overwrite it
+        next if @selected_uris.include?(descendant["uri"])
         descendants.push(descendant["uri"])
         get_ao_descendants(descendant["uri"].split('/').last, descendants)
       end
