@@ -18,15 +18,14 @@ including an entry such as:
      AppConfig[:plugins] = ['local', 'other_plugins', 'aspace_simple_bulk_edit']
      
 ## Using the Plugin
-The plugin adds a new button to the tree toolbar that allows a user to multiselect a set of
-archival objects (much like in Reorder mode) and then apply edits to those objects. Since the 
-plugin selection mechanism works on the same principle as Reorder mode, a selected archival object's
-children cannot be selected themselves.
+The plugin adds a `Simple Bulk Edit` button to the tree toolbar on resource edit pages. It uses
+the tree's own multi-selection, so a selected archival object's children cannot be selected
+themselves.
 
-The button in the tree toolbar has two options: enable and update. Selecting enable allows
-the user to select a set of archival objects in any order. Once the user has selected a set
-of archival objects, the user then chooses update from the toolbar `Simple Bulk Edit`
-button menu.
+In ArchivesSpace 5.0 and later, turn on `Enable Reorder Mode`, then Cmd/Ctrl-click or Shift-click the
+archival objects to edit. The `Simple Bulk Edit` button becomes active while reorder mode is on;
+click it to open the editor for the selected objects. The toolbar button is for 5.0 and later only: it relies on the 5.0 infinite tree, and 4.x
+needs the earlier version of this plugin (a menu with `Enable` and `Update` options).
 
 ![aspace_simple_bulk_edit_toolbar.png](images/aspace_simple_bulk_edit_toolbar.png)
 

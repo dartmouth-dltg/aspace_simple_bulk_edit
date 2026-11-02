@@ -67,13 +67,6 @@ div[class^="aspace-simple-bulk-edit-summary-extent"]:nth-of-type(2n) {
     font-weight: bold;
 }
 
-.simple-bulk-edit-enable.simple-bulk-edit-enabled::before {
-    float: right;
-    color: green;
-    content: "\e013";
-    font-family: "Glyphicons Halflings";
-}
-
 .aspace-simple-bulk-edit-summary-title input {
     width: 100%;
 }

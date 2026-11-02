@@ -4,124 +4,88 @@ class SimpleBulkEdit {
     this.repoUri = repoUri;
   } 
 
+  // add a button to core's infinite tree toolbar. Selection comes from core's
+  // reorder mode (Cmd/Ctrl-click and Shift-click), which core publishes as a
+  // comma separated list of uris in data-selection-uris
   init() {
-    const self = this;
-    this.simpleBulkEditBtnArr = {
-      label: 'Simple Bulk Edit <span class="caret"></span>',
-      cssClasses: 'btn-default dropdown-toggle simple-bulk-edit',
-      groupCssClasses: 'dropdown',
-      onRender: function(btn, node, tree, toolbarRenderer) {
-        const $options = $('<ul>').addClass('dropdown-menu ');
-        const $liEnable = $('<li>');
-        $liEnable.append($('<a>').attr('href', 'javascript:void(0);').
-                            addClass('simple-bulk-edit-enable dropdown-item').
-                            text('Enable'));
-        $options.append($liEnable);
-        const $liUpdate = $('<li>');
-        $liUpdate.append($('<a>').attr('href', 'javascript:void(0);').
-                            addClass('simple-bulk-edit-open dropdown-item').
-                            text('Update'));
-        $options.append($liUpdate);
-        $options.appendTo(btn.closest('.btn-group'));
-        $options.on('click', '.simple-bulk-edit-enable', function() {
-          $(tree.large_tree.elt).toggleClass('drag-enabled');
-          $(this).toggleClass('simple-bulk-edit-enabled');
-          // hide other edit options, including reorder since that can conflict
-          $(this).closest('.btn-group').siblings().toggle();
-  
-          // hide other buttons
-          if ($(tree.large_tree.elt).hasClass('drag-enabled')) {
-            $('.btn:not(.simple-bulk-edit)',toolbarRenderer.container).hide();
-          } else {
-            $('.btn:not(.simple-bulk-edit)',toolbarRenderer.container).show();
-            $('.cut-selection,.paste-selection,.move-node', toolbarRenderer.container).hide();
-            $(btn).blur();
-          }
-          
-          // prevent click on tree if enabled
-          $(tree.large_tree.elt).off('click.simpleBulkEdit').on('click.simpleBulkEdit', 'a.record-title', function(e){
-            if ($(tree.large_tree.elt).hasClass('drag-enabled')) {
-              e.preventDefault();
-            }
-          });
-        });
-        $options.on('click', '.simple-bulk-edit-open', function() {
-          self.setupSimpleBulkEditsEvents();
-        });
-        
-        btn.attr('data-toggle', 'dropdown');
-      },
-      isVisible: function(node, tree, toolbarRenderer) {
-          return !tree.large_tree.read_only;
-      },
-      onFormChanged: function(btn, form, tree, toolbarRenderer) {
-        $(btn).removeClass('disabled');
-        if ($(tree.large_tree.elt).is('.drag-enabled')) {
-          tree.ajax_tree.blockout_form();
-        }
-      },
-      onFormLoaded: function(btn, form, tree, toolbarRenderer) {
-        $(btn).removeClass('disabled');
-        if ($(tree.large_tree.elt).is('.drag-enabled')) {
-          tree.ajax_tree.blockout_form();
-        }
-      },
-      onToolbarRendered: function(btn, toolbarRenderer) {
-          $(btn).addClass('disabled');
-          $(btn).closest('#tree-container').removeClass('drag-enabled');
-      },
-    };
+    const component = document.getElementById('infinite-tree-component');
+    const toolbar = document.getElementById('infinite-tree-toolbar');
+    const treeContainer = document.getElementById('infinite-tree-container');
 
-    if (typeof(TreeToolbarConfiguration) !== 'undefined') {
-      const res = TreeToolbarConfiguration["resource"];
-      const arch = TreeToolbarConfiguration["archival_object"];
-      TreeToolbarConfiguration["resource"] = [].concat(res).concat([this.simpleBulkEditBtnArr]);
-      TreeToolbarConfiguration["archival_object"] = [].concat(arch).concat([this.simpleBulkEditBtnArr]);
-    }
-  }
-  
-  
-  // setup and render the modal
-  setupSimpleBulkEditsEvents() {
-    if (!$('#tree-container').hasClass('drag-enabled')) {
-      alert("Please select 'Enable' to simple bulk edit.");
-    }
-    else {
-      const data = this.urisToUpdate();
-      const $modal = AS.openCustomModal("quickModal",
-        AS.renderTemplate("template_aspace_simple_bulk_edit_dialog_title"),
-        AS.renderTemplate("modal_quick_template", {
-          message: AS.renderTemplate("template_aspace_simple_bulk_edit_dialog_contents", {
-            selected: data,
-          })
-        }),
-        "full");
-  
-      if ($modal.has("#bulkUpdatePane")) {
-        this.loadSimpleBulkEdits($("#bulkUpdatePane"),data);
-      }
-  
-      $modal.find(".modal-footer").replaceWith(AS.renderTemplate("template_aspace_simple_bulk_edit_dialog_footer"));
-  
-      this.bindSummaryEvents($modal);
-    }
-  }
-  
-  // get the uris to update
-  urisToUpdate() {
+    // the toolbar is only rendered when the tree is editable
+    if (!component || !toolbar || !treeContainer) return;
+    if (component.getAttribute('data-record-type') !== 'resource') return;
+    if (toolbar.querySelector('.js-simple-bulk-edit')) return;
+
     const self = this;
-    const uris = [];
-    const $treeContainer = $('#tree-container');
-    let itemsToUpdate = $treeContainer.find('.multiselected-row');
-    itemsToUpdate = itemsToUpdate.sort(function(a, b){
-      return parseInt($(a).find('.drag-annotation').text(), 10) - parseInt($(b).find('.drag-annotation').text(), 10);
+    const $group = $('<div>', {
+      'class': 'btn-group infinite-tree-toolbar__group ml-2',
+      role: 'group',
+      'aria-label': 'Simple Bulk Edit',
     });
-    itemsToUpdate.each(function() {
-      uris.push(`${self.repoUri}/archival_objects/${$(this).attr('id').split("_").pop()}`);
+    const $btn = $('<button>', {
+      type: 'button',
+      'class': 'btn btn-sm btn-default infinite-tree-toolbar__btn simple-bulk-edit js-simple-bulk-edit',
+      text: 'Simple Bulk Edit',
+      title: "Enable reorder mode, then Cmd/Ctrl-click or Shift-click records to select them",
+    }).appendTo($group);
+
+    const finish = toolbar.querySelector('.js-itree-toolbar-finish-editing');
+    if (finish) {
+      $group.insertBefore(finish);
+    } else {
+      $group.appendTo(toolbar);
+    }
+
+    $btn.on('click', function() {
+      if (!$btn.hasClass('disabled')) self.setupSimpleBulkEditsEvents(treeContainer);
     });
-    return uris;
+
+    // selection only works in reorder mode
+    const reorderToggle = toolbar.querySelector('.js-itree-toolbar-reorder-toggle');
+    const setEnabled = (enabled) => {
+      $btn.toggleClass('disabled', !enabled).attr('aria-disabled', enabled ? 'false' : 'true');
+    };
+    setEnabled(reorderToggle && reorderToggle.classList.contains('active'));
+    treeContainer.addEventListener('infiniteTreeToolbar:reorderModeChanged', function(event) {
+      setEnabled(!!event.detail.enabled);
+    });
   }
-  
+
+
+  // setup and render the modal
+  setupSimpleBulkEditsEvents(treeContainer) {
+    const data = this.urisToUpdate(treeContainer);
+    if (data.length === 0) {
+      alert("Please select one or more archival objects (Cmd/Ctrl-click or Shift-click) in reorder mode to simple bulk edit.");
+      return;
+    }
+
+    const $modal = AS.openCustomModal("quickModal",
+      AS.renderTemplate("template_aspace_simple_bulk_edit_dialog_title"),
+      AS.renderTemplate("modal_quick_template", {
+        message: AS.renderTemplate("template_aspace_simple_bulk_edit_dialog_contents", {
+          selected: data,
+        })
+      }),
+      "full");
+
+    if ($modal.has("#bulkUpdatePane")) {
+      this.loadSimpleBulkEdits($("#bulkUpdatePane"),data);
+    }
+
+    $modal.find(".modal-footer").replaceWith(AS.renderTemplate("template_aspace_simple_bulk_edit_dialog_footer"));
+
+    this.bindSummaryEvents($modal);
+  }
+
+  // get the uris to update, in selection order. The backend updates the
+  // descendants of each selected record, so only explicit selections are sent
+  urisToUpdate(treeContainer) {
+    const attr = treeContainer.getAttribute('data-selection-uris') || '';
+    return attr.split(',').filter(uri => /\/archival_objects\/\d+$/.test(uri));
+  }
+
   // get global top container uri
   findGlobalTcUri($container) {
     return $container.find('#bulkUpdateContainerTypeahead').find('input[name="archival_record_children[children][0][instances][0][sub_container][top_container][ref]"]').val();
@@ -732,7 +696,6 @@ class SimpleBulkEdit {
         event.preventDefault();
         event.stopPropagation();
         $container.modal('toggle');
-        $container.parent().find('#tree-container').removeClass('drag-enabled');
         window.location.reload();
       }).
       // update
