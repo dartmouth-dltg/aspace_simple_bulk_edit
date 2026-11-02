@@ -1,9 +1,6 @@
 <!-- simple bulk edit -->
-<%= stylesheet_link_tag "#{AppConfig[:frontend_proxy_prefix]}assets/#{AppConfig[:aspace_simple_bulk_edit_precompile_assets_filename]}.css" %>
-<%#= stylesheet_link_tag "#{AppConfig[:frontend_proxy_prefix]}assets/aspace_simple_bulk_edit.css" %>
-
-<%= javascript_include_tag "#{AppConfig[:frontend_proxy_prefix]}assets/#{AppConfig[:aspace_simple_bulk_edit_precompile_assets_filename]}.js" %>
-<%#= javascript_include_tag "#{AppConfig[:frontend_proxy_prefix]}assets/aspace_simple_bulk_edit.js" %>
+<%= stylesheet_link_tag "#{AppConfig[:frontend_proxy_prefix]}assets/aspace_simple_bulk_edit.css?v=#{AppConfig[:aspace_simple_bulk_edit_asset_version]}" %>
+<%= javascript_include_tag "#{AppConfig[:frontend_proxy_prefix]}assets/aspace_simple_bulk_edit.js?v=#{AppConfig[:aspace_simple_bulk_edit_asset_version]}" %>
 
 <% if current_repo %>
   <script>
